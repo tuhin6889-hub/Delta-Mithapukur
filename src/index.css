@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Light Theme Global & Component Overrides */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+html.light header#app-header {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: #e2e8f0;
+}
+
+html.light .bg-slate-950 {
+  background-color: #f8fafc;
+}
+
+html.light .bg-slate-950\/90,
+html.light .bg-slate-950\/95,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/60 {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+html.light .bg-slate-900,
+html.light .bg-slate-900\/95,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40 {
+  background-color: #ffffff;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-700 {
+  border-color: #cbd5e1;
+}
+
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200 {
+  color: #0f172a;
+}
+
+html.light .text-slate-300,
+html.light .text-slate-400 {
+  color: #334155;
+}
+
+html.light .text-slate-500 {
+  color: #64748b;
+}
+
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Custom Marquee & Slow Spin Animations */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+/* Preserve contrast for special colored badges and gradient overlays */
+html.light .bg-blue-950\/20,
+html.light .bg-blue-950\/30,
+html.light .bg-blue-950\/40 {
+  background-color: #eff6ff;
+}
+
+html.light .bg-emerald-950\/30 {
+  background-color: #ecfdf5;
+}

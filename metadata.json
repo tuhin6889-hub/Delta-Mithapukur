@@ -1,0 +1,8 @@
+{
+  "name": "Remix Delta Mithapukur",
+  "description": "High-speed fiber broadband and ISP services in Mithapukur, Rangpur Division, Bangladesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
