@@ -1,4 +1,7 @@
 import { Plan, CoverageLocation } from '../types';
+import managerAvatar from '../assets/images/regenerated_image_1786009739201.jpg';
+import supportManagerAvatar from '../assets/images/support_manager_avatar_1786007253596.jpg';
+import marketingOfficerAvatar from '../assets/images/marketing_officer_avatar_1786007271529.jpg';
 
 export const PLANS: Plan[] = [
   {
@@ -67,6 +70,9 @@ export const BRANCH_INFO = {
   email: 'sminternet.wifi@gmail.com',
   linkedin: 'https://linkedin.com/in/mahamudul-hasan-delta',
   facebook: 'https://facebook.com/mahamudul.hasan.delta',
+  messengerLink: 'https://m.me/mahamudul.hasan.delta',
+  facebookPageLink: 'https://facebook.com/mahamudul.hasan.delta',
+  facebookPageName: 'Delta Internet Mithapukur',
   telegramNumber: '01719394430',
   telegramDirectLink: 'https://t.me/+8801719394430',
   telegramBotUsername: '@DeltaMithapukurBot',
@@ -75,3 +81,94 @@ export const BRANCH_INFO = {
   address: 'Boldipukur Bazaar Akmal Market, Mithapukur, Rangpur - 5460, Bangladesh',
   hours: 'Sat - Thu: 8:00 AM - 10:00 PM | Fri: 24/7 Support Line',
 };
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  phone: string;
+  status: string;
+  badge: string;
+  image?: string;
+  description: string;
+}
+
+export const OUR_TEAM: TeamMember[] = [
+  {
+    id: 'team-1',
+    name: 'Mahamudul Hasan',
+    role: 'Branch Manager',
+    department: 'Branch Operations & Strategic Leadership',
+    phone: '0171-9394430',
+    status: 'Online & Available',
+    badge: 'Branch Executive Lead',
+    image: managerAvatar,
+    description: 'Leading Delta Mithapukur branch operations, corporate fiber line deployment, and overall customer satisfaction across Mithapukur Upazila.',
+  },
+  {
+    id: 'team-sm',
+    name: 'MD. Jion Hasan',
+    role: 'Support Manager',
+    department: 'Customer Care & Helpdesk Operations',
+    phone: '01944455176',
+    whatsapp: '01944455176',
+    status: '24/7 Desk Active',
+    badge: 'Support Manager Lead',
+    image: supportManagerAvatar,
+    description: 'Managing 24/7 technical helpdesk, customer query resolutions, and ticket dispatch for Delta Mithapukur Branch.',
+  },
+  {
+    id: 'team-mo',
+    name: 'Habibur Rahman',
+    role: 'Marketing Officer',
+    department: 'Corporate Outreach & Broadband Marketing',
+    phone: '01944455176',
+    whatsapp: '01944455176',
+    status: 'Field Outreach',
+    badge: 'Marketing Lead',
+    image: marketingOfficerAvatar,
+    description: 'Promoting high-speed optical fiber packages, student connection deals, and corporate line connections across Mithapukur unions.',
+  },
+  {
+    id: 'team-2',
+    name: 'Sharif Hossain',
+    role: 'Senior NOC Engineer',
+    department: 'Network Operations & OLT Maintenance',
+    phone: '01712-001122',
+    status: 'Active NOC Desk',
+    badge: 'MikroTik & Fiber Specialist',
+    description: 'Managing central BDIX routing, bandwidth distribution, OLT optical power monitoring, and server infrastructure.',
+  },
+  {
+    id: 'team-3',
+    name: 'Akmal Hossain',
+    role: 'Chief Fiber Splicer & Field Lead',
+    department: 'Optical Cable Splicing & Maintenance',
+    phone: '01819-887766',
+    status: 'Field Active',
+    badge: 'Akmal Market Hub Splicer',
+    description: 'Specializing in fusion splicing, optical OTDR testing, and immediate fiber breakage repair across Boldipukur & Sadar areas.',
+  },
+  {
+    id: 'team-4',
+    name: 'Rafiqul Islam',
+    role: 'Customer Care & Billing Lead',
+    department: 'bKash Auto Renewal & Support',
+    phone: '01912-334455',
+    status: 'Support Desk Active',
+    badge: 'Client Satisfaction Lead',
+    description: 'Handling client CID account verification, bKash auto-renewal setup, tariff billing, and phone support.',
+  },
+  {
+    id: 'team-5',
+    name: 'Mithapukur Rapid Lineman Squad',
+    role: '24/7 Emergency Line Response',
+    department: 'Field On-Call Support',
+    phone: '0171-9394430',
+    status: '24/7 Standby',
+    badge: 'Emergency Response Squad',
+    description: 'Dedicated 24/7 rapid response unit for red light (LOS) blinking fixes, pole fiber drops, and router setup.',
+  },
+];
+

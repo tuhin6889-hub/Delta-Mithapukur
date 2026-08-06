@@ -1,10 +1,64 @@
 import React from 'react';
-import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail } from 'lucide-react';
+import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle } from 'lucide-react';
 import { ImageSideshow } from './ImageSideshow';
-import { BRANCH_INFO } from '../data/plans';
-import branchManagerPhoto from '../assets/images/branch_manager_photo_1785230421070.jpg';
+import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
+import branchManagerPhoto from '../assets/images/regenerated_image_1786009739201.jpg';
 
 export const Services: React.FC = () => {
+  const branchManager = OUR_TEAM.find(t => t.id === 'team-1') || {
+    name: BRANCH_INFO.manager,
+    role: BRANCH_INFO.designation,
+    phone: BRANCH_INFO.phone,
+    image: branchManagerPhoto,
+    badge: 'Branch Executive Lead',
+    description: 'Leading Delta Mithapukur branch operations & corporate fiber deployment.'
+  };
+
+  const supportManager = OUR_TEAM.find(t => t.id === 'team-sm') || {
+    name: 'MD. Jion Hasan',
+    role: 'Support Manager',
+    phone: '01944455176',
+    whatsapp: '01944455176',
+    badge: '24/7 Support Lead',
+    description: 'Managing 24/7 technical helpdesk and query resolution.'
+  };
+
+  const marketingOfficer = OUR_TEAM.find(t => t.id === 'team-mo') || {
+    name: 'Habibur Rahman',
+    role: 'Marketing Officer',
+    phone: '01944455176',
+    whatsapp: '01944455176',
+    badge: 'Broadband Outreach',
+    description: 'Promoting optical fiber connection deals and corporate line connections.'
+  };
+
+  const keyPersonnel = [
+    {
+      ...branchManager,
+      badgeColor: 'from-blue-600 to-emerald-600',
+      badgeIcon: ShieldCheck,
+      badgeLabel: 'Branch Manager',
+      borderColor: 'border-emerald-500/40',
+      tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+    },
+    {
+      ...supportManager,
+      badgeColor: 'from-amber-500 to-rose-600',
+      badgeIcon: HelpCircle,
+      badgeLabel: 'Support Manager',
+      borderColor: 'border-amber-500/40',
+      tagColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+    },
+    {
+      ...marketingOfficer,
+      badgeColor: 'from-indigo-600 to-cyan-500',
+      badgeIcon: Megaphone,
+      badgeLabel: 'Marketing Officer',
+      borderColor: 'border-cyan-500/40',
+      tagColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+    }
+  ];
+
   const servicesList = [
     {
       icon: Wifi,
@@ -39,44 +93,88 @@ export const Services: React.FC = () => {
         {/* Animated Image Poster Side Show Carousel */}
         <ImageSideshow />
 
-        {/* Branch Manager Profile Card Positioned Before Comprehensive Internet Services */}
-        <div className="max-w-2xl mx-auto my-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950 border border-blue-500/30 shadow-2xl flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
-          
-          <div className="relative shrink-0">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20 ring-4 ring-emerald-500/10">
-              <img
-                src={branchManagerPhoto}
-                alt="Branch Manager Mahamudul Hasan"
-                className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="absolute -bottom-1.5 -right-1.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white p-1 rounded-full border-2 border-slate-900 shadow-md">
-              <ShieldCheck className="h-4 w-4 text-white" />
-            </div>
+        {/* Branch Key Leadership Cards */}
+        <div className="my-12">
+          <div className="text-center max-w-xl mx-auto mb-8 space-y-1">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+              Delta Mithapukur Branch Team
+            </span>
+            <h3 className="text-2xl font-black text-white tracking-tight">
+              Branch Leadership & Officers
+            </h3>
+            <p className="text-xs text-slate-400">
+              Direct access to key officials managing operations, support, and marketing in Mithapukur.
+            </p>
           </div>
 
-          <div className="text-center sm:text-left space-y-1.5 flex-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-extrabold uppercase tracking-wider">
-              <Award className="h-3.5 w-3.5" />
-              <span>Branch Executive Leadership</span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
-              {BRANCH_INFO.manager}
-            </h3>
-            <p className="text-xs sm:text-sm font-semibold text-blue-400">
-              {BRANCH_INFO.designation} — {BRANCH_INFO.name}
-            </p>
-            <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-slate-300">
-              <a href={`tel:${BRANCH_INFO.phone}`} className="flex items-center gap-1 text-emerald-400 hover:underline font-bold">
-                <Phone className="h-3.5 w-3.5" />
-                <span>{BRANCH_INFO.phone}</span>
-              </a>
-              <a href={`mailto:${BRANCH_INFO.email}`} className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
-                <Mail className="h-3.5 w-3.5 text-indigo-400" />
-                <span>{BRANCH_INFO.email}</span>
-              </a>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {keyPersonnel.map((person, idx) => {
+              const BadgeIcon = person.badgeIcon;
+              return (
+                <div
+                  key={idx}
+                  className={`p-5 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 border ${person.borderColor} shadow-2xl flex flex-col items-center text-center relative overflow-hidden group hover:-translate-y-1 transition-all duration-300`}
+                >
+                  <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
+                  
+                  <div className="relative mb-3">
+                    <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-slate-700/80 shadow-lg ring-4 ring-slate-800/50">
+                      <img
+                        src={person.image}
+                        alt={person.name}
+                        className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className={`absolute -bottom-1.5 -right-1.5 bg-gradient-to-r ${person.badgeColor} text-white p-1 rounded-full border-2 border-slate-900 shadow-md`}>
+                      <BadgeIcon className="h-3.5 w-3.5 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 w-full">
+                    <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold uppercase tracking-wider ${person.tagColor}`}>
+                      <Award className="h-3 w-3" />
+                      <span>{person.badgeLabel}</span>
+                    </div>
+                    <h4 className="text-lg font-black text-white tracking-tight">
+                      {person.name}
+                    </h4>
+                    <p className="text-xs font-bold text-blue-400">
+                      {person.role} — Delta Mithapukur
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-snug pt-1 px-2 line-clamp-2">
+                      {person.description}
+                    </p>
+                    
+                    <div className="pt-3 flex items-center justify-center gap-3 text-xs border-t border-slate-800/80 mt-3">
+                      <a 
+                        href={person.whatsapp ? `https://wa.me/88${person.whatsapp.replace(/[^0-9]/g, '')}` : `tel:${person.phone}`} 
+                        target={person.whatsapp ? "_blank" : undefined}
+                        rel={person.whatsapp ? "noopener noreferrer" : undefined}
+                        className="flex items-center gap-1 text-emerald-400 hover:underline font-bold"
+                        title={person.whatsapp ? "Connect via WhatsApp" : "Call Phone"}
+                      >
+                        {person.whatsapp ? (
+                          <>
+                            <MessageCircle className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400/20" />
+                            <span>WhatsApp: {person.phone}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Phone className="h-3.5 w-3.5" />
+                            <span>{person.phone}</span>
+                          </>
+                        )}
+                      </a>
+                      <a href={`mailto:${BRANCH_INFO.email}`} className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
+                        <Mail className="h-3.5 w-3.5 text-indigo-400" />
+                        <span>Email</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

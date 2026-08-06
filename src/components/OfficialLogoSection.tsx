@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { Logo } from './Logo';
 import deltaLogoImg from '../assets/images/regenerated_image_1785198851415.jpg';
 import branchManagerImg from '../assets/images/branch_manager_photo_1785230421070.jpg';
@@ -23,9 +24,10 @@ import {
   Maximize2,
   X,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Users
 } from 'lucide-react';
-import { BRANCH_INFO } from '../data/plans';
+import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 
 interface ImageCrateItem {
   id: string;
@@ -120,8 +122,8 @@ export const OfficialLogoSection: React.FC = () => {
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <UserCheck className="h-4 w-4" />
-                <span>Branch Manager Photo & Discussion</span>
+                <Users className="h-4 w-4" />
+                <span>Branch Manager & Our Team (আমাদের টিম)</span>
               </button>
               <button
                 onClick={() => setActiveTab('logo')}
@@ -466,6 +468,54 @@ export const OfficialLogoSection: React.FC = () => {
                       <span className="text-slate-200 font-semibold">Instant bKash Bill Processing</span>
                     </div>
                   </div>
+
+                  {/* Our Team Grid Inside Executive Section */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="pt-4 border-t border-slate-800/80 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-purple-400" />
+                        <h4 className="text-sm font-extrabold text-white">Our Team (আমাদের টেকনিক্যাল ও সাপোর্ট টিম)</h4>
+                      </div>
+                      <span className="text-[10px] text-purple-300 font-bold bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                        5 Dedicated Specialists
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                      {OUR_TEAM.map((tm, index) => (
+                        <motion.div 
+                          key={tm.id}
+                          initial={{ opacity: 0, y: 15 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: 0.1 + index * 0.08 }}
+                          className="p-3 bg-slate-950/90 rounded-xl border border-slate-800 hover:border-purple-500/40 transition-colors space-y-1"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-white">{tm.name}</span>
+                            <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono font-semibold">
+                              {tm.status}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-purple-300 font-medium">{tm.role}</p>
+                          <p className="text-[10px] text-slate-400 leading-tight">{tm.description}</p>
+                          <div className="pt-1 flex items-center justify-between text-[10px] border-t border-slate-900">
+                            <span className="text-slate-400 font-mono">{tm.badge}</span>
+                            <a href={`tel:${tm.phone}`} className="text-emerald-400 font-bold hover:underline flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              <span>{tm.phone}</span>
+                            </a>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
 
                   {/* Branch Location Footer Note */}
                   <div className="pt-3 border-t border-slate-800 flex items-start gap-2 text-xs text-slate-400">

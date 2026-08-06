@@ -76,7 +76,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
 
               <a
                 href="#pricing"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-base px-6 py-4 rounded-xl border border-slate-700 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-base px-6 py-4 rounded-xl border border-slate-700 transition-all hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.8)]"
               >
                 {language === 'bn' ? 'প্যাকেজ ও ফি দেখুন' : 'View Packages & Fees'}
               </a>

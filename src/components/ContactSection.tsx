@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { Plan, InquiryFormData } from '../types';
-import { BRANCH_INFO, PLANS } from '../data/plans';
-import { Phone, Mail, MapPin, User, Send, CheckCircle2, Wifi, Clock, Bot, LifeBuoy } from 'lucide-react';
+import { BRANCH_INFO, OUR_TEAM, PLANS } from '../data/plans';
+import { Phone, Mail, MapPin, User, Send, CheckCircle2, Wifi, Clock, Users, Award, ShieldCheck, Loader2 } from 'lucide-react';
 
 interface ContactSectionProps {
   initialPlan?: Plan | null;
@@ -19,6 +20,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialPlan) {
@@ -31,7 +33,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+    }, 700);
   };
 
   return (
@@ -63,19 +69,89 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
               {/* Detail Items */}
               <div className="space-y-4 text-xs sm:text-sm">
                 
-                {/* Manager */}
-                <div className="flex items-start gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400">
-                    <User className="h-5 w-5" />
+                {/* Manager & Our Team Side-by-Side Row Container */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-900/90 rounded-2xl border border-slate-800"
+                >
+                  {/* Branch Manager */}
+                  <div className="flex items-start gap-3 p-2 bg-slate-950/80 rounded-xl border border-blue-500/30">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-blue-400 text-[10px] uppercase tracking-wider font-extrabold block">
+                        Branch Manager
+                      </span>
+                      <span className="text-white font-black text-sm block">{BRANCH_INFO.manager}</span>
+                      <span className="text-slate-400 text-[11px] block">{BRANCH_INFO.designation}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-slate-400 text-[11px] uppercase tracking-wider font-semibold block">
-                      Branch Manager
+
+                  {/* Our Team Row */}
+                  <div className="flex items-start gap-3 p-2 bg-slate-950/80 rounded-xl border border-purple-500/30">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-purple-400 text-[10px] uppercase tracking-wider font-extrabold block">
+                        Our Team (আমাদের টিম)
+                      </span>
+                      <span className="text-white font-black text-sm block">Delta Technical Squad</span>
+                      <span className="text-slate-400 text-[11px] block">5 Dedicated Members</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Our Team Detailed List Block */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                  className="p-3.5 bg-slate-950/90 rounded-2xl border border-purple-500/20 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-purple-300">
+                      <Users className="h-4 w-4 text-purple-400" />
+                      <span>Our Team Members (আমাদের টেকনিক্যাল টিম)</span>
+                    </div>
+                    <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold border border-purple-500/30">
+                      5 Active Members
                     </span>
-                    <span className="text-white font-bold text-base">{BRANCH_INFO.manager}</span>
-                    <span className="text-slate-400 text-xs block">{BRANCH_INFO.designation}</span>
                   </div>
-                </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {OUR_TEAM.map((member, index) => (
+                      <motion.div 
+                        key={member.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
+                        className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 transition-colors space-y-1"
+                      >
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-bold text-white text-xs">{member.name}</span>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-semibold">
+                            {member.status}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-purple-300 font-medium">{member.role}</p>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5 border-t border-slate-800">
+                          <span className="truncate max-w-[130px]">{member.badge}</span>
+                          <a href={`tel:${member.phone}`} className="text-emerald-400 hover:underline font-bold flex items-center gap-0.5">
+                            <Phone className="h-2.5 w-2.5" />
+                            <span>Call</span>
+                          </a>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
 
                 {/* Mobile / Hotline */}
                 <div className="flex items-start gap-3.5">
@@ -136,86 +212,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
                   </div>
                 </div>
 
-                {/* Support Ticket Portal Card */}
-                {onOpenSupportTicket && (
-                  <div className="pt-2 border-t border-slate-800/80">
-                    <div className="bg-gradient-to-r from-rose-950/60 via-slate-900 to-amber-950/60 border border-rose-500/40 p-4 rounded-xl space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-rose-500/20 rounded-lg text-rose-400">
-                            <LifeBuoy className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-white text-xs block">Mithapukur Support Ticket Desk</span>
-                            <span className="text-[10px] text-rose-300 font-bold">24/7 Optical Repair & Billing Ticket</span>
-                          </div>
-                        </div>
-                      </div>
 
-                      <p className="text-[11px] text-slate-300">
-                        Facing line cuts, RED LOS light on ONU, or slow speeds? Submit an official Support Ticket for priority dispatch.
-                      </p>
 
-                      <button
-                        onClick={onOpenSupportTicket}
-                        className="w-full py-2.5 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black text-xs rounded-lg shadow-lg shadow-rose-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
-                      >
-                        <LifeBuoy className="h-4 w-4" />
-                        <span>Create or Track Support Ticket</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
 
-                {/* Telegram Bot & Number Live Chat Card */}
-                <div className="pt-2 border-t border-slate-800/80">
-                  <div className="bg-gradient-to-r from-blue-950/80 to-slate-900 border border-[#26A5E4]/40 p-4 rounded-xl space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-[#26A5E4]/20 rounded-lg text-[#26A5E4]">
-                          <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                            <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="font-bold text-white text-xs block">Telegram Live Chat</span>
-                          <span className="text-[10px] text-emerald-400 font-bold">Number: {BRANCH_INFO.telegramNumber}</span>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-mono text-[#26A5E4] bg-[#26A5E4]/10 px-2 py-0.5 rounded border border-[#26A5E4]/30">
-                        {BRANCH_INFO.telegramBotUsername}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-300">
-                      Message us on Telegram at <strong className="text-white font-mono">{BRANCH_INFO.telegramNumber}</strong> or use our automated Bot for outage logs & bill receipts.
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <a
-                        href={BRANCH_INFO.telegramDirectLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 bg-[#26A5E4] hover:bg-[#2094ce] text-white font-bold text-xs py-2 px-3 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                          <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.016.096.035.313.019.485z"/>
-                        </svg>
-                        <span>Chat Number</span>
-                      </a>
-
-                      <a
-                        href={BRANCH_INFO.telegramBotLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-[#26A5E4]/50 font-bold text-xs py-2 px-3 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Bot className="h-3.5 w-3.5 text-[#26A5E4]" />
-                        <span>Bot Assistant</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
 
               </div>
             </div>
@@ -339,10 +338,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
 
                 <button
                   type="submit"
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-base rounded-xl shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-75 text-white font-bold text-base rounded-xl shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Send className="h-5 w-5" />
-                  Submit Connection Application
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-200" />
+                      <span>Submitting Application...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5" />
+                      <span>Submit Connection Application</span>
+                    </>
+                  )}
                 </button>
               </form>
             ) : (

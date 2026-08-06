@@ -14,9 +14,11 @@ import {
   HelpCircle,
   Minimize2,
   ChevronRight,
-  LifeBuoy
+  LifeBuoy,
+  Loader2
 } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
+import managerAvatar from '../assets/images/regenerated_image_1786005386073.avif';
 
 interface SupportChatWidgetProps {
   onOpenSupportTicket?: () => void;
@@ -39,17 +41,18 @@ const PRESET_QUESTIONS = [
 
 export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupportTicket }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLauncherLoading, setIsLauncherLoading] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(1);
 
-  const [chatMode, setChatMode] = useState<'web' | 'telegram'>('web');
+  const [chatMode, setChatMode] = useState<'web' | 'messenger'>('web');
 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'm-1',
       sender: 'bot',
-      text: 'Assalamu Alaikum! Welcome to Delta Mithapukur Fiber Support Desk. You can chat here or connect directly with our Telegram Live Bot for instant response.',
+      text: 'Assalamu Alaikum! Welcome to Delta Mithapukur Fiber Support Desk. You can chat here or connect directly via Facebook Messenger for instant response.',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -68,8 +71,12 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
   }, [isOpen, messages, isTyping]);
 
   const handleOpenChat = () => {
-    setIsOpen(true);
-    setUnreadCount(0);
+    setIsLauncherLoading(true);
+    setTimeout(() => {
+      setIsLauncherLoading(false);
+      setIsOpen(true);
+      setUnreadCount(0);
+    }, 400);
   };
 
   const generateAutoReply = (userQuery: string) => {
@@ -136,19 +143,35 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="group relative flex items-center gap-2.5 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-blue-600/50 transition-all transform hover:scale-105 active:scale-95 cursor-pointer border border-blue-400/30"
+          disabled={isLauncherLoading}
+          className="group relative flex items-center gap-2.5 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-blue-600/50 transition-all transform hover:scale-105 active:scale-95 cursor-pointer border border-blue-400/30 disabled:opacity-85"
           aria-label="Open Mithapukur Fiber Support Chat"
         >
-          <div className="relative">
-            <MessageSquare className="h-6 w-6 text-white" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border border-white">
-                {unreadCount}
-              </span>
+          <div className="relative flex items-center justify-center">
+            {isLauncherLoading ? (
+              <Loader2 className="h-6 w-6 text-white animate-spin" />
+            ) : (
+              <>
+                <MessageSquare className="h-6 w-6 text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border border-white">
+                    {unreadCount}
+                  </span>
+                )}
+              </>
             )}
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <span className="font-extrabold text-xs tracking-wide">Delta Support Desk</span>
+            <span className="font-extrabold text-xs tracking-wide flex items-center gap-1.5">
+              {isLauncherLoading ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 text-sky-200 animate-spin" />
+                  <span>Connecting Node...</span>
+                </>
+              ) : (
+                'Delta Support Desk'
+              )}
+            </span>
             <span className="text-[10px] text-emerald-200 font-semibold flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Mithapukur Node Active
@@ -166,23 +189,28 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="h-9 w-9 rounded-full bg-blue-600/30 border border-blue-500/40 text-blue-400 flex items-center justify-center font-bold">
-                    {chatMode === 'telegram' ? (
-                      <svg className="h-5 w-5 fill-current text-[#26A5E4]" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
+                  {chatMode === 'messenger' ? (
+                    <div className="h-9 w-9 rounded-full bg-[#0084FF]/20 border border-[#0084FF]/40 text-[#0084FF] flex items-center justify-center font-bold">
+                      <svg className="h-5 w-5 fill-current text-[#0084FF]" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
                       </svg>
-                    ) : (
-                      <Bot className="h-5 w-5" />
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={managerAvatar}
+                      alt="Mahamudul Hasan - Manager"
+                      className="h-9 w-9 rounded-full object-cover border-2 border-blue-400/80 shadow-md ring-2 ring-blue-500/30"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
                 </div>
                 <div>
                   <h4 className="font-bold text-white text-sm">
-                    {chatMode === 'telegram' ? 'Delta Telegram Live Bot' : 'Mithapukur Support Assistant'}
+                    {chatMode === 'messenger' ? 'Delta Facebook Messenger' : 'Mithapukur Support Assistant'}
                   </h4>
                   <p className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-                    <span>{chatMode === 'telegram' ? BRANCH_INFO.telegramBotUsername : '24/7 Fiber Hotline Active'}</span>
+                    <span>{chatMode === 'messenger' ? 'Manager Mahamudul Hasan' : '24/7 Fiber Hotline Active'}</span>
                   </p>
                 </div>
               </div>
@@ -216,19 +244,21 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
                 }`}
               >
                 <Bot className="h-3.5 w-3.5" />
-                <span>Web Chat</span>
+                <span>Live Chat</span>
               </button>
 
               <button
-                onClick={() => setChatMode('telegram')}
+                onClick={() => setChatMode('messenger')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
-                  chatMode === 'telegram'
-                    ? 'bg-[#26A5E4] text-white shadow-md'
+                  chatMode === 'messenger'
+                    ? 'bg-[#0084FF] text-white shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Send className="h-3.5 w-3.5" />
-                <span>Telegram</span>
+                <svg className="h-3.5 w-3.5 fill-current text-white" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
+                </svg>
+                <span>Facebook Messenger</span>
               </button>
 
               {onOpenSupportTicket && (
@@ -247,73 +277,86 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
             </div>
           </div>
 
-          {/* Chat Stream Body / Telegram View */}
-          {chatMode === 'telegram' ? (
+          {/* Chat Stream Body / Facebook Messenger View */}
+          {chatMode === 'messenger' ? (
             <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-950 text-xs flex flex-col justify-between">
               
               <div className="space-y-3">
-                {/* Telegram Bot & Direct Number Header Card */}
-                <div className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-slate-950 p-4 rounded-2xl border border-[#26A5E4]/30 space-y-3 shadow-xl">
+                {/* Facebook Messenger Header Card */}
+                <div className="bg-gradient-to-br from-blue-950/80 via-slate-900 to-slate-950 p-4 rounded-2xl border border-[#0084FF]/30 space-y-3 shadow-xl">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-[#26A5E4]/20 border border-[#26A5E4]/40 rounded-xl text-[#26A5E4] shrink-0">
+                    <div className="p-2.5 bg-[#0084FF]/20 border border-[#0084FF]/40 rounded-xl text-[#0084FF] shrink-0">
                       <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
+                        <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
                       </svg>
                     </div>
                     <div>
-                      <h4 className="font-bold text-white text-sm">Delta Telegram Live Chat</h4>
+                      <h4 className="font-bold text-white text-sm">Delta Facebook Messenger Chat</h4>
                       <div className="flex flex-col gap-0.5 mt-0.5">
                         <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 inline-block w-max">
-                          ● Chat Number: {BRANCH_INFO.telegramNumber}
+                          ● Messenger Lead: Mahamudul Hasan
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <p className="text-slate-300 text-[11px] leading-relaxed">
-                    Chat live on Telegram via Number <strong className="text-white font-mono">{BRANCH_INFO.telegramNumber}</strong> or use our automated Telegram Bot for instant status checks and bill receipts.
+                    Connect directly on Facebook Messenger with Manager Mahamudul Hasan or our Mithapukur Fiber desk for instant help with new connections, bill checks, and fiber line status.
                   </p>
                 </div>
 
-                {/* Instant Direct Chat / Bot Command Shortcuts */}
+                {/* Instant Direct Messenger Options */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-1">
-                    Select Telegram Chat Option:
+                    Select Messenger Chat Option:
                   </span>
 
                   <a
-                    href={BRANCH_INFO.telegramDirectLink}
+                    href={BRANCH_INFO.messengerLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-blue-900/60 to-slate-900 hover:bg-[#26A5E4]/30 border border-blue-500/40 text-slate-100 transition-colors group"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-blue-900/60 to-slate-900 hover:bg-[#0084FF]/30 border border-blue-500/40 text-slate-100 transition-colors group"
                   >
                     <span className="flex items-center gap-2">
-                      <svg className="h-4 w-4 fill-current text-[#26A5E4]" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
+                      <svg className="h-4 w-4 fill-current text-[#0084FF]" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
                       </svg>
-                      <span className="text-xs font-bold text-white">Direct Chat: {BRANCH_INFO.telegramNumber}</span>
+                      <span className="text-xs font-bold text-white">Direct Messenger Chat</span>
                     </span>
                     <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
                   </a>
 
                   <a
-                    href={`${BRANCH_INFO.telegramBotLink}?start=bill_check`}
+                    href={BRANCH_INFO.facebookPageLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#26A5E4]/20 border border-slate-800 hover:border-[#26A5E4]/40 text-slate-200 transition-colors group"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#0084FF]/20 border border-slate-800 hover:border-[#0084FF]/40 text-slate-200 transition-colors group"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-[#26A5E4]">/bill</span>
-                      <span className="text-xs">Check Bill & Instant bKash Pay</span>
+                      <span className="text-xs font-mono font-bold text-[#0084FF]">/facebook</span>
+                      <span className="text-xs">Official Facebook Page</span>
                     </span>
                     <ChevronRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
                   </a>
 
                   <a
-                    href={`${BRANCH_INFO.telegramBotLink}?start=report_los`}
+                    href={`${BRANCH_INFO.messengerLink}?text=Bill%20Check`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#26A5E4]/20 border border-slate-800 hover:border-[#26A5E4]/40 text-slate-200 transition-colors group"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#0084FF]/20 border border-slate-800 hover:border-[#0084FF]/40 text-slate-200 transition-colors group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-amber-400">/bill</span>
+                      <span className="text-xs">Check Bill & Instant bKash Payment</span>
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
+                  </a>
+
+                  <a
+                    href={`${BRANCH_INFO.messengerLink}?text=Report%20Fiber%20Outage`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#0084FF]/20 border border-slate-800 hover:border-[#0084FF]/40 text-slate-200 transition-colors group"
                   >
                     <span className="flex items-center gap-2">
                       <span className="text-xs font-mono font-bold text-rose-400">/los</span>
@@ -323,49 +366,36 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
                   </a>
 
                   <a
-                    href={`${BRANCH_INFO.telegramBotLink}?start=coverage`}
+                    href={`${BRANCH_INFO.messengerLink}?text=Coverage%20Check`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#26A5E4]/20 border border-slate-800 hover:border-[#26A5E4]/40 text-slate-200 transition-colors group"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#0084FF]/20 border border-slate-800 hover:border-[#0084FF]/40 text-slate-200 transition-colors group"
                   >
                     <span className="flex items-center gap-2">
                       <span className="text-xs font-mono font-bold text-emerald-400">/coverage</span>
-                      <span className="text-xs">Verify Union Fiber Line Availability</span>
-                    </span>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
-                  </a>
-
-                  <a
-                    href={`${BRANCH_INFO.telegramBotLink}?start=manager_chat`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-[#26A5E4]/20 border border-slate-800 hover:border-[#26A5E4]/40 text-slate-200 transition-colors group"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-amber-400">/manager</span>
-                      <span className="text-xs">Talk to Manager Mahamudul Hasan</span>
+                      <span className="text-xs">Verify Union Fiber Availability</span>
                     </span>
                     <ChevronRight className="h-3.5 w-3.5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
                   </a>
                 </div>
               </div>
 
-              {/* Telegram Primary Action Launcher */}
+              {/* Messenger Primary Action Launcher */}
               <div className="pt-2 space-y-2">
                 <a
-                  href={BRANCH_INFO.telegramBotLink}
+                  href={BRANCH_INFO.messengerLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-[#26A5E4] hover:bg-[#2094ce] text-white font-extrabold py-3 px-4 rounded-xl shadow-lg shadow-[#26A5E4]/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#0084FF] hover:bg-[#0073E6] text-white font-extrabold py-3 px-4 rounded-xl shadow-lg shadow-[#0084FF]/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
+                    <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
                   </svg>
-                  <span>LAUNCH TELEGRAM LIVE CHAT</span>
+                  <span>LAUNCH FACEBOOK MESSENGER</span>
                 </a>
 
                 <p className="text-[10px] text-center text-slate-500 font-mono">
-                  Bot Username: {BRANCH_INFO.telegramBotUsername}
+                  Facebook: mahamudul.hasan.delta
                 </p>
               </div>
 
@@ -375,19 +405,19 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
               {/* Chat Stream Body */}
               <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-950/80 text-xs">
                 
-                {/* Telegram Callout Banner inside Web Chat */}
-                <div className="p-2.5 bg-gradient-to-r from-blue-950/90 to-slate-900 border border-[#26A5E4]/30 rounded-2xl flex items-center justify-between gap-2">
+                {/* Messenger Callout Banner inside Web Chat */}
+                <div className="p-2.5 bg-gradient-to-r from-blue-950/90 to-slate-900 border border-[#0084FF]/30 rounded-2xl flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <svg className="h-4 w-4 fill-current text-[#26A5E4] shrink-0" viewBox="0 0 24 24">
-                      <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.122.099.155.232.17.327.016.096.035.313.019.485z"/>
+                    <svg className="h-4 w-4 fill-current text-[#0084FF] shrink-0" viewBox="0 0 24 24">
+                      <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.964z"/>
                     </svg>
-                    <span className="text-[11px] text-slate-200">Prefer Telegram?</span>
+                    <span className="text-[11px] text-slate-200">Prefer Facebook Messenger?</span>
                   </div>
                   <button
-                    onClick={() => setChatMode('telegram')}
-                    className="text-[10px] font-bold text-[#26A5E4] hover:underline bg-[#26A5E4]/10 px-2.5 py-1 rounded-lg border border-[#26A5E4]/20 cursor-pointer shrink-0"
+                    onClick={() => setChatMode('messenger')}
+                    className="text-[10px] font-bold text-[#0084FF] hover:underline bg-[#0084FF]/10 px-2.5 py-1 rounded-lg border border-[#0084FF]/20 cursor-pointer shrink-0"
                   >
-                    Open Telegram Bot →
+                    Open Messenger →
                   </button>
                 </div>
 

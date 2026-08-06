@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
-import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy } from 'lucide-react';
+import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { NetworkStatus } from './NetworkStatus';
 import { ThemeToggle } from './ThemeToggle';
@@ -15,7 +15,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showPromoBanner, setShowPromoBanner] = useState(true);
   const [hasPendingAdminResponse, setHasPendingAdminResponse] = useState<boolean>(false);
   const { t } = useLanguage();
 
@@ -82,43 +81,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
   return (
     <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl" id="app-header">
-      
-      {/* Top Slim Promotional Offer Banner */}
-      {showPromoBanner && (
-        <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 text-white py-1.5 px-3 sm:px-6 border-b border-blue-500/40 relative shadow-sm">
-          <div className="mx-auto max-w-7xl flex items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 overflow-hidden mx-auto sm:mx-0">
-              <span className="inline-flex items-center gap-1 bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full tracking-wider shrink-0 shadow-sm">
-                <Sparkles className="h-3 w-3 fill-slate-950" />
-                {t('promo_badge')}
-              </span>
-              <p className="truncate font-medium text-blue-50 text-[11px] sm:text-xs">
-                <strong className="text-white font-bold">{t('promo_title')}</strong> {t('promo_text')}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={onOpenInquiryModal}
-                className="hidden md:inline-flex items-center gap-1 bg-white hover:bg-slate-100 text-blue-900 font-extrabold text-[11px] px-3 py-0.5 rounded-lg transition-all shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <span>{t('claim_offer')}</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-
-              <button
-                onClick={() => setShowPromoBanner(false)}
-                className="p-1 text-blue-200 hover:text-white hover:bg-blue-800/50 rounded-md transition-colors cursor-pointer"
-                aria-label="Dismiss Offer Banner"
-                title="Dismiss Banner"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-4">
           
@@ -134,46 +96,55 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-3 lg:gap-5">
-            <a href="#home" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#home" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_home')}
             </a>
-            <a href="#services" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#services" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_services')}
             </a>
-            <a href="#speed-test" className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+            <a href="#speed-test" className="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-block transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               <Gauge className="h-3.5 w-3.5" />
               {t('nav_speedtest')}
             </a>
-            <a href="#faq" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#faq" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_faq')}
             </a>
-            <a href="#pricing" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#pricing" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_plans')}
             </a>
-            <a href="#coverage" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#coverage" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_coverage')}
             </a>
-            <a href="#referral" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">
+            <a href="#referral" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(52,211,153,0.85)]">
               {t('nav_referral')}
             </a>
-            <a href="#contact" className="text-sm font-semibold text-slate-200 hover:text-blue-400 transition-colors">
+            <a href="#contact" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_contact')}
             </a>
           </nav>
 
-          {/* Hotline, Self Care, Network Status, Theme Toggle & Call to Action */}
-          <div className="hidden lg:flex items-center gap-2.5">
+          {/* Hotline, Self Care, Support Ticket, Network Status & Theme Toggle */}
+          <div className="hidden lg:flex items-center gap-2">
             <div className="xl:hidden">
               <NetworkStatus />
             </div>
 
             <ThemeToggle showLabel={false} />
 
+            <button
+              onClick={onOpenSupportTicket}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-rose-600 via-orange-600 to-rose-700 hover:from-rose-500 hover:to-orange-500 text-white font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-rose-600/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-rose-400/30"
+              title="Delta Mithapukur Support Ticket Portal"
+            >
+              <LifeBuoy className="h-3.5 w-3.5 stroke-[2.5] text-amber-300 animate-spin-slow" />
+              <span>Delta Support Ticket Portal</span>
+            </button>
+
             <a
               href="https://radius.yetfix.com/customer_login"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow-md shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-amber-300/40"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-amber-300/40"
               title="Customer Self Care Portal Login"
             >
               <LogIn className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -181,36 +152,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             </a>
 
             <button
-              onClick={onOpenSupportTicket}
-              className="relative inline-flex items-center gap-1.5 bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-rose-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-rose-400/30"
-              title={hasPendingAdminResponse ? "Pending Admin Response on Support Ticket" : "Submit or Track Support Ticket"}
-            >
-              <LifeBuoy className="h-3.5 w-3.5 stroke-[2.5]" />
-              <span>{t('support_ticket')}</span>
-
-              {hasPendingAdminResponse && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-rose-500 border-2 border-slate-900 shadow-md"></span>
-                </span>
-              )}
-            </button>
-
-            <button
               onClick={onOpenClientPortal}
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-500 hover:to-blue-500 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-md shadow-indigo-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-indigo-400/30"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-500 hover:to-blue-500 text-white font-extrabold text-xs px-3 py-2 rounded-xl shadow-md shadow-indigo-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-indigo-400/30"
               title="Open Delta Client Database & Marketing Portal"
             >
               <UserPlus className="h-3.5 w-3.5 stroke-[2.5]" />
               <span>{t('add_client')}</span>
-            </button>
-
-            <button
-              onClick={onOpenInquiryModal}
-              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-blue-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0"
-            >
-              <Wifi className="h-3.5 w-3.5" />
-              {t('get_connected')}
             </button>
           </div>
 
@@ -218,18 +165,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
           <div className="flex lg:hidden items-center gap-1.5">
             <button
               onClick={onOpenSupportTicket}
-              className="relative flex items-center gap-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white font-extrabold text-xs px-2.5 py-1.5 rounded-lg shadow-md shrink-0 border border-rose-400/30 cursor-pointer"
-              title={hasPendingAdminResponse ? "Pending Admin Response" : "Support Ticket"}
+              className="flex items-center gap-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white font-extrabold text-xs px-2.5 py-1.5 rounded-lg shadow-md shrink-0 border border-rose-400/30"
+              title="Support Ticket Portal"
             >
-              <LifeBuoy className="h-3.5 w-3.5 stroke-[2.5]" />
-              <span className="hidden xs:inline">{t('support_ticket')}</span>
-
-              {hasPendingAdminResponse && (
-                <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 border border-slate-900 shadow-sm"></span>
-                </span>
-              )}
+              <LifeBuoy className="h-3.5 w-3.5 stroke-[2.5] text-amber-300" />
+              <span>Ticket</span>
             </button>
 
             <a
@@ -339,16 +279,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
                 setMobileMenuOpen(false);
                 onOpenSupportTicket?.();
               }}
-              className="relative flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 text-white font-black text-xs rounded-xl shadow-md border border-rose-400/30 cursor-pointer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-rose-600 via-orange-600 to-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md border border-rose-400/30"
             >
-              <LifeBuoy className="h-4 w-4 stroke-[2.5]" />
-              <span>{t('support_ticket')} ({t('create_ticket')} / {t('track_ticket')})</span>
-              {hasPendingAdminResponse && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] bg-amber-400 text-slate-950 font-extrabold rounded-full animate-pulse shadow-sm ml-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-rose-600"></span>
-                  Admin Reply
-                </span>
-              )}
+              <LifeBuoy className="h-4 w-4 stroke-[2.5] text-amber-300" />
+              Delta Support Ticket Portal
             </button>
             <a
               href="https://radius.yetfix.com/customer_login"
