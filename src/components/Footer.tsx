@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Logo } from './Logo';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
-import { Phone, Mail, MapPin, ShieldCheck, Award, ExternalLink, Sparkles, Lock, Gauge, LifeBuoy, FileText, Send, Users } from 'lucide-react';
+import { Phone, Mail, MapPin, ShieldCheck, Award, ExternalLink, Sparkles, Lock, Gauge, LifeBuoy, FileText, Send, Users, Globe } from 'lucide-react';
 import branchManagerImg from '../assets/images/branch_manager_photo_1785230421070.jpg';
 
 export const Footer: React.FC = () => {
@@ -211,6 +211,12 @@ export const Footer: React.FC = () => {
                 <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
                 <a href={`tel:${BRANCH_INFO.phone}`} className="text-emerald-400 font-extrabold hover:underline">
                   {BRANCH_INFO.phone}
+                </a>
+              </p>
+              <p className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-cyan-400 shrink-0" />
+                <a href={BRANCH_INFO.website} target="_blank" rel="noopener noreferrer" className="text-cyan-300 font-extrabold hover:underline truncate">
+                  {BRANCH_INFO.domain}
                 </a>
               </p>
               <p className="flex items-center gap-2">
