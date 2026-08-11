@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
 import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
-import { NetworkStatus } from './NetworkStatus';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,9 +10,10 @@ interface HeaderProps {
   onOpenInquiryModal: () => void;
   onOpenClientPortal?: () => void;
   onOpenSupportTicket?: () => void;
+  onOpenFastLogin?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket, onOpenFastLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasPendingAdminResponse, setHasPendingAdminResponse] = useState<boolean>(false);
   const { t } = useLanguage();
@@ -81,17 +81,79 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
   return (
     <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl" id="app-header">
+      {/* Top Scrolling Promotional Banner */}
+      <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 text-slate-100 border-b border-blue-800/40 py-1.5 px-3 text-xs overflow-hidden relative group shadow-inner">
+        <div className="flex items-center gap-2 max-w-7xl mx-auto">
+          <div className="shrink-0 flex items-center gap-1.5 bg-blue-600 text-white font-bold px-2 py-0.5 rounded text-[11px] uppercase tracking-wider shadow-sm z-10">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin-slow" />
+            <span>MITHAPUKUR OFFER</span>
+          </div>
+
+          <div className="overflow-hidden relative w-full flex items-center">
+            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 group-hover:[animation-play-state:paused] text-xs font-medium text-slate-200">
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">🎉 Special Fiber Offer:</span>
+                <span>50% OFF Fiber Installation Charge across all 17 Unions in Mithapukur Upazila!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-emerald-400 font-bold">🎁 Free Wi-Fi Router:</span>
+                <span>Complimentary Dual-Band Gigabit Router with 20 Mbps & higher packages!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-blue-400 font-bold">⚡ Express 24h Setup:</span>
+                <span>Same-Day Fiber Drop Wire Installation & 24/7 NOC Hotline Support (01712-001122)!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-purple-400 font-bold">🎓 Advance Payment Bonus:</span>
+                <span>Pay 6 Months in advance and get 1 Month FREE Fiber Internet!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+
+              {/* Duplicate for smooth continuous marquee loop */}
+              <span className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">🎉 Special Fiber Offer:</span>
+                <span>50% OFF Fiber Installation Charge across all 17 Unions in Mithapukur Upazila!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-emerald-400 font-bold">🎁 Free Wi-Fi Router:</span>
+                <span>Complimentary Dual-Band Gigabit Router with 20 Mbps & higher packages!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-blue-400 font-bold">⚡ Express 24h Setup:</span>
+                <span>Same-Day Fiber Drop Wire Installation & 24/7 NOC Hotline Support (01712-001122)!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+              <span className="flex items-center gap-2">
+                <span className="text-purple-400 font-bold">🎓 Advance Payment Bonus:</span>
+                <span>Pay 6 Months in advance and get 1 Month FREE Fiber Internet!</span>
+              </span>
+              <span className="text-slate-600 font-bold">•</span>
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenInquiryModal}
+            className="shrink-0 z-10 hidden sm:flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-0.5 rounded text-[11px] transition-all hover:scale-105 shadow-sm whitespace-nowrap cursor-pointer"
+          >
+            <span>Claim Offer</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-4">
           
-          {/* Logo & Network Status Badge */}
+          {/* Logo */}
           <div className="flex items-center gap-3">
             <a href="#home" className="flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
               <Logo size="md" lightText={true} />
             </a>
-            <div className="hidden xl:block border-l border-slate-800 pl-3">
-              <NetworkStatus />
-            </div>
           </div>
 
           {/* Desktop Navigation Links */}
@@ -105,9 +167,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             <a href="#speed-test" className="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-block transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               <Gauge className="h-3.5 w-3.5" />
               {t('nav_speedtest')}
-            </a>
-            <a href="#faq" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
-              {t('nav_faq')}
             </a>
             <a href="#pricing" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_plans')}
@@ -125,19 +184,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
           {/* Hotline, Self Care, Support Ticket, Network Status & Theme Toggle */}
           <div className="hidden lg:flex items-center gap-2">
-            <div className="xl:hidden">
-              <NetworkStatus />
-            </div>
-
-            <ThemeToggle showLabel={false} />
-
             <button
-              onClick={onOpenSupportTicket}
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-rose-600 via-orange-600 to-rose-700 hover:from-rose-500 hover:to-orange-500 text-white font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-rose-600/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-rose-400/30"
-              title="Delta Mithapukur Support Ticket Portal"
+              onClick={onOpenFastLogin || onOpenSupportTicket}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-amber-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-amber-300/40"
+              title="Fast Login for Branch Manager & NOC (Email + Password)"
             >
-              <LifeBuoy className="h-3.5 w-3.5 stroke-[2.5] text-amber-300 animate-spin-slow" />
-              <span>Delta Support Ticket Portal</span>
+              <ShieldCheck className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>⚡ Fast Login</span>
             </button>
 
             <a
@@ -238,13 +291,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             {t('nav_speedtest')}
           </a>
           <a
-            href="#faq"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
-          >
-            {t('nav_faq')}
-          </a>
-          <a
             href="#pricing"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
@@ -274,6 +320,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
           </a>
 
           <div className="pt-2 border-t border-slate-800 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenFastLogin) onOpenFastLogin();
+                else if (onOpenSupportTicket) onOpenSupportTicket();
+              }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md border border-amber-300/40 cursor-pointer"
+            >
+              <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
+              <span>⚡ Fast Login (Manager & NOC)</span>
+            </button>
+
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

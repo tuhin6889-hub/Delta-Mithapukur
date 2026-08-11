@@ -22,6 +22,7 @@ export default function App() {
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isSupportTicketModalOpen, setIsSupportTicketModalOpen] = useState(false);
+  const [supportTicketTab, setSupportTicketTab] = useState<'fast_login' | 'create' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>('admin_portal');
 
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlanForInquiry(plan);
@@ -38,6 +39,16 @@ export default function App() {
     }
   };
 
+  const handleOpenFastLogin = () => {
+    setSupportTicketTab('fast_login');
+    setIsSupportTicketModalOpen(true);
+  };
+
+  const handleOpenSupportTicket = () => {
+    setSupportTicketTab('create');
+    setIsSupportTicketModalOpen(true);
+  };
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -46,7 +57,8 @@ export default function App() {
           <Header
             onOpenInquiryModal={handleOpenGeneralInquiry}
             onOpenClientPortal={() => setIsClientPortalOpen(true)}
-            onOpenSupportTicket={() => setIsSupportTicketModalOpen(true)}
+            onOpenSupportTicket={handleOpenSupportTicket}
+            onOpenFastLogin={handleOpenFastLogin}
           />
 
           <main>
@@ -94,6 +106,7 @@ export default function App() {
           <SupportTicketModal
             isOpen={isSupportTicketModalOpen}
             onClose={() => setIsSupportTicketModalOpen(false)}
+            initialTab={supportTicketTab}
           />
         </div>
       </LanguageProvider>

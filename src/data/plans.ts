@@ -68,8 +68,8 @@ export const BRANCH_INFO = {
   designation: 'Branch Manager',
   phone: '0171-9394430',
   email: 'sminternet.wifi@gmail.com',
-  website: 'https://www.deltamithapukur.net.bd',
-  domain: 'www.deltamithapukur.net.bd',
+  website: 'https://www.deltamithapukur.net.com',
+  domain: 'www.deltamithapukur.net.com',
   linkedin: 'https://linkedin.com/in/mahamudul-hasan-delta',
   facebook: 'https://facebook.com/mahamudul.hasan.delta',
   messengerLink: 'https://m.me/mahamudul.hasan.delta',
@@ -90,6 +90,7 @@ export interface TeamMember {
   role: string;
   department: string;
   phone: string;
+  whatsapp?: string;
   status: string;
   badge: string;
   image?: string;

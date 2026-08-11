@@ -23,14 +23,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
           {/* Main Hero Text Content */}
           <div className="lg:col-span-7 text-center lg:text-left space-y-6">
             
-            {/* Top Branch Badge with Official Delta Branding */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-800/90 border border-blue-500/30 px-4 py-1.5 text-xs font-semibold text-blue-300 shadow-inner">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="font-bold text-white">Delta ISP</span>
-              <span className="text-slate-400">•</span>
-              <span>{t('hero_badge')}</span>
-            </div>
-
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
               {t('hero_title_1')} <br className="hidden sm:inline" />
               <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">

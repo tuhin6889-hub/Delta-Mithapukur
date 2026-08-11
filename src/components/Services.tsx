@@ -6,28 +6,40 @@ import branchManagerPhoto from '../assets/images/regenerated_image_1786009739201
 
 export const Services: React.FC = () => {
   const branchManager = OUR_TEAM.find(t => t.id === 'team-1') || {
+    id: 'team-1',
     name: BRANCH_INFO.manager,
     role: BRANCH_INFO.designation,
+    department: 'Branch Operations',
     phone: BRANCH_INFO.phone,
+    whatsapp: '01719394430',
+    status: 'Online',
     image: branchManagerPhoto,
     badge: 'Branch Executive Lead',
     description: 'Leading Delta Mithapukur branch operations & corporate fiber deployment.'
   };
 
   const supportManager = OUR_TEAM.find(t => t.id === 'team-sm') || {
+    id: 'team-sm',
     name: 'MD. Jion Hasan',
     role: 'Support Manager',
+    department: 'Support Desk',
     phone: '01944455176',
     whatsapp: '01944455176',
+    status: '24/7 Active',
+    image: branchManagerPhoto,
     badge: '24/7 Support Lead',
     description: 'Managing 24/7 technical helpdesk and query resolution.'
   };
 
   const marketingOfficer = OUR_TEAM.find(t => t.id === 'team-mo') || {
+    id: 'team-mo',
     name: 'Habibur Rahman',
     role: 'Marketing Officer',
+    department: 'Marketing',
     phone: '01944455176',
     whatsapp: '01944455176',
+    status: 'Outreach',
+    image: branchManagerPhoto,
     badge: 'Broadband Outreach',
     description: 'Promoting optical fiber connection deals and corporate line connections.'
   };
