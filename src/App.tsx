@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { Header } from './components/Header';
@@ -41,6 +42,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
+        <SpeedInsights />
         <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
           {/* App Header */}
           <Header
