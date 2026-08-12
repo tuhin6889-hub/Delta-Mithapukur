@@ -36,21 +36,29 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
 
             {/* Quick Feature Highlights */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 max-w-xl mx-auto lg:mx-0 text-left">
-              <div className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-xl">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-xs font-semibold text-slate-200">
+              <div className="flex items-center gap-2.5 bg-slate-800/80 hover:bg-slate-800/95 border border-slate-700/80 hover:border-emerald-500/50 p-2.5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/10 group cursor-default">
+                <div className="p-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 group-hover:shadow-[0_0_18px_rgba(16,185,129,0.5)] transition-all">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.9)]" />
+                </div>
+                <span className="text-xs font-bold text-slate-100 group-hover:text-white transition-colors">
                   {language === 'bn' ? '৯৯.৯% আপটাইম' : '99.9% Fiber Uptime'}
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-xl">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-xs font-semibold text-slate-200">
+
+              <div className="flex items-center gap-2.5 bg-slate-800/80 hover:bg-slate-800/95 border border-slate-700/80 hover:border-sky-500/50 p-2.5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/10 group cursor-default">
+                <div className="p-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-sky-400 shrink-0 shadow-[0_0_12px_rgba(56,189,248,0.3)] group-hover:scale-110 group-hover:shadow-[0_0_18px_rgba(56,189,248,0.5)] transition-all">
+                  <Zap className="h-4 w-4 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.9)] animate-pulse" />
+                </div>
+                <span className="text-xs font-bold text-slate-100 group-hover:text-white transition-colors">
                   {language === 'bn' ? 'বাফারহীন স্ট্রিম' : 'Zero Buffer Streaming'}
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-xl col-span-2 sm:col-span-1">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-xs font-semibold text-slate-200">
+
+              <div className="flex items-center gap-2.5 bg-slate-800/80 hover:bg-slate-800/95 border border-slate-700/80 hover:border-amber-500/50 p-2.5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-amber-500/10 group cursor-default col-span-2 sm:col-span-1">
+                <div className="p-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:shadow-[0_0_18px_rgba(245,158,11,0.5)] transition-all">
+                  <CheckCircle2 className="h-4 w-4 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.9)]" />
+                </div>
+                <span className="text-xs font-bold text-slate-100 group-hover:text-white transition-colors">
                   {language === 'bn' ? '২৪/৭ ব্রাঞ্চ সাপোর্ট' : '24/7 Branch Desk'}
                 </span>
               </div>

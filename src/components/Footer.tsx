@@ -5,7 +5,12 @@ import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 import { Phone, Mail, MapPin, ShieldCheck, Award, ExternalLink, Sparkles, Lock, Gauge, LifeBuoy, FileText, Send, Users, Globe } from 'lucide-react';
 import branchManagerImg from '../assets/images/branch_manager_photo_1785230421070.jpg';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenSupportTicket?: () => void;
+  onOpenClientPortal?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClientPortal }) => {
   return (
     <footer className="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -145,31 +150,42 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="https://aistudio.google.com/apps/bb46533d-01c6-4632-922f-ebc7a77d1339?showPreview=true&showAssistant=true"
+                  href="https://tuhin6889-hub.github.io/deltamithapukur.net/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-rose-950/30 hover:bg-rose-900/40 border border-rose-500/30 text-rose-300 font-extrabold flex items-center justify-between gap-1.5 transition-all group"
+                  onClick={(e) => {
+                    if (onOpenSupportTicket) {
+                      onOpenSupportTicket();
+                    }
+                  }}
+                  className="w-full text-left p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 font-extrabold flex items-center justify-between gap-1.5 transition-all group cursor-pointer shadow-md hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-2">
                     <LifeBuoy className="h-3.5 w-3.5 text-rose-400 shrink-0" />
                     <span>Support Ticket Portal</span>
                   </div>
-                  <ExternalLink className="h-3 w-3 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded-full text-rose-300 border border-rose-500/30 font-bold">
+                      ১-ক্লিকে ওপেন
+                    </span>
+                    <ExternalLink className="h-3 w-3 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </a>
               </li>
               <li>
-                <a
-                  href="https://aistudio.google.com/apps/0394c8e7-033c-44cd-9f79-661ff5aee2e2?showPreview=true&showAssistant=true"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-indigo-950/30 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 font-extrabold flex items-center justify-between gap-1.5 transition-all group"
+                <button
+                  type="button"
+                  onClick={onOpenClientPortal}
+                  className="w-full text-left p-2 rounded-lg bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 font-extrabold flex items-center justify-between gap-1.5 transition-all group cursor-pointer shadow-md hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-2">
                     <FileText className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
                     <span>Client DB & Marketing Portal</span>
                   </div>
-                  <ExternalLink className="h-3 w-3 text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
-                </a>
+                  <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded-full text-indigo-300 border border-indigo-500/30 font-bold">
+                    ১-ক্লিকে ওপেন
+                  </span>
+                </button>
               </li>
               <li>
                 <a

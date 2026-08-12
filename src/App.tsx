@@ -10,6 +10,7 @@ import { FaqSection } from './components/FaqSection';
 import { Pricing } from './components/Pricing';
 import { CoverageMap } from './components/CoverageMap';
 import { ReferralSection } from './components/ReferralSection';
+import { SuccessStories } from './components/SuccessStories';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { SupportChatWidget } from './components/SupportChatWidget';
@@ -87,6 +88,9 @@ export default function App() {
             {/* Refer a Neighbor Rewards Section */}
             <ReferralSection />
 
+            {/* Customer Success Stories & Local Testimonials Carousel */}
+            <SuccessStories />
+
             {/* Connection Inquiry Form & Contact Info */}
             <ContactSection
               initialPlan={selectedPlanForInquiry}
@@ -95,7 +99,10 @@ export default function App() {
           </main>
 
           {/* Footer */}
-          <Footer />
+          <Footer
+            onOpenSupportTicket={handleOpenSupportTicket}
+            onOpenClientPortal={() => setIsClientPortalOpen(true)}
+          />
 
           {/* Floating Support Chat Widget */}
           <SupportChatWidget onOpenSupportTicket={() => setIsSupportTicketModalOpen(true)} />
