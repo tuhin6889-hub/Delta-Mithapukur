@@ -17,7 +17,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket, onOpenFastLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasPendingAdminResponse, setHasPendingAdminResponse] = useState<boolean>(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const checkPendingResponse = () => {
@@ -85,53 +85,53 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
       {/* Top Scrolling Promotional Banner */}
       <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 text-slate-100 border-b border-blue-800/40 py-1.5 px-3 text-xs overflow-hidden relative group shadow-inner">
         <div className="flex items-center gap-2 max-w-7xl mx-auto">
-          <div className="shrink-0 flex items-center gap-1.5 bg-blue-600 text-white font-bold px-2 py-0.5 rounded text-[11px] uppercase tracking-wider shadow-sm z-10">
+          <div className="shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-extrabold px-2.5 py-0.5 rounded text-[11px] tracking-wide shadow-sm z-10 border border-blue-400/30">
             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin-slow" />
-            <span>MITHAPUKUR OFFER</span>
+            <span>ডেল্টা মিঠাপুকুর ব্রাঞ্চ ওপেনিং অফার</span>
           </div>
 
           <div className="overflow-hidden relative w-full flex items-center">
-            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 group-hover:[animation-play-state:paused] text-xs font-medium text-slate-200">
+            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 group-hover:[animation-play-state:paused] text-xs font-semibold text-slate-200">
               <span className="flex items-center gap-2">
-                <span className="text-amber-400 font-bold">🎉 Special Fiber Offer:</span>
-                <span>50% OFF Fiber Installation Charge across all 17 Unions in Mithapukur Upazila!</span>
+                <span className="text-amber-400 font-bold">🎉 ডেল্টা ফাইবার অফার:</span>
+                <span>মিঠাপুকুর উপজেলার ১৭টি ইউনিয়নে ৫০% ফাইবার ইনস্টলেশন চার্জ ছাড়!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-emerald-400 font-bold">🎁 Free Wi-Fi Router:</span>
-                <span>Complimentary Dual-Band Gigabit Router with 20 Mbps & higher packages!</span>
+                <span className="text-emerald-400 font-bold">🎁 ফ্রি ওয়াই-ফাই রাউটার:</span>
+                <span>২০ Mbps ও তদূর্ধ্ব প্যাকেজে বিনামূল্যে ডুয়াল-ব্যান্ড গিগাবিট রাউটার!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-blue-400 font-bold">⚡ Express 24h Setup:</span>
-                <span>Same-Day Fiber Drop Wire Installation & 24/7 NOC Hotline Support (01712-001122)!</span>
+                <span className="text-blue-400 font-bold">⚡ সেম-ডে ফাইবার সেটআপ:</span>
+                <span>একই দিনে ড্রপ ক্যাবল সংযোগ ও ২৪/৭ সাপোর্ট (01712-001122)!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-purple-400 font-bold">🎓 Advance Payment Bonus:</span>
-                <span>Pay 6 Months in advance and get 1 Month FREE Fiber Internet!</span>
+                <span className="text-purple-400 font-bold">🎓 অগ্রিম বিল বোনাস:</span>
+                <span>৬ মাসের বিল একসাথে পরিশোধে ১ মাস ফাইবার ইন্টারনেট সম্পূর্ণ ফ্রি!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
 
               {/* Duplicate for smooth continuous marquee loop */}
               <span className="flex items-center gap-2">
-                <span className="text-amber-400 font-bold">🎉 Special Fiber Offer:</span>
-                <span>50% OFF Fiber Installation Charge across all 17 Unions in Mithapukur Upazila!</span>
+                <span className="text-amber-400 font-bold">🎉 ডেল্টা ফাইবার অফার:</span>
+                <span>মিঠাপুকুর উপজেলার ১৭টি ইউনিয়নে ৫০% ফাইবার ইনস্টলেশন চার্জ ছাড়!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-emerald-400 font-bold">🎁 Free Wi-Fi Router:</span>
-                <span>Complimentary Dual-Band Gigabit Router with 20 Mbps & higher packages!</span>
+                <span className="text-emerald-400 font-bold">🎁 ফ্রি ওয়াই-ফাই রাউটার:</span>
+                <span>২০ Mbps ও তদূর্ধ্ব প্যাকেজে বিনামূল্যে ডুয়াল-ব্যান্ড গিগাবিট রাউটার!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-blue-400 font-bold">⚡ Express 24h Setup:</span>
-                <span>Same-Day Fiber Drop Wire Installation & 24/7 NOC Hotline Support (01712-001122)!</span>
+                <span className="text-blue-400 font-bold">⚡ সেম-ডে ফাইবার সেটআপ:</span>
+                <span>একই দিনে ড্রপ ক্যাবল সংযোগ ও ২৪/৭ সাপোর্ট (01712-001122)!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
               <span className="flex items-center gap-2">
-                <span className="text-purple-400 font-bold">🎓 Advance Payment Bonus:</span>
-                <span>Pay 6 Months in advance and get 1 Month FREE Fiber Internet!</span>
+                <span className="text-purple-400 font-bold">🎓 অগ্রিম বিল বোনাস:</span>
+                <span>৬ মাসের বিল একসাথে পরিশোধে ১ মাস ফাইবার ইন্টারনেট সম্পূর্ণ ফ্রি!</span>
               </span>
               <span className="text-slate-600 font-bold">•</span>
             </div>
