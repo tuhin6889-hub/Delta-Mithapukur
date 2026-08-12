@@ -4,6 +4,7 @@ import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, Lo
 import { BRANCH_INFO } from '../data/plans';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { NetworkStatus } from './NetworkStatus';
 import { useLanguage } from '../context/LanguageContext';
 
 interface HeaderProps {
@@ -184,6 +185,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
           {/* Hotline, Self Care, Support Ticket, Network Status & Theme Toggle */}
           <div className="hidden lg:flex items-center gap-2">
+            <NetworkStatus />
+
             <button
               onClick={onOpenFastLogin || onOpenSupportTicket}
               className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-amber-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-amber-300/40"
@@ -263,6 +266,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-3 pb-6 space-y-2.5">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span className="text-xs font-semibold text-slate-400">Node Status</span>
+            <NetworkStatus />
+          </div>
+
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <span className="text-xs font-semibold text-slate-400">Language / ভাষা</span>
             <LanguageSwitcher showFullLabel={true} />

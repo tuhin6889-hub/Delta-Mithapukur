@@ -1,7 +1,8 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { PLANS } from '../data/plans';
 import { Plan } from '../types';
-import { Check, Sparkles, ArrowRight, ShieldCheck, Zap, Gauge } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, ShieldCheck, Zap, Gauge, Phone, MessageSquare } from 'lucide-react';
 import { FiberVsMobileComparison } from './FiberVsMobileComparison';
 
 interface PricingProps {
@@ -205,24 +206,59 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
           })}
         </div>
 
-        {/* Custom Corporate Box */}
-        <div className="mt-12 bg-slate-950/80 rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-          <div className="space-y-1 text-center md:text-left">
-            <h4 className="text-lg font-bold text-white flex items-center justify-center md:justify-start gap-2">
-              <Zap className="h-5 w-5 text-amber-400" />
-              <span>Need Custom Bandwidth or Dedicated Enterprise SLA?</span>
-            </h4>
-            <p className="text-xs text-slate-400 max-w-2xl">
-              We offer dedicated fiber rings, multiple static IPv4/IPv6 subnets, redundant uplink connections, and tailored enterprise bandwidth for local institutions in Mithapukur Upazila.
-            </p>
+        {/* Custom Corporate Box (Animated Bengali Version with WhatsApp) */}
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="mt-12 relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-blue-500/30 shadow-[0_10px_40px_rgba(59,130,246,0.15)] hover:shadow-[0_15px_50px_rgba(59,130,246,0.25)] hover:border-blue-400/50 transition-all duration-300 overflow-hidden group"
+        >
+          {/* Animated Background Shimmer Glow */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-emerald-500/20 to-purple-600/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-500 pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center lg:text-left max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-300 text-xs font-bold tracking-wide">
+                <Zap className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+                <span>এন্টারপ্রাইজ ও কর্পোরেট সলিউশন</span>
+              </div>
+
+              <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight font-sans">
+                কাস্টম ব্যান্ডউইথ বা ডেডিকেটেড এন্টারপ্রাইজ SLA প্রয়োজন?
+              </h4>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                মিঠাপুকুর উপজেলার বিভিন্ন প্রতিষ্ঠান, স্কুল-কলেজ, হাসপাতাল ও ব্যবসার জন্য আমরা প্রদান করছি ডেডিকেটেড ফাইবার রিং, মাল্টিপল স্ট্যাটিক IP (IPv4/IPv6), রিডান্ড্যান্ট আপলিঙ্ক এবং ৯৯.৯% আপটাইম নিশ্চয়তা।
+              </p>
+            </div>
+
+            {/* Action Buttons: WhatsApp & Phone */}
+            <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+              {/* WhatsApp Button */}
+              <a
+                href="https://wa.me/8801719394430?text=Hello%20Delta%20Internet,%20I%20need%20custom%20bandwidth/enterprise%20solution."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-600/30 border border-emerald-400/40 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2.5 group/wa"
+              >
+                <div className="p-1 bg-white/20 rounded-full group-hover/wa:rotate-12 transition-transform">
+                  <MessageSquare className="h-4 w-4 text-white fill-white" />
+                </div>
+                <span>WhatsApp: 01719394430</span>
+              </a>
+
+              {/* Direct Call Button */}
+              <a
+                href="tel:01719394430"
+                className="w-full sm:w-auto bg-slate-900/90 hover:bg-slate-800 text-sky-300 hover:text-white font-bold text-xs sm:text-sm px-5 py-3.5 rounded-2xl border border-sky-500/30 hover:border-sky-400 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 shadow-md"
+              >
+                <Phone className="h-4 w-4 text-sky-400" />
+                <span>কল করুন: 0171-9394430</span>
+              </a>
+            </div>
           </div>
-          <a
-            href={`tel:01719394430`}
-            className="shrink-0 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 font-bold text-xs px-6 py-3.5 rounded-xl border border-blue-500/30 hover:border-blue-500/60 transition-all hover:scale-105 shadow-md"
-          >
-            Call 0171-9394430 Directly
-          </a>
-        </div>
+        </motion.div>
 
         {/* Interactive Comparison Table: Fiber vs Mobile Data */}
         <FiberVsMobileComparison />

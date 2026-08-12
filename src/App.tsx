@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { CoreBenefits } from './components/CoreBenefits';
 import { Services } from './components/Services';
 import { SpeedTest } from './components/SpeedTest';
 import { FaqSection } from './components/FaqSection';
@@ -64,6 +65,9 @@ export default function App() {
           <main>
             {/* Hero Section */}
             <Hero onOpenInquiryModal={handleOpenGeneralInquiry} />
+
+            {/* Core Benefits - Glassmorphism Cards */}
+            <CoreBenefits />
 
             {/* Services Section */}
             <Services />

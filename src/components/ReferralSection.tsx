@@ -88,7 +88,7 @@ export const ReferralSection: React.FC = () => {
 
         {/* Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/40 transition-all space-y-3">
+          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 hover:shadow-lg hover:scale-105 transition-all duration-300 space-y-3">
             <div className="h-12 w-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-black text-lg border border-blue-500/30">
               1
             </div>
@@ -98,7 +98,7 @@ export const ReferralSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/40 transition-all space-y-3">
+          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-amber-500/50 hover:shadow-lg hover:scale-105 transition-all duration-300 space-y-3">
             <div className="h-12 w-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-lg border border-amber-500/30">
               2
             </div>
@@ -108,7 +108,7 @@ export const ReferralSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/40 transition-all space-y-3">
+          <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 hover:shadow-lg hover:scale-105 transition-all duration-300 space-y-3">
             <div className="h-12 w-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-lg border border-emerald-500/30">
               3
             </div>
@@ -120,7 +120,7 @@ export const ReferralSection: React.FC = () => {
         </div>
 
         {/* Interactive Main Referral Hub Box */}
-        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 hover:scale-[1.02] hover:border-blue-500/40 hover:shadow-blue-500/10 transition-all duration-300">
           
           {/* Navigation Toggle Tabs */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -238,7 +238,7 @@ export const ReferralSection: React.FC = () => {
               </div>
 
               {/* Right Reward Highlights Graphic Box */}
-              <div className="lg:col-span-6 bg-gradient-to-br from-blue-950/40 via-slate-950 to-emerald-950/30 p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div className="lg:col-span-6 bg-gradient-to-br from-blue-950/40 via-slate-950 to-emerald-950/30 p-6 rounded-2xl border border-slate-800 space-y-4 hover:scale-[1.02] hover:border-emerald-500/40 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
                     <Award className="h-4 w-4" />

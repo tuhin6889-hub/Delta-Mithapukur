@@ -11,10 +11,23 @@ export interface Plan {
 export interface CoverageLocation {
   id: string;
   name: string;
+  bengaliName?: string;
+  unionSector?: string;
   areaType: 'Primary Hub' | 'High-Speed Fiber' | 'Wireless Line';
   status: 'Operational' | 'Expanding';
   latPct: number;
   lngPct: number;
+  maxSpeedMbps: number;
+  availablePorts: number;
+  totalPorts: number;
+  estInstallTime: string;
+  avgPingBdixMs: number;
+  avgPingGamingMs: number;
+  signalStrengthDbm: string;
+  coveragePercentage: number;
+  coveredLandmarks: string[];
+  description: string;
+  oltNodeName: string;
 }
 
 export interface InquiryFormData {
