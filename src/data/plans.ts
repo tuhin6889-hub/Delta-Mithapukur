@@ -5,49 +5,83 @@ import marketingOfficerAvatar from '../assets/images/marketing_officer_avatar_17
 
 export const PLANS: Plan[] = [
   {
-    id: 'starter',
-    name: 'Starter Broadband',
-    speedMbps: 30,
-    priceBdt: 999,
+    id: 'student',
+    name: 'STUDENT',
+    speedMbps: 20,
+    priceBdt: 525,
     features: [
-      '30 Mbps High-Speed Fiber Connection',
-      'Unlimited Monthly Data (No FUP)',
-      'Free Standard Fiber Installation',
-      '24/7 Local Customer Support',
-      'Low Latency for HD Streaming'
+      '20 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
     ],
-    recommendedFor: 'Home users, social media, & HD video streaming'
+    recommendedFor: 'Students, basic web browsing & online study'
   },
   {
-    id: 'business',
-    name: 'Business Fiber',
-    speedMbps: 100,
-    priceBdt: 2499,
+    id: 'bachelor',
+    name: 'BACHELOR',
+    speedMbps: 30,
+    priceBdt: 630,
+    features: [
+      '30 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
+    ],
+    recommendedFor: 'Bachelor sharing, social media & HD streaming'
+  },
+  {
+    id: 'couple',
+    name: 'COUPLE',
+    speedMbps: 40,
+    priceBdt: 735,
+    features: [
+      '40 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
+    ],
+    recommendedFor: 'Couples & small homes, dual-screen streaming'
+  },
+  {
+    id: 'family',
+    name: 'FAMILY',
+    speedMbps: 50,
+    priceBdt: 840,
     popular: true,
     features: [
-      '100 Mbps Dedicated Speed',
-      'Unlimited High-Speed Data',
-      'Static IPv4 Address Included',
-      'Priority Support Desk Access',
-      'Free Wi-Fi Router Setup',
-      'Symmetric Up/Down Speeds'
+      '50 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
     ],
-    recommendedFor: 'Small offices, cyber cafes, & heavy power users'
+    recommendedFor: 'Family home, multi-device 4K streaming & smart TV'
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise Leased Line',
-    speedMbps: 500,
-    priceBdt: 5999,
+    id: 'joint_family',
+    name: 'JOINT FAMILY',
+    speedMbps: 60,
+    priceBdt: 1050,
     features: [
-      '500 Mbps Dedicated Managed Port',
-      'Guaranteed SLA (99.9% Uptime)',
-      'Dedicated Dual Fiber Path',
-      '24/7 Corporate Account Manager',
-      'Static IP Subnet & DDoS Guard',
-      'Direct Point-to-Point Link'
+      '60 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
     ],
-    recommendedFor: 'Corporates, educational institutes, & call centers'
+    recommendedFor: 'Joint families, gaming & high-bandwidth usage'
+  },
+  {
+    id: 'grand_family',
+    name: 'GRAND FAMILY',
+    speedMbps: 80,
+    priceBdt: 1260,
+    features: [
+      '80 Mbps Speed',
+      'Unlimited Data',
+      '24/7 Support',
+      'Fiber Optic'
+    ],
+    recommendedFor: 'Grand family, ultra-fast downloads & power users'
   }
 ];
 

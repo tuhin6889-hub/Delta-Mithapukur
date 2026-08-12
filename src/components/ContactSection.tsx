@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import confetti from 'canvas-confetti';
 import { Plan, InquiryFormData } from '../types';
 import { BRANCH_INFO, OUR_TEAM, PLANS } from '../data/plans';
-import { Phone, Mail, MapPin, User, Send, CheckCircle2, Wifi, Clock, Users, Award, ShieldCheck, Loader2 } from 'lucide-react';
+import { Phone, Mail, MapPin, User, Send, CheckCircle2, Wifi, Clock, Users, Award, ShieldCheck, Loader2, Sparkles, PartyPopper } from 'lucide-react';
 
 interface ContactSectionProps {
   initialPlan?: Plan | null;
@@ -21,6 +22,52 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const triggerConfetti = () => {
+    const count = 180;
+    const defaults = {
+      origin: { y: 0.6 }
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+
+    fire(0.25, {
+      spread: 30,
+      startVelocity: 55,
+      colors: ['#00B2FF', '#25D366', '#FFD700', '#A855F7']
+    });
+    fire(0.2, {
+      spread: 60,
+      colors: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899']
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.85
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+    fire(0.1, {
+      spread: 130,
+      startVelocity: 45,
+    });
+  };
+
+  useEffect(() => {
+    if (submitted) {
+      triggerConfetti();
+    }
+  }, [submitted]);
 
   useEffect(() => {
     if (initialPlan) {
@@ -220,164 +267,266 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialPlan, onO
             </div>
           </div>
 
-          {/* Connection Request Form */}
-          <div className="lg:col-span-7 bg-slate-950/90 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
-            {!submitted ? (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="border-b border-slate-800 pb-4 mb-2">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Wifi className="h-5 w-5 text-blue-400" />
-                    New Connection Application
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Fill out the inquiry form below to request installation at your address.
-                  </p>
-                </div>
+          {/* Connection Request Form Container */}
+          <div className="lg:col-span-7 bg-slate-950/90 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl relative overflow-hidden">
+            
+            {/* Subtle Ambient Success Glow Background Overlay */}
+            <AnimatePresence>
+              {submitted && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 via-blue-500/5 to-slate-950/95 backdrop-blur-md pointer-events-none z-0"
+                />
+              )}
+            </AnimatePresence>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name */}
+            <AnimatePresence mode="wait">
+              {!submitted ? (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-5 relative z-10"
+                >
+                  <div className="border-b border-slate-800 pb-4 mb-2">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Wifi className="h-5 w-5 text-blue-400" />
+                      New Connection Application
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Fill out the inquiry form below to request installation at your address.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Full Name */}
+                    <div>
+                      <label htmlFor="fullName" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="fullName"
+                        required
+                        placeholder="e.g. Abul Kalam"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label htmlFor="phone" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        required
+                        placeholder="e.g. 01712345678"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Email */}
+                    <div>
+                      <label htmlFor="email" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        placeholder="e.g. name@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    {/* Locality */}
+                    <div>
+                      <label htmlFor="locality" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Locality / Area in Mithapukur *
+                      </label>
+                      <input
+                        type="text"
+                        id="locality"
+                        required
+                        placeholder="e.g. Boldipukur Bazaar, Akmal Market"
+                        value={formData.locality}
+                        onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Plan Selection */}
                   <div>
-                    <label htmlFor="fullName" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Full Name *
+                    <label htmlFor="plan" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Desired Broadband Package *
                     </label>
-                    <input
-                      type="text"
-                      id="fullName"
-                      required
-                      placeholder="e.g. Abul Kalam"
-                      value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    <select
+                      id="plan"
+                      value={formData.selectedPlan}
+                      onChange={(e) => setFormData({ ...formData, selectedPlan: e.target.value })}
+                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500"
+                    >
+                      {PLANS.map((p) => (
+                        <option key={p.id} value={`${p.name} (${p.speedMbps} Mbps)`}>
+                          {p.name} — {p.speedMbps} Mbps (৳{p.priceBdt}/mo)
+                        </option>
+                      ))}
+                      <option value="Custom Corporate Plan">Custom Corporate / Leased Line</option>
+                    </select>
+                  </div>
+
+                  {/* Requirements / Notes */}
+                  <div>
+                    <label htmlFor="requirements" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Additional Address Details or Notes
+                    </label>
+                    <textarea
+                      id="requirements"
+                      rows={3}
+                      placeholder="Specific house or shop location details in Mithapukur..."
+                      value={formData.requirements}
+                      onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
                     />
                   </div>
 
-                  {/* Phone */}
-                  <div>
-                    <label htmlFor="phone" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Mobile Number *
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      required
-                      placeholder="e.g. 01712345678"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Email */}
-                  <div>
-                    <label htmlFor="email" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="e.g. name@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  {/* Locality */}
-                  <div>
-                    <label htmlFor="locality" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Locality / Area in Mithapukur *
-                    </label>
-                    <input
-                      type="text"
-                      id="locality"
-                      required
-                      placeholder="e.g. Boldipukur Bazaar, Akmal Market"
-                      value={formData.locality}
-                      onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Plan Selection */}
-                <div>
-                  <label htmlFor="plan" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Desired Broadband Package *
-                  </label>
-                  <select
-                    id="plan"
-                    value={formData.selectedPlan}
-                    onChange={(e) => setFormData({ ...formData, selectedPlan: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500"
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-75 text-white font-bold text-base rounded-xl shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    {PLANS.map((p) => (
-                      <option key={p.id} value={`${p.name} (${p.speedMbps} Mbps)`}>
-                        {p.name} — {p.speedMbps} Mbps (৳{p.priceBdt}/mo)
-                      </option>
-                    ))}
-                    <option value="Custom Corporate Plan">Custom Corporate / Leased Line</option>
-                  </select>
-                </div>
-
-                {/* Requirements / Notes */}
-                <div>
-                  <label htmlFor="requirements" className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Additional Address Details or Notes
-                  </label>
-                  <textarea
-                    id="requirements"
-                    rows={3}
-                    placeholder="Specific house or shop location details in Mithapukur..."
-                    value={formData.requirements}
-                    onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-75 text-white font-bold text-base rounded-xl shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin text-blue-200" />
+                        <span>Submitting Application...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-5 w-5" />
+                        <span>Submit Connection Application</span>
+                      </>
+                    )}
+                  </button>
+                </motion.form>
+              ) : (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.85, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className="py-10 text-center space-y-6 relative z-10"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin text-blue-200" />
-                      <span>Submitting Application...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-5 w-5" />
-                      <span>Submit Connection Application</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            ) : (
-              <div className="py-12 text-center space-y-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 mx-auto border border-emerald-500/30">
-                  <CheckCircle2 className="h-10 w-10" />
-                </div>
-                <h3 className="text-2xl font-bold text-white">Application Received!</h3>
-                <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong className="text-white">{formData.fullName}</strong>. Our Mithapukur branch team will contact you at <strong className="text-emerald-400">{formData.phone}</strong> shortly to confirm cable drop availability.
-                </p>
+                  {/* Animated Success Badge with Pulsing Ring */}
+                  <div className="relative inline-block">
+                    <motion.div
+                      animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.15, 0.5] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -inset-3 rounded-full bg-emerald-500/30 blur-lg"
+                    />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1, rotate: [0, 15, -10, 0] }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+                      className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 text-white mx-auto shadow-2xl shadow-emerald-500/40 border border-emerald-300/40"
+                    >
+                      <CheckCircle2 className="h-11 w-11" />
+                    </motion.div>
+                  </div>
 
-                <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 text-xs text-left max-w-md mx-auto space-y-1">
-                  <div className="text-slate-400">Selected Package: <span className="text-blue-300 font-bold">{formData.selectedPlan}</span></div>
-                  <div className="text-slate-400">Locality: <span className="text-white font-medium">{formData.locality}</span></div>
-                  <div className="text-slate-400">Branch Office: <span className="text-white font-medium">Boldipukur Bazaar Akmal Market</span></div>
-                </div>
+                  {/* Header Title */}
+                  <div className="space-y-2">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wider"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>Application Received Successfully</span>
+                    </motion.div>
+                    
+                    <motion.h3
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight"
+                    >
+                      Welcome to Delta Fiber!
+                    </motion.h3>
+                  </div>
 
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="mt-4 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
-                >
-                  Submit Another Inquiry
-                </button>
-              </div>
-            )}
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-slate-300 text-sm sm:text-base max-w-md mx-auto leading-relaxed"
+                  >
+                    Thank you, <strong className="text-white font-bold">{formData.fullName}</strong>. Our Mithapukur branch team will contact you at <strong className="text-emerald-400 font-bold">{formData.phone}</strong> shortly to confirm cable drop availability.
+                  </motion.p>
+
+                  {/* Inquiry Confirmation Summary Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="p-5 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs sm:text-sm text-left max-w-md mx-auto space-y-2 shadow-inner"
+                  >
+                    <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+                      <span className="font-semibold text-slate-300">Selected Package:</span>
+                      <span className="text-blue-400 font-black">{formData.selectedPlan}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+                      <span className="font-semibold text-slate-300">Locality / Area:</span>
+                      <span className="text-white font-medium">{formData.locality}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400">
+                      <span className="font-semibold text-slate-300">Assigned Branch:</span>
+                      <span className="text-emerald-400 font-semibold">Boldipukur Branch Office</span>
+                    </div>
+                  </motion.div>
+
+                  {/* Action Buttons */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3"
+                  >
+                    <button
+                      onClick={triggerConfetti}
+                      className="w-full sm:w-auto px-5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <PartyPopper className="h-4 w-4 text-emerald-400" />
+                      <span>Celebrate Again (Confetti)</span>
+                    </button>
+
+                    <button
+                      onClick={() => setSubmitted(false)}
+                      className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                    >
+                      Submit Another Application
+                    </button>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
         </div>

@@ -59,7 +59,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     call_now: 'Call Now',
     contact_office: 'Contact Office',
-    pricing_title: 'High Speed Broadband Plans',
+    pricing_title: 'Delta Internet Packages',
   },
   bn: {
     // Header & Nav
@@ -110,7 +110,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     call_now: 'কল করুন',
     contact_office: 'অফিসে যোগাযোগ করুন',
-    pricing_title: 'হাই স্পিড ব্রডব্যান্ড প্যাকেজসমূহ',
+    pricing_title: 'ডেল্টা ইন্টারনেট প্যাকেজসমূহ',
   }
 };
 
