@@ -134,23 +134,6 @@ export const ImageSideshow: React.FC = () => {
                 referrerPolicy="no-referrer"
               />
 
-              {/* Bottom Gradient Overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-90" />
-
-              {/* Text Caption & Tag Overlay */}
-              <div className="absolute bottom-3 sm:bottom-5 left-3 sm:left-6 right-3 sm:right-16 text-left space-y-1 z-20">
-                <span className="inline-flex items-center gap-1.5 bg-blue-600/90 text-white font-black text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md border border-blue-400/30">
-                  <Sparkles className="h-3 w-3 text-amber-300" />
-                  {language === 'bn' ? slide.tagBn : slide.tagEn}
-                </span>
-                <h3 className="text-sm sm:text-xl font-extrabold text-white leading-snug drop-shadow-md">
-                  {language === 'bn' ? slide.titleBn : slide.titleEn}
-                </h3>
-                <p className="text-[11px] sm:text-xs text-slate-300 line-clamp-1 drop-shadow-sm font-medium">
-                  {language === 'bn' ? slide.subtitleBn : slide.subtitleEn}
-                </p>
-              </div>
-
               {/* Fullscreen Button */}
               <button
                 onClick={() => setFullScreenImg(slide)}

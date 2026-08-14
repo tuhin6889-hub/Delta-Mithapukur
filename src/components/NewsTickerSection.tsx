@@ -65,9 +65,9 @@ export const NewsTickerSection: React.FC<NewsTickerSectionProps> = ({ onOpenInqu
     <div className="w-full bg-slate-950 border-b border-slate-800/80 relative z-20" id="news-updates">
       {/* 1. Continuous Marquee Ticker Bar */}
       <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 py-2 px-3 sm:px-6 border-b border-blue-500/20 text-xs flex items-center gap-3 overflow-hidden">
-        <div className="flex items-center gap-1.5 bg-blue-600/90 text-white font-black text-[10px] uppercase px-2.5 py-1 rounded-md shrink-0 shadow-sm shadow-blue-500/30">
-          <Megaphone className="h-3 w-3 animate-bounce" />
-          <span>{language === 'bn' ? 'পোস্ট ছবি গ্যালারি' : 'IMAGE POST SLIDESHOW'}</span>
+        <div className="flex items-center gap-1.5 bg-red-600/90 text-white font-black text-[10px] uppercase px-2.5 py-1 rounded-md shrink-0 shadow-sm shadow-red-500/30 animate-pulse">
+          <Megaphone className="h-3 w-3" />
+          <span>{language === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}</span>
         </div>
 
         {/* Scrolling Infinite Ticker */}
@@ -122,17 +122,6 @@ export const NewsTickerSection: React.FC<NewsTickerSectionProps> = ({ onOpenInqu
                   onClick={() => setModalImage(activePost)}
                   referrerPolicy="no-referrer"
                 />
-
-                {/* Gradient Shadow Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
-
-                {/* Badge Overlay */}
-                <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className="bg-blue-600/90 text-white font-extrabold text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md border border-blue-400/30 flex items-center gap-1">
-                    <ImageIcon className="h-3 w-3" />
-                    {language === 'bn' ? activePost.badgeBn : activePost.badgeEn}
-                  </span>
-                </div>
 
                 {/* Fullscreen Zoom Trigger */}
                 <button

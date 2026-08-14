@@ -13,7 +13,7 @@ export interface CoverageLocation {
   name: string;
   bengaliName?: string;
   unionSector?: string;
-  areaType: 'Primary Hub' | 'High-Speed Fiber' | 'Wireless Line';
+  areaType: 'Primary Hub' | 'High-Speed Fiber' | 'Wireless Line' | 'Main Regional PoP' | 'Sub PoP Node' | 'Primary Core Hub' | 'Wireless & Fiber';
   status: 'Operational' | 'Expanding';
   latPct: number;
   lngPct: number;

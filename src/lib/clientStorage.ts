@@ -8,18 +8,22 @@ export const DEFAULT_CLIENTS: ClientRecord[] = [
     password: '●●●●●●',
     phone: '01712-345678',
     gender: 'Male',
-    area: 'Boldipukur Bazaar (Akmal Market)',
-    popName: 'Akmal Market PoP-01',
-    zoneName: 'Zone A - Boldipukur',
+    area: 'Boldipukur Bazzar (Delta Mithapukur Brach)',
+    popName: 'Boldipukur Bazzar (Delta Mithapukur Brach)',
+    zoneName: 'Zone A - Boldipukur Core',
     planName: '60 Mbps Fiber Family',
     monthlyFee: 1050,
     status: 'Active',
     joinDate: '2026-01-15',
     paymentMethod: 'bKash',
     ipAddress: '103.145.22.14',
+    onuMac: 'BC:54:36:9F:81:4A',
+    routerMac: '74:83:C2:5E:2B:10',
+    nidNumber: '19882691234567890',
+    nidPhotoUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80',
     latitude: '25.5801',
     longitude: '89.2815',
-    notes: 'Akmal Market Shop #12, Fiber ONU installed.'
+    notes: 'Branch Operations Core Fiber Line. High gain GEPON ONU.'
   },
   {
     id: 'DLT-2026-102',
@@ -28,18 +32,21 @@ export const DEFAULT_CLIENTS: ClientRecord[] = [
     password: '●●●●●●',
     phone: '01819-876543',
     gender: 'Male',
-    area: 'Mithapukur Sadar Town',
-    popName: 'Mithapukur Main PoP-02',
-    zoneName: 'Zone B - Sadar',
+    area: 'Borogorga Bazaar',
+    popName: 'Borogorga PoP',
+    zoneName: 'Zone B - Borogorga',
     planName: '40 Mbps High-Speed',
     monthlyFee: 735,
     status: 'Active',
     joinDate: '2026-02-01',
     paymentMethod: 'Nagad',
     ipAddress: '103.145.22.28',
+    onuMac: 'E0:67:B3:7A:41:8C',
+    routerMac: 'D8:07:B6:33:91:FA',
+    nidNumber: '19922691876543210',
     latitude: '25.5785',
     longitude: '89.2740',
-    notes: 'Residential dual-band router setup.'
+    notes: 'Borogorga regional commercial line.'
   },
   {
     id: 'DLT-2026-103',
@@ -48,18 +55,21 @@ export const DEFAULT_CLIENTS: ClientRecord[] = [
     password: '●●●●●●',
     phone: '01711-112233',
     gender: 'Male',
-    area: 'Pairaband Area',
-    popName: 'Pairaband Hub PoP-03',
-    zoneName: 'Zone C - Pairaband',
+    area: 'Molonghat Bazaar',
+    popName: 'Molonghat Sub PoP',
+    zoneName: 'Zone C - Molonghat',
     planName: '80 Mbps Gamers Choice',
     monthlyFee: 1260,
     status: 'Active',
     joinDate: '2026-02-10',
     paymentMethod: 'Bank',
     ipAddress: '103.145.22.35',
+    onuMac: '48:8D:36:A2:7D:99',
+    routerMac: 'C4:6E:1F:8B:40:E5',
+    nidNumber: '19792691098765432',
     latitude: '25.5920',
     longitude: '89.2950',
-    notes: 'Requires static IP for remote medical server.'
+    notes: 'Sub PoP optical fiber connection.'
   },
   {
     id: 'DLT-2026-104',
@@ -68,18 +78,21 @@ export const DEFAULT_CLIENTS: ClientRecord[] = [
     password: '●●●●●●',
     phone: '01722-667788',
     gender: 'Female',
-    area: 'Mirzapur Sector',
-    popName: 'Mirzapur PoP-04',
-    zoneName: 'Zone D - Mirzapur',
+    area: 'Shalaipur Area',
+    popName: 'Shalaipur Sub PoP',
+    zoneName: 'Zone D - Shalaipur',
     planName: '30 Mbps Starter',
     monthlyFee: 630,
     status: 'Active',
     joinDate: '2026-05-01',
     paymentMethod: 'bKash',
     ipAddress: '103.145.22.42',
+    onuMac: 'F4:8E:38:12:AA:77',
+    routerMac: '98:48:27:0B:4D:1C',
+    nidNumber: '19952691567890123',
     latitude: '25.5640',
     longitude: '89.2610',
-    notes: 'Home fiber line.'
+    notes: 'Shalaipur Sub PoP fiber connection.'
   }
 ];
 
@@ -176,6 +189,9 @@ export function exportClientsToExcel(clients: ClientRecord[], filename = 'Delta_
     'Join Date',
     'Payment Method',
     'IP Address',
+    'ONU MAC',
+    'Router MAC',
+    'NID Number',
     'Latitude',
     'Longitude',
     'Notes'
@@ -197,6 +213,9 @@ export function exportClientsToExcel(clients: ClientRecord[], filename = 'Delta_
     c.joinDate,
     c.paymentMethod,
     c.ipAddress || '',
+    c.onuMac || '',
+    c.routerMac || '',
+    c.nidNumber || '',
     c.latitude || '',
     c.longitude || '',
     (c.notes || '').replace(/"/g, '""')
@@ -240,6 +259,9 @@ export function downloadSampleExcelTemplate(): void {
       joinDate: '2026-07-28',
       paymentMethod: 'bKash',
       ipAddress: '103.145.22.100',
+      onuMac: 'BC:54:36:11:22:33',
+      routerMac: '74:83:C2:44:55:66',
+      nidNumber: '19882691234567890',
       latitude: '25.5801',
       longitude: '89.2815',
       notes: 'Sample note description'
@@ -294,9 +316,12 @@ export function parseCSVToClients(csvText: string): ClientRecord[] {
       else if (paymentMethodRaw.toLowerCase().includes('bank')) paymentMethod = 'Bank';
 
       const ipAddress = cleanCells[14] || '';
-      const latitude = cleanCells[15] || '';
-      const longitude = cleanCells[16] || '';
-      const notes = cleanCells[17] || cleanCells[15] || '';
+      const onuMac = cleanCells[15] || '';
+      const routerMac = cleanCells[16] || '';
+      const nidNumber = cleanCells[17] || '';
+      const latitude = cleanCells[18] || '';
+      const longitude = cleanCells[19] || '';
+      const notes = cleanCells[20] || cleanCells[17] || '';
 
       parsedClients.push({
         id,
@@ -314,6 +339,9 @@ export function parseCSVToClients(csvText: string): ClientRecord[] {
         joinDate,
         paymentMethod,
         ipAddress,
+        onuMac,
+        routerMac,
+        nidNumber,
         latitude,
         longitude,
         notes

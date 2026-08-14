@@ -46,9 +46,25 @@ import {
   Building2,
   RefreshCw,
   Gift,
-  BadgeCheck
+  BadgeCheck,
+  Fingerprint,
+  Cpu,
+  Scan,
+  Laptop,
+  Check,
+  Zap,
+  RotateCcw,
+  HardDrive,
+  Wifi,
+  Camera,
+  UploadCloud,
+  Image as ImageIcon,
+  Maximize2,
+  FileCheck,
+  Copy
 } from 'lucide-react';
 
+import { useBiometricAuth } from '../hooks/useBiometricAuth';
 import { Logo } from './Logo';
 import branchManagerPhoto from '../assets/images/branch_manager_photo_1785230421070.jpg';
 
@@ -132,6 +148,52 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
     const saved = sessionStorage.getItem('delta_client_data');
     return saved ? JSON.parse(saved) : null;
   });
+
+  // Biometric / Fingerprint Registration & WebAuthn Authentication
+  const biometric = useBiometricAuth();
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [biometricModalMode, setBiometricModalMode] = useState<'login' | 'register'>('login');
+
+  const handleStartBiometricRegistration = async () => {
+    setBiometricModalMode('register');
+    setShowBiometricModal(true);
+    const success = await biometric.registerBiometric('Mahamudul Hasan (Branch Manager)');
+    if (success) {
+      showToast('🖐️ WebAuthn Fingerprint Biometrics Registered Successfully!');
+      setTimeout(() => {
+        setShowBiometricModal(false);
+      }, 1000);
+    }
+  };
+
+  const handleStartBiometricLogin = async () => {
+    if (!biometric.isEnrolled) {
+      setBiometricModalMode('register');
+      setShowBiometricModal(true);
+      const success = await biometric.registerBiometric('Mahamudul Hasan (Branch Manager)');
+      if (success) {
+        showToast('🖐️ Biometrics Enrolled! Now Logging In...');
+        setIsAdminAuthenticated(true);
+        sessionStorage.setItem('delta_admin_auth', 'true');
+        setTimeout(() => {
+          setShowBiometricModal(false);
+        }, 1000);
+      }
+      return;
+    }
+
+    setBiometricModalMode('login');
+    setShowBiometricModal(true);
+    const success = await biometric.authenticateBiometric();
+    if (success) {
+      setIsAdminAuthenticated(true);
+      sessionStorage.setItem('delta_admin_auth', 'true');
+      showToast('🖐️ Biometric Verified! Branch Manager Access Granted.');
+      setTimeout(() => {
+        setShowBiometricModal(false);
+      }, 1000);
+    }
+  };
 
   const handleAdminLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -230,6 +292,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
     status: ClientStatus;
     paymentMethod: PaymentMethod;
     ipAddress: string;
+    onuMac: string;
+    routerMac: string;
+    nidNumber: string;
+    nidPhotoUrl: string;
     latitude: string;
     longitude: string;
     notes: string;
@@ -247,10 +313,49 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
     status: 'Active',
     paymentMethod: 'bKash',
     ipAddress: '',
+    onuMac: '',
+    routerMac: '',
+    nidNumber: '',
+    nidPhotoUrl: '',
     latitude: '',
     longitude: '',
     notes: ''
   });
+
+  // NID Image Preview Modal state
+  const [previewNidModal, setPreviewNidModal] = useState<{
+    name: string;
+    id: string;
+    url: string;
+    nidNumber?: string;
+  } | null>(null);
+
+  // NID File Input ref for form
+  const nidFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // MAC formatting helper function
+  const formatMacAddress = (input: string) => {
+    const clean = input.toUpperCase().replace(/[^0-9A-F]/g, '');
+    const chunks = clean.match(/.{1,2}/g) || [];
+    return chunks.slice(0, 6).join(':');
+  };
+
+  // NID file upload reader helper
+  const handleNidFileUpload = (file: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('⚠️ NID document size should be under 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setFormData(prev => ({ ...prev, nidPhotoUrl: e.target?.result as string }));
+        showToast('📄 Client NID document uploaded successfully!');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Notification / Feedback alert
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -758,6 +863,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
               status: formData.status,
               paymentMethod: formData.paymentMethod,
               ipAddress: formData.ipAddress,
+              onuMac: formData.onuMac,
+              routerMac: formData.routerMac,
+              nidNumber: formData.nidNumber,
+              nidPhotoUrl: formData.nidPhotoUrl,
               latitude: formData.latitude,
               longitude: formData.longitude,
               notes: formData.notes
@@ -785,6 +894,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
         joinDate: new Date().toISOString().slice(0, 10),
         paymentMethod: formData.paymentMethod,
         ipAddress: formData.ipAddress,
+        onuMac: formData.onuMac,
+        routerMac: formData.routerMac,
+        nidNumber: formData.nidNumber,
+        nidPhotoUrl: formData.nidPhotoUrl,
         latitude: formData.latitude,
         longitude: formData.longitude,
         notes: formData.notes
@@ -814,6 +927,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
       status: 'Active',
       paymentMethod: 'bKash',
       ipAddress: '',
+      onuMac: '',
+      routerMac: '',
+      nidNumber: '',
+      nidPhotoUrl: '',
       latitude: '',
       longitude: '',
       notes: ''
@@ -836,6 +953,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
       status: client.status,
       paymentMethod: client.paymentMethod,
       ipAddress: client.ipAddress || '',
+      onuMac: client.onuMac || '',
+      routerMac: client.routerMac || '',
+      nidNumber: client.nidNumber || '',
+      nidPhotoUrl: client.nidPhotoUrl || '',
       latitude: client.latitude || '',
       longitude: client.longitude || '',
       notes: client.notes || ''
@@ -901,7 +1022,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-2 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-0 overflow-hidden">
       {/* Toast Alert */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-[60] bg-slate-900 border border-blue-500/50 text-slate-100 font-semibold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-3">
@@ -910,9 +1031,9 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
         </div>
       )}
 
-      <div className="relative w-full max-w-6xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl text-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative w-full h-full max-w-full bg-slate-900 border-0 text-slate-100 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between border-b border-slate-800 p-4 sm:px-6 bg-slate-900/90 gap-3">
+        <div className="flex flex-wrap items-center justify-between border-b border-slate-800 p-4 sm:px-8 bg-slate-950/90 gap-3">
           <div className="flex items-center gap-3">
             <Logo size="sm" showText={false} />
             <div>
@@ -934,19 +1055,12 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {(isAdminAuthenticated || isClientAuthenticated) && (
+            {isAdminAuthenticated && (
               <div className="flex items-center gap-2">
-                {isAdminAuthenticated ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                    Branch Manager Admin
-                  </span>
-                ) : (
-                  <span className="hidden sm:inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
-                    <UserCheck className="h-3.5 w-3.5 text-blue-400" />
-                    Subscriber: {loggedInClientData?.fullName || 'Client'} ({loggedInClientData?.id})
-                  </span>
-                )}
+                <span className="hidden sm:inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                  Branch Manager Admin
+                </span>
                 <button
                   onClick={handleLogoutAll}
                   className="flex items-center gap-1 px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
@@ -959,7 +1073,8 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition-colors cursor-pointer"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition-colors cursor-pointer border border-slate-700"
+              title="Close Portal"
             >
               <X className="h-5 w-5" />
             </button>
@@ -967,223 +1082,246 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
         </div>
 
         {/* Authentication Gate OR Modal Body */}
-        {(!isAdminAuthenticated && !isClientAuthenticated) ? (
-          <div className="p-6 sm:p-12 flex flex-col items-center justify-center min-h-[440px] bg-slate-950/90">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <ShieldCheck className="h-40 w-40 text-blue-400" />
+        {!isAdminAuthenticated ? (
+          <div className="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto py-6 px-4 sm:py-12 sm:px-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+            {/* Ambient Background Aura */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[650px] h-[400px] sm:h-[650px] bg-gradient-to-tr from-blue-600/15 via-indigo-600/10 to-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="w-full max-w-lg bg-slate-900/95 border-2 border-slate-700/70 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-9 shadow-[0_25px_60px_-10px_rgba(0,0,0,0.9),0_0_40px_rgba(16,185,129,0.12)] backdrop-blur-2xl relative overflow-hidden z-10 my-auto">
+              
+              {/* Top Accent Light Beam */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500" />
+              <div className="absolute top-2 right-2 opacity-5 sm:opacity-10 pointer-events-none">
+                <ShieldCheck className="h-32 w-32 sm:h-44 sm:w-44 text-emerald-400" />
               </div>
 
-              {/* Mode Toggle Switcher: Admin (Username & Password) vs Client (DID Number Only) */}
-              <div className="grid grid-cols-2 gap-1.5 mb-6 p-1 bg-slate-950 rounded-xl border border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMode('admin');
-                    setAdminLoginError('');
-                  }}
-                  className={`py-2 px-3 text-xs font-extrabold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    loginMode === 'admin'
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Admin Login</span>
-                </button>
+              {/* Branch Manager / Admin Login Header */}
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="relative mb-3 group">
+                  <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-emerald-400 shadow-xl shadow-emerald-500/25 ring-4 ring-emerald-500/20">
+                    <img
+                      src={branchManagerPhoto}
+                      alt="Branch Manager - Mahamudul Hasan"
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white p-1.5 rounded-full border-2 border-slate-900 shadow-lg">
+                    <ShieldCheck className="h-4 w-4 text-white" />
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMode('client');
-                    setAdminLoginError('');
-                  }}
-                  className={`py-2 px-3 text-xs font-extrabold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    loginMode === 'client'
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  <span>Client Login (CID)</span>
-                </button>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>Authorized Branch Manager Access</span>
+                </div>
+                
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  {language === 'bn' ? 'ব্রাঞ্চ ম্যানেজার লগইন পোর্টাল' : 'Branch Manager Portal'}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm leading-relaxed">
+                  {language === 'bn' 
+                    ? 'ডেল্টা ফাইবার মিঠাপুকুর কেন্দ্রীয় এনওসি ও ক্লায়েন্ট ডাটাবেস পোর্টাল'
+                    : 'Delta Broadband Mithapukur Central NOC & Subscriber Operations Database'}
+                </p>
               </div>
-
-              {/* Header depending on mode */}
-              {loginMode === 'admin' ? (
-                <div className="flex flex-col items-center text-center mb-6">
-                  <div className="relative mb-3 group">
-                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-xl shadow-emerald-500/25 ring-4 ring-emerald-500/15">
-                      <img
-                        src={branchManagerPhoto}
-                        alt="Branch Manager - Mahamudul Hasan"
-                        className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-600 to-emerald-600 text-white p-1 rounded-full border-2 border-slate-900 shadow-md">
-                      <ShieldCheck className="h-3.5 w-3.5 text-white" />
-                    </div>
-                  </div>
-
-                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[11px] font-extrabold uppercase mb-1.5">
-                    <ShieldAlert className="h-3.5 w-3.5" />
-                    Full Admin Access
-                  </div>
-                  <h3 className="text-lg font-black text-white tracking-tight">Admin Portal Login</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Requires Admin Username and Password
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center text-center mb-6">
-                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 mb-3">
-                    <UserCheck className="h-8 w-8" />
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-extrabold uppercase mb-1.5">
-                    <Phone className="h-3.5 w-3.5" />
-                    Subscriber Self-Care
-                  </div>
-                  <h3 className="text-lg font-black text-white tracking-tight">Client Portal Login</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Log in with ONLY your Subscriber CID / DID Number
-                  </p>
-                </div>
-              )}
 
               {/* Login Error Alert */}
               {adminLoginError && (
-                <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
+                <div className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs font-semibold flex items-center gap-2 shadow-md">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400 animate-bounce" />
                   <span>{adminLoginError}</span>
                 </div>
               )}
 
-              {/* Form Render: Admin Mode vs Client Mode */}
-              {loginMode === 'admin' ? (
-                <form onSubmit={handleAdminLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+              {/* Branch Manager Login Form */}
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
                       <UserCheck className="h-3.5 w-3.5 text-blue-400" />
-                      Admin Username
-                    </label>
+                      {language === 'bn' ? 'ইউজারনেম' : 'Admin Username'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">ID: admin</span>
+                  </label>
+                  <div className="relative">
                     <input
                       type="text"
                       value={adminUsernameInput}
                       onChange={e => setAdminUsernameInput(e.target.value)}
-                      placeholder="Enter username"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-blue-500 px-3.5 py-2.5 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-colors"
+                      placeholder={language === 'bn' ? 'ইউজারনেম টাইপ করুন' : 'Enter admin username'}
+                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
                       <Key className="h-3.5 w-3.5 text-emerald-400" />
-                      Admin Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showAdminPassword ? 'text' : 'password'}
-                        value={adminPasswordInput}
-                        onChange={e => setAdminPasswordInput(e.target.value)}
-                        placeholder="Enter password"
-                        className="w-full bg-slate-950 border border-slate-700 focus:border-blue-500 px-3.5 py-2.5 pr-10 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowAdminPassword(!showAdminPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
-                      >
-                        {showAdminPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 space-y-2">
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all"
-                    >
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Login as Admin (Username & Password)</span>
-                    </button>
-
+                      {language === 'bn' ? 'পাসওয়ার্ড' : 'Admin Password'}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">PASS: admin</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showAdminPassword ? 'text' : 'password'}
+                      value={adminPasswordInput}
+                      onChange={e => setAdminPasswordInput(e.target.value)}
+                      placeholder={language === 'bn' ? 'পাসওয়ার্ড টাইপ করুন' : 'Enter admin password'}
+                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 pr-11 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
+                    />
                     <button
                       type="button"
-                      onClick={handleQuickDemoAdmin}
-                      className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                      onClick={() => setShowAdminPassword(!showAdminPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer transition-colors p-1"
                     >
-                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                      <span>One-Click Demo Admin Login (admin / admin)</span>
+                      {showAdminPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                </form>
-              ) : (
-                <form onSubmit={handleClientLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 text-emerald-400" />
-                        Subscriber CID Number / Customer ID
-                      </span>
-                      <span className="text-[10px] text-emerald-400 font-bold">Only CID Number</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={clientDidInput}
-                      onChange={e => setClientDidInput(e.target.value)}
-                      placeholder="e.g. CID-1001, DLT-1001 or 01785-230421"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 px-3.5 py-2.5 rounded-xl text-slate-100 text-sm font-mono uppercase placeholder-slate-600 focus:outline-none transition-colors"
-                    />
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      No password required! Enter your CID Number or Mobile Phone Number.
-                    </p>
-                  </div>
+                </div>
 
-                  {/* Quick Select Demo Subscribers */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Or Select Sample CID Number:
+                <div className="pt-2 space-y-2.5">
+                  <button
+                    type="submit"
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:via-teal-500 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-emerald-200" />
+                    <span>{language === 'bn' ? 'লগইন করুন (ম্যানেজার এক্সেস)' : 'Login as Branch Manager'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleQuickDemoAdmin}
+                    className="w-full py-2.5 bg-slate-950/80 hover:bg-slate-800 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/80 flex items-center justify-center gap-2 cursor-pointer transition-all hover:border-emerald-500/50 shadow-sm"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+                    <span>{language === 'bn' ? 'এক-ক্লিকে টেস্ট এক্সেস (admin / admin)' : 'One-Click Demo Manager (admin / admin)'}</span>
+                  </button>
+                </div>
+
+                {/* Modern WebAuthn Biometric & Fingerprint Section */}
+                <div className="pt-3.5 border-t border-slate-800/80">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <Fingerprint className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+                      {language === 'bn' ? 'বায়োমেট্রিক ফিঙ্গারপ্রিন্ট' : 'Biometric Access'}
                     </span>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <span className="text-[9px] bg-slate-800 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-slate-700">
+                      Windows Hello™ / FIDO2
+                    </span>
+                  </div>
+
+                  {biometric.isEnrolled ? (
+                    <div className="space-y-2">
                       <button
                         type="button"
-                        onClick={e => handleClientLogin(e, 'DLT-1001')}
-                        className="p-2 rounded-xl bg-slate-950 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/50 text-left cursor-pointer transition-all"
+                        onClick={handleStartBiometricLogin}
+                        className="w-full py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/40 border border-emerald-400/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
                       >
-                        <strong className="text-emerald-400 text-xs font-mono block">CID: DLT-1001</strong>
-                        <span className="text-[10px] text-slate-300 truncate block">Kabir Hossain</span>
+                        <Fingerprint className="h-4 w-4 text-white animate-pulse" />
+                        <span>{language === 'bn' ? 'ফিঙ্গারপ্রিন্ট দিয়ে দ্রুত লগইন' : '⚡ Quick Login with Fingerprint'}</span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={e => handleClientLogin(e, 'DLT-1002')}
-                        className="p-2 rounded-xl bg-slate-950 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/50 text-left cursor-pointer transition-all"
-                      >
-                        <strong className="text-emerald-400 text-xs font-mono block">CID: DLT-1002</strong>
-                        <span className="text-[10px] text-slate-300 truncate block">Salma Begum</span>
-                      </button>
+                      <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+                        <span className="flex items-center gap-1 text-emerald-400 truncate">
+                          <Check className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{biometric.credential?.deviceName || 'Enrolled Biometric Device'}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            biometric.removeBiometric();
+                            showToast('🗑️ Biometric credential removed.');
+                          }}
+                          className="text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer ml-2 shrink-0"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          <span>Reset</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="pt-2">
+                  ) : (
                     <button
-                      type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                      type="button"
+                      onClick={handleStartBiometricRegistration}
+                      className="w-full py-2.5 bg-slate-950 hover:bg-slate-800/90 text-slate-200 hover:text-white font-extrabold text-xs rounded-xl border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm group"
                     >
-                      <UserCheck className="h-4 w-4" />
-                      <span>Log In with CID Number</span>
+                      <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
+                        <Fingerprint className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="text-emerald-300 font-bold text-xs">
+                        {language === 'bn' ? 'ফিঙ্গারপ্রিন্ট রেজিস্টার করুন (Register Fingerprint)' : 'Register for Fingerprint Access'}
+                      </span>
                     </button>
-                  </div>
-                </form>
-              )}
+                  )}
+                </div>
+              </form>
 
-              <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-                <span className="text-[10px] text-slate-500 font-mono flex items-center justify-center gap-1">
-                  <Lock className="h-3 w-3 text-slate-600" />
-                  Delta Broadband Mithapukur Secure Portal Gateway
+              <div className="mt-6 pt-3.5 border-t border-slate-800/80 text-center">
+                <span className="text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>256-Bit SSL Encrypted • Delta Mithapukur Branch Core</span>
                 </span>
               </div>
             </div>
+
+            {/* WebAuthn / Biometric Scanning Interactive Modal Overlay */}
+            {showBiometricModal && (
+              <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
+                <div className="w-full max-w-sm bg-slate-900 border-2 border-emerald-500/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col items-center text-center max-h-[90vh] overflow-y-auto">
+                  {/* Top Ambient Glow */}
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500 animate-pulse" />
+                  
+                  {/* Biometric Sensor Visual */}
+                  <div className="relative my-3 sm:my-4 flex items-center justify-center">
+                    {/* Concentric Pulse Rings */}
+                    <div className="absolute h-24 w-24 sm:h-28 sm:w-28 rounded-full bg-emerald-500/10 animate-ping" />
+                    <div className="absolute h-20 w-20 sm:h-24 sm:w-24 rounded-full border border-emerald-500/30 animate-pulse" />
+                    
+                    <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-tr from-slate-950 to-slate-900 border-2 border-emerald-400 shadow-xl shadow-emerald-500/20 flex items-center justify-center overflow-hidden">
+                      <Fingerprint className={`h-10 w-10 sm:h-12 sm:w-12 ${biometric.state === 'scanning' || biometric.state === 'verifying' ? 'text-emerald-300 animate-bounce' : biometric.state === 'success' ? 'text-emerald-400' : 'text-emerald-400 animate-pulse'}`} />
+                      
+                      {/* Scanning Laser Line */}
+                      {(biometric.state === 'scanning' || biometric.state === 'verifying') && (
+                        <div className="absolute inset-x-0 h-1 bg-emerald-400 shadow-[0_0_8px_#10b981] animate-[scan_1.5s_ease-in-out_infinite]" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider mb-1.5">
+                    <Laptop className="h-3 w-3 text-emerald-400" />
+                    <span>Windows Hello / Touch ID WebAuthn</span>
+                  </div>
+
+                  <h4 className="text-base sm:text-lg font-black text-white">
+                    {biometric.state === 'prompting' && (biometricModalMode === 'register' ? 'Registering Fingerprint...' : 'Detecting Biometric Sensor...')}
+                    {biometric.state === 'scanning' && 'Touch Fingerprint Sensor'}
+                    {biometric.state === 'verifying' && 'Verifying FIDO2 Credential...'}
+                    {biometric.state === 'success' && 'Biometrics Verified!'}
+                    {biometric.state === 'error' && 'Authentication Failed'}
+                  </h4>
+
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-xs leading-relaxed">
+                    {biometric.state === 'prompting' && 'Initializing hardware security module & cryptographic challenge.'}
+                    {biometric.state === 'scanning' && 'Please place your registered finger on your device sensor or security key.'}
+                    {biometric.state === 'verifying' && 'Matching ridge patterns against device secure enclave...'}
+                    {biometric.state === 'success' && 'Cryptographic handshake complete. Access granted to Branch Manager NOC.'}
+                    {biometric.state === 'error' && (biometric.error || 'Biometric authentication failed. Please try again or use password.')}
+                  </p>
+
+                  <div className="mt-4 sm:mt-6 w-full pt-3 sm:pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500 font-mono">FIDO2 / W3C Standard</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowBiometricModal(false)}
+                      className="text-xs font-bold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -1403,6 +1541,8 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                       <th className="py-3 px-3 font-bold">Gender & Phone</th>
                       <th className="py-3 px-3 font-bold">PoP & Zone Name</th>
                       <th className="py-3 px-3 font-bold">Area / Hub</th>
+                      <th className="py-3 px-3 font-bold text-emerald-400">ONU / Router MAC</th>
+                      <th className="py-3 px-3 font-bold text-amber-300">NID & Doc</th>
                       <th className="py-3 px-3 font-bold text-cyan-400">Lat-Log (GPS)</th>
                       <th className="py-3 px-3 font-bold">Plan</th>
                       <th className="py-3 px-3 font-bold">Monthly Bill</th>
@@ -1413,7 +1553,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   <tbody className="divide-y divide-slate-800/60 text-slate-200">
                     {filteredClients.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="py-8 text-center text-slate-500">
+                        <td colSpan={12} className="py-8 text-center text-slate-500">
                           No matching clients found in database. Click "Add New Client" or "Import Excel" to get started.
                         </td>
                       </tr>
@@ -1452,6 +1592,53 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                               <MapPin className="h-3 w-3 text-slate-500 shrink-0" />
                               {c.area}
                             </span>
+                          </td>
+                          {/* Hardware MAC (ONU & Router MAC) */}
+                          <td className="py-3 px-3 text-slate-300">
+                            <div className="space-y-1 min-w-[130px]">
+                              {c.onuMac ? (
+                                <div className="flex items-center gap-1 font-mono text-[10px] text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded shadow-sm" title={`ONU MAC: ${c.onuMac}`}>
+                                  <HardDrive className="h-2.5 w-2.5 text-emerald-400 shrink-0" />
+                                  <span className="truncate">ONU: {c.onuMac}</span>
+                                </div>
+                              ) : (
+                                <div className="text-[10px] text-slate-600 font-mono italic">No ONU MAC</div>
+                              )}
+                              {c.routerMac ? (
+                                <div className="flex items-center gap-1 font-mono text-[10px] text-cyan-300 bg-cyan-950/60 border border-cyan-800/60 px-1.5 py-0.5 rounded shadow-sm" title={`Router MAC: ${c.routerMac}`}>
+                                  <Wifi className="h-2.5 w-2.5 text-cyan-400 shrink-0" />
+                                  <span className="truncate">Rtr: {c.routerMac}</span>
+                                </div>
+                              ) : (
+                                <div className="text-[10px] text-slate-600 font-mono italic">No Router MAC</div>
+                              )}
+                            </div>
+                          </td>
+                          {/* NID & Photo Upload */}
+                          <td className="py-3 px-3 text-slate-300">
+                            <div className="space-y-1 min-w-[110px]">
+                              {c.nidNumber ? (
+                                <div className="text-[11px] font-mono text-amber-300 font-semibold flex items-center gap-1" title={`NID: ${c.nidNumber}`}>
+                                  <FileCheck className="h-3 w-3 text-amber-400 shrink-0" />
+                                  <span className="truncate">{c.nidNumber}</span>
+                                </div>
+                              ) : (
+                                <div className="text-[10px] text-slate-600 font-mono italic">No NID No</div>
+                              )}
+                              {c.nidPhotoUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewNidModal({ name: c.fullName, id: c.id, url: c.nidPhotoUrl!, nidNumber: c.nidNumber })}
+                                  className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-300 hover:text-white bg-blue-950/80 hover:bg-blue-900 border border-blue-700/60 px-2 py-0.5 rounded transition-colors cursor-pointer shadow-sm"
+                                  title="Click to preview uploaded NID card"
+                                >
+                                  <Eye className="h-2.5 w-2.5 text-blue-400" />
+                                  <span>View NID</span>
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-slate-600 italic">No Doc</span>
+                              )}
+                            </div>
                           </td>
                           <td className="py-3 px-3 text-slate-300">
                             {c.latitude && c.longitude ? (
@@ -2399,12 +2586,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                     className="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                   <datalist id="pop-list-options">
-                    <option value="Akmal Market PoP-01" />
-                    <option value="Mithapukur Main PoP-02" />
-                    <option value="Pairaband Hub PoP-03" />
-                    <option value="Mirzapur PoP-04" />
-                    <option value="Ranipukur PoP-05" />
-                    <option value="Gopalpur PoP-06" />
+                    <option value="Boldipukur Bazzar (Delta Mithapukur Brach)" />
+                    <option value="Borogorga PoP" />
+                    <option value="Molonghat Sub PoP" />
+                    <option value="Shalaipur Sub PoP" />
                   </datalist>
                 </div>
 
@@ -2509,6 +2694,254 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                 </div>
               </div>
 
+              {/* Hardware MAC Addresses (ONU & Router MAC) */}
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-200 font-bold text-emerald-400 flex items-center gap-1.5 text-xs">
+                    <HardDrive className="h-3.5 w-3.5 text-emerald-400" />
+                    Device Hardware MAC Addresses (ONU & Router)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const randomHex = () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase();
+                      const genOnu = `BC:54:36:${randomHex()}:${randomHex()}:${randomHex()}`;
+                      const genRouter = `74:83:C2:${randomHex()}:${randomHex()}:${randomHex()}`;
+                      setFormData(prev => ({ ...prev, onuMac: genOnu, routerMac: genRouter }));
+                      showToast('⚡ Auto-generated sample ONU & Router MACs');
+                    }}
+                    className="text-[10px] bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Zap className="h-2.5 w-2.5 text-emerald-400" />
+                    <span>Auto-Gen MAC</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold text-[11px] flex items-center gap-1">
+                      <HardDrive className="h-3 w-3 text-emerald-400" />
+                      ONU MAC Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="BC:54:36:XX:XX:XX"
+                        value={formData.onuMac}
+                        onChange={e => setFormData({ ...formData, onuMac: formatMacAddress(e.target.value) })}
+                        maxLength={17}
+                        className="w-full bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono text-xs tracking-wider uppercase"
+                      />
+                    </div>
+                    <span className="text-[9px] text-slate-500 mt-0.5 block">Optical Network Unit physical address</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold text-[11px] flex items-center gap-1">
+                      <Wifi className="h-3 w-3 text-cyan-400" />
+                      Router MAC Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="74:83:C2:XX:XX:XX"
+                        value={formData.routerMac}
+                        onChange={e => setFormData({ ...formData, routerMac: formatMacAddress(e.target.value) })}
+                        maxLength={17}
+                        className="w-full bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-cyan-300 placeholder-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs tracking-wider uppercase"
+                      />
+                    </div>
+                    <span className="text-[9px] text-slate-500 mt-0.5 block">Wi-Fi Router LAN/WAN MAC address</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client NID & Identity Upload Section */}
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-200 font-bold text-amber-300 flex items-center gap-1.5 text-xs">
+                    <FileCheck className="h-3.5 w-3.5 text-amber-400" />
+                    Client NID & Smart Card Identity (জাতীয় পরিচয়পত্র)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sampleNid = `1988269${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+                      // Create an SVG-based preview card data URL as sample NID
+                      const canvas = document.createElement('canvas');
+                      canvas.width = 600;
+                      canvas.height = 380;
+                      const ctx = canvas.getContext('2d');
+                      if (ctx) {
+                        ctx.fillStyle = '#064e3b';
+                        ctx.fillRect(0, 0, 600, 380);
+                        ctx.fillStyle = '#047857';
+                        ctx.fillRect(10, 10, 580, 360);
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(15, 15, 570, 350);
+                        
+                        // Header
+                        ctx.fillStyle = '#fef08a';
+                        ctx.font = 'bold 20px sans-serif';
+                        ctx.fillText('PEOPLE\'S REPUBLIC OF BANGLADESH', 110, 50);
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '14px sans-serif';
+                        ctx.fillText('National ID Card / জাতীয় পরিচয়পত্র', 190, 75);
+                        
+                        // User info
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.fillText(`Name: ${formData.fullName || 'Subscriber Client'}`, 180, 140);
+                        ctx.font = '14px sans-serif';
+                        ctx.fillText(`Phone: ${formData.phone || '01700-000000'}`, 180, 175);
+                        ctx.fillText(`Area: ${formData.area}`, 180, 210);
+                        
+                        // Photo placeholder box
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillRect(40, 110, 110, 130);
+                        ctx.strokeStyle = '#38bdf8';
+                        ctx.strokeRect(40, 110, 110, 130);
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.fillText('PHOTO', 70, 180);
+                        
+                        // NID Number
+                        ctx.fillStyle = '#fef08a';
+                        ctx.font = 'bold 22px monospace';
+                        ctx.fillText(`NID NO: ${sampleNid}`, 40, 310);
+                        
+                        const sampleUrl = canvas.toDataURL('image/png');
+                        setFormData(prev => ({ ...prev, nidNumber: sampleNid, nidPhotoUrl: sampleUrl }));
+                        showToast('🪪 Generated sample Bangladesh Smart NID card!');
+                      }
+                    }}
+                    className="text-[10px] bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 px-2 py-0.5 rounded font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="h-2.5 w-2.5 text-amber-400" />
+                    <span>Demo NID Card</span>
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold text-[11px]">
+                    NID / Smart Card Number (জাতীয় পরিচয়পত্র নম্বর)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 19882691234567890 (10 or 17 digits)"
+                    value={formData.nidNumber}
+                    onChange={e => setFormData({ ...formData, nidNumber: e.target.value.replace(/[^0-9]/g, '') })}
+                    maxLength={17}
+                    className="w-full bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-xs"
+                  />
+                </div>
+
+                {/* NID Document / Photo Upload */}
+                <div>
+                  <label className="block text-slate-400 mb-1.5 font-semibold text-[11px] flex items-center justify-between">
+                    <span>Upload NID Front/Back Photo (এনআইডি ছবি / কপি)</span>
+                    {formData.nidPhotoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, nidPhotoUrl: '' }))}
+                        className="text-[10px] text-rose-400 hover:underline cursor-pointer flex items-center gap-0.5"
+                      >
+                        <Trash2 className="h-2.5 w-2.5" /> Remove Photo
+                      </button>
+                    )}
+                  </label>
+
+                  <input
+                    type="file"
+                    ref={nidFileInputRef}
+                    accept="image/*,application/pdf"
+                    onChange={e => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleNidFileUpload(e.target.files[0]);
+                      }
+                    }}
+                    className="hidden"
+                  />
+
+                  {formData.nidPhotoUrl ? (
+                    <div className="relative rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-2.5 flex items-center gap-3">
+                      <div className="h-16 w-24 rounded-lg overflow-hidden border border-emerald-500/30 bg-slate-900 shrink-0 relative group">
+                        <img
+                          src={formData.nidPhotoUrl}
+                          alt="Client NID Document"
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewNidModal({
+                            name: formData.fullName || 'Subscriber',
+                            id: editingClient ? editingClient.id : 'New Client',
+                            url: formData.nidPhotoUrl,
+                            nidNumber: formData.nidNumber
+                          })}
+                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity cursor-pointer"
+                        >
+                          <Maximize2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 text-xs font-bold text-emerald-400">
+                          <CheckCircle className="h-3.5 w-3.5" />
+                          <span>NID Document Attached</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
+                          {formData.nidNumber ? `NID: ${formData.nidNumber}` : 'Document attached'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewNidModal({
+                              name: formData.fullName || 'Subscriber',
+                              id: editingClient ? editingClient.id : 'New Client',
+                              url: formData.nidPhotoUrl,
+                              nidNumber: formData.nidNumber
+                            })}
+                            className="text-[10px] px-2 py-0.5 rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700/60 font-bold transition-colors cursor-pointer flex items-center gap-1"
+                          >
+                            <Eye className="h-2.5 w-2.5" /> View Full
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => nidFileInputRef.current?.click()}
+                            className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors cursor-pointer"
+                          >
+                            Change File
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => nidFileInputRef.current?.click()}
+                      onDragOver={e => e.preventDefault()}
+                      onDrop={e => {
+                        e.preventDefault();
+                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                          handleNidFileUpload(e.dataTransfer.files[0]);
+                        }
+                      }}
+                      className="border-2 border-dashed border-slate-700 hover:border-blue-500/80 bg-slate-900/50 hover:bg-slate-900 rounded-xl p-3.5 text-center cursor-pointer transition-all duration-200 group"
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <UploadCloud className="h-6 w-6 text-slate-400 group-hover:text-blue-400 transition-colors mb-1" />
+                        <span className="text-xs font-bold text-slate-200 group-hover:text-white">
+                          Click or drag NID photo to upload
+                        </span>
+                        <span className="text-[10px] text-slate-500 mt-0.5">
+                          PNG, JPG, or WebP up to 5MB (Smart Card / NID Paper)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-400 mb-1 font-semibold">IP Address (Optional)</label>
                 <input
@@ -2607,6 +3040,73 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* FULL NID DOCUMENT / PHOTO PREVIEW MODAL */}
+      {previewNidModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl bg-slate-900 border-2 border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <FileCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-100 flex items-center gap-2">
+                    <span>{previewNidModal.name}</span>
+                    <span className="font-mono text-xs text-blue-400 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
+                      {previewNidModal.id}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-amber-400 font-mono">
+                    {previewNidModal.nidNumber ? `NID No: ${previewNidModal.nidNumber}` : 'National ID Document'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewNidModal(null)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Image Body */}
+            <div className="p-4 bg-slate-950 flex items-center justify-center overflow-auto max-h-[60vh]">
+              <img
+                src={previewNidModal.url}
+                alt={`NID Card of ${previewNidModal.name}`}
+                className="max-h-[50vh] max-w-full rounded-xl object-contain border border-slate-800 shadow-2xl"
+              />
+            </div>
+
+            {/* Footer */}
+            <div className="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">
+                Verified Delta Broadband Subscriber Identity Document
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewNidModal.url}
+                  download={`NID_${previewNidModal.id}_${previewNidModal.name.replace(/\s+/g, '_')}.png`}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download NID</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPreviewNidModal(null)}
+                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

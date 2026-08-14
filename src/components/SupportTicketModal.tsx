@@ -905,8 +905,8 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   const emergencyCount = tickets.filter(t => t.priority === 'emergency').length;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-2 sm:p-5 overflow-y-auto">
-      <div className={`relative w-full ${isMobileAppMode ? 'max-w-md' : 'max-w-5xl'} rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[95vh] transition-all duration-300`}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-0 sm:p-2 overflow-hidden">
+      <div className={`relative w-full ${isMobileAppMode ? 'max-w-md h-[92vh]' : 'w-full h-full sm:h-[96vh] max-w-full md:max-w-[99vw]'} sm:rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden my-auto flex flex-col transition-all duration-300`}>
         
         {/* Top App Mode & Modal Bar */}
         <div className="flex items-center justify-between border-b border-slate-800 p-3 sm:px-6 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 gap-2">

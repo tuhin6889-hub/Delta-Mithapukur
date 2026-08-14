@@ -92,7 +92,7 @@ export const CoverageMap: React.FC = () => {
               <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search Boldipukur, Sadar, Pairaband, College Road..."
+                placeholder="Search Boldipukur, Borogorga, Molonghat, Shalaipur PoP..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
@@ -266,7 +266,7 @@ export const CoverageMap: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-[10px] font-black text-white bg-slate-900/95 px-2 py-0.5 rounded-lg shadow-md border border-blue-500/50 inline-block mt-1 whitespace-nowrap">
-                    MAIN HUB (Boldipukur)
+                    Delta Mithapukur Branch Core PoP
                   </span>
                 </div>
 
@@ -366,7 +366,7 @@ export const CoverageMap: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-400 pt-1 gap-1">
-                <span>Central Transmission Node: Boldipukur Bazaar Akmal Market</span>
+                <span>Central Transmission Core: Boldipukur Bazzar (Delta Mithapukur Brach)</span>
                 <span className="text-blue-400 font-semibold">Rangpur Division • Bangladesh</span>
               </div>
             </div>

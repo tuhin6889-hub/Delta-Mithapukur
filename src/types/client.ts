@@ -18,6 +18,10 @@ export interface ClientRecord {
   joinDate: string; // YYYY-MM-DD
   paymentMethod: PaymentMethod;
   ipAddress?: string;
+  onuMac?: string;
+  routerMac?: string;
+  nidNumber?: string;
+  nidPhotoUrl?: string;
   latitude?: string;
   longitude?: string;
   notes?: string;

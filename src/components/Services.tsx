@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle, CheckCircle2, Server, MapPin } from 'lucide-react';
 import { ImageSideshow } from './ImageSideshow';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 import branchManagerPhoto from '../assets/images/regenerated_image_1786009739201.jpg';
@@ -70,6 +70,61 @@ export const Services: React.FC = () => {
       badgeLabel: 'Marketing Officer',
       borderColor: 'border-cyan-500/40 hover:border-cyan-400/80',
       tagColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+    }
+  ];
+
+  const popInCharges = [
+    {
+      popName: 'Boldipukur Bazzar (Delta Mithapukur Brach)',
+      bengaliPopName: 'বলদিপুকুর বাজার (ডেল্টা মিঠাপুকুর ব্রাঞ্চ)',
+      type: 'Central Transmission Core PoP',
+      officerName: 'Mahamudul Hasan',
+      role: 'Branch Manager & Core PoP In-Charge',
+      phone: '0171-9394430',
+      whatsapp: '01719394430',
+      image: branchManagerPhoto,
+      status: 'Core Active',
+      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+      borderColor: 'border-emerald-500/40'
+    },
+    {
+      popName: 'Borogorga PoP',
+      bengaliPopName: 'বড়দরগাহ্‌ পিওপি',
+      type: 'Main Regional PoP',
+      officerName: 'MD. Jion Hasan',
+      role: 'Support Manager & Borogorga PoP In-Charge',
+      phone: '01944455176',
+      whatsapp: '01944455176',
+      image: supportManagerPhoto,
+      status: 'Regional Active',
+      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+      borderColor: 'border-blue-500/40'
+    },
+    {
+      popName: 'Molonghat Sub PoP',
+      bengaliPopName: 'মোলংহাট সাব-পিওপি',
+      type: 'Distribution Sub PoP',
+      officerName: 'Habibur Rahman',
+      role: 'Marketing Lead & Molonghat Sub PoP In-Charge',
+      phone: '01944455176',
+      whatsapp: '01944455176',
+      image: marketingOfficerPhoto,
+      status: 'Sub PoP Active',
+      badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+      borderColor: 'border-indigo-500/40'
+    },
+    {
+      popName: 'Shalaipur Sub PoP',
+      bengaliPopName: 'শালাইপুর সাব-পিওপি',
+      type: 'Distribution Sub PoP',
+      officerName: 'Sharif Hossain',
+      role: 'Senior NOC Specialist & Shalaipur Sub PoP In-Charge',
+      phone: '01712-001122',
+      whatsapp: '01712001122',
+      image: branchManagerPhoto,
+      status: 'Sub PoP Active',
+      badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+      borderColor: 'border-purple-500/40'
     }
   ];
 
@@ -221,6 +276,100 @@ export const Services: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* All PoP In-Charge Officers Section */}
+        <div className="my-16 bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 backdrop-blur-xl shadow-2xl">
+          <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-sky-400 bg-sky-500/10 px-3.5 py-1.5 rounded-full border border-sky-500/20">
+              <Server className="h-3.5 w-3.5 text-sky-400" />
+              <span>PoP In-Charge Officers</span>
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              All PoP In-Charge Directory
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-400">
+              Dedicated officers responsible for core transmission, regional routing, and local sub-PoP distribution across Delta Mithapukur.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {popInCharges.map((pop, idx) => (
+              <div
+                key={idx}
+                className={`p-5 rounded-2xl bg-slate-950 border ${pop.borderColor} shadow-xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300`}
+              >
+                <div>
+                  {/* Top Header */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${pop.badgeColor}`}>
+                      {pop.status}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-sky-400" />
+                      <span>PoP 0{idx + 1}</span>
+                    </span>
+                  </div>
+
+                  {/* PoP Name */}
+                  <div className="mb-3 pb-2.5 border-b border-slate-800/80">
+                    <h4 className="text-sm font-black text-white tracking-tight group-hover:text-sky-300 transition-colors">
+                      {pop.popName}
+                    </h4>
+                    <p className="text-[11px] text-emerald-400 font-semibold mt-0.5">
+                      {pop.bengaliPopName}
+                    </p>
+                    <span className="text-[10px] text-slate-400 font-mono block mt-1">
+                      {pop.type}
+                    </span>
+                  </div>
+
+                  {/* Officer Info */}
+                  <div className="flex items-center gap-3 my-2">
+                    <div className="h-12 w-12 rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shrink-0 shadow-md">
+                      <img
+                        src={pop.image}
+                        alt={pop.officerName}
+                        className="h-full w-full object-cover object-top"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-extrabold uppercase text-sky-400 block tracking-wider">
+                        PoP In-Charge
+                      </span>
+                      <h5 className="text-sm font-bold text-slate-100 truncate">
+                        {pop.officerName}
+                      </h5>
+                      <p className="text-[10px] text-slate-400 line-clamp-1">
+                        {pop.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Action */}
+                <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center gap-2 text-xs">
+                  <a
+                    href={`https://wa.me/88${pop.whatsapp.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-[11px] transition-all"
+                  >
+                    <MessageCircle className="h-3 w-3" />
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href={`tel:${pop.phone}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-[11px] transition-all"
+                  >
+                    <Phone className="h-3 w-3 text-sky-400" />
+                    <span>Call</span>
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

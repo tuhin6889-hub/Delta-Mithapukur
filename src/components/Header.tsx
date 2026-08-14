@@ -85,9 +85,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
       {/* Top Scrolling Promotional Banner */}
       <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 text-slate-100 border-b border-blue-800/40 py-1.5 px-3 text-xs overflow-hidden relative group shadow-inner">
         <div className="flex items-center gap-2 max-w-7xl mx-auto">
-          <div className="shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-extrabold px-2.5 py-0.5 rounded text-[11px] tracking-wide shadow-sm z-10 border border-blue-400/30">
+          <div className="shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white font-black px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider shadow-sm z-10 border border-red-400/40 animate-pulse">
             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin-slow" />
-            <span>ডেল্টা মিঠাপুকুর ব্রাঞ্চ ওপেনিং অফার</span>
+            <span>{language === 'bn' ? 'ব্রেকিং নিউজ' : 'Breaking News'}</span>
           </div>
 
           <div className="overflow-hidden relative w-full flex items-center">
@@ -158,13 +158,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-3 lg:gap-5">
-            <a href="#home" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
-              {t('nav_home')}
-            </a>
-            <a href="#services" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
-              {t('nav_services')}
-            </a>
+            <nav className="hidden md:flex items-center gap-3 lg:gap-5">
+              <a href="#home" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105">
+                {t('nav_home')}
+              </a>
+              <a href="#services" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105">
+                {t('nav_services')}
+              </a>
             <a href="#speed-test" className="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-block transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               <Gauge className="h-3.5 w-3.5" />
               {t('nav_speedtest')}

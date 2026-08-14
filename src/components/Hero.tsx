@@ -107,9 +107,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
               {/* Speed Meter Feature Box */}
               <div className="bg-slate-950/80 rounded-2xl p-5 border border-slate-800 mb-6 space-y-4">
                 <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-                  <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                  <span className="flex items-center gap-1 text-emerald-400 font-bold uppercase tracking-wider">
                     <Activity className="h-3.5 w-3.5 animate-pulse" />
-                    {language === 'bn' ? 'নেটওয়ার্ক সচল' : 'NETWORK LIVE'}
+                    {language === 'bn' ? 'ব্রাঞ্চ নেটওয়ার্ক লাইভ' : 'BRANCH NETWORK LIVE'}
                   </span>
                   <span>LATENCY: 4ms</span>
                 </div>
