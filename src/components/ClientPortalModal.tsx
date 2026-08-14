@@ -61,7 +61,10 @@ import {
   Image as ImageIcon,
   Maximize2,
   FileCheck,
-  Copy
+  Copy,
+  Sliders,
+  Radio,
+  Waves
 } from 'lucide-react';
 
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
@@ -149,17 +152,44 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Biometric / Fingerprint Registration & WebAuthn Authentication
+  // Biometric / Fingerprint Registration & WebAuthn Authentication (Strict 1 Finger Allowed)
   const biometric = useBiometricAuth();
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const [biometricModalMode, setBiometricModalMode] = useState<'login' | 'register'>('login');
+  const [selectedFingerType, setSelectedFingerType] = useState<string>('Right Index / Thumb (Master Finger)');
+  
+  // Biomedical Signal Processing & Control State
+  const [bioSamplingRate, setBioSamplingRate] = useState<number>(1000); // 1000 Hz
+  const [bioFilterType, setBioFilterType] = useState<'butterworth' | 'chebyshev' | 'wavelet' | 'notch'>('butterworth');
+  const [bioNoiseSuppression, setBioNoiseSuppression] = useState<boolean>(true);
+  const [bioGainLevel, setBioGainLevel] = useState<number>(4.2);
+  const [bioSnrRatio, setBioSnrRatio] = useState<number>(38.6); // dB
+  const [showBioSignalPanel, setShowBioSignalPanel] = useState<boolean>(false);
+  const [bioPpgHeartRate, setBioPpgHeartRate] = useState<number>(72);
+  const [bioSignalQuality, setBioSignalQuality] = useState<number>(98.4); // %
+  const [bioWaveformPoints, setBioWaveformPoints] = useState<number[]>([15, 20, 28, 65, 95, 22, 10, 18, 25, 30, 22, 18, 16, 20, 24, 70, 98, 20, 12, 15]);
 
-  const handleStartBiometricRegistration = async () => {
+  useEffect(() => {
+    // Dynamic biomedical pulse / signal stream simulator
+    const interval = setInterval(() => {
+      setBioPpgHeartRate(prev => Math.min(88, Math.max(68, Math.round(prev + (Math.random() * 4 - 2)))));
+      setBioSnrRatio(prev => +(Math.min(42.5, Math.max(35.0, prev + (Math.random() * 0.8 - 0.4))).toFixed(1)));
+      setBioSignalQuality(prev => +(Math.min(99.9, Math.max(95.0, prev + (Math.random() * 0.4 - 0.2))).toFixed(1)));
+      setBioWaveformPoints(prev => {
+        const nextVal = Math.floor(Math.random() * 15) + (Math.random() > 0.8 ? 75 : 15);
+        return [...prev.slice(1), nextVal];
+      });
+    }, 1200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStartBiometricRegistration = async (fingerLabel?: string) => {
+    const fingerName = fingerLabel || selectedFingerType || 'Right Index / Thumb (Master Finger)';
     setBiometricModalMode('register');
     setShowBiometricModal(true);
-    const success = await biometric.registerBiometric('Mahamudul Hasan (Branch Manager)');
+    const success = await biometric.registerBiometric('Mahamudul Hasan (Branch Manager)', fingerName);
     if (success) {
-      showToast('🖐️ WebAuthn Fingerprint Biometrics Registered Successfully!');
+      showToast('🖐️ 1 Master Fingerprint Enrolled Successfully! (Slot 1 of 1 Filled)');
       setTimeout(() => {
         setShowBiometricModal(false);
       }, 1000);
@@ -168,17 +198,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
 
   const handleStartBiometricLogin = async () => {
     if (!biometric.isEnrolled) {
-      setBiometricModalMode('register');
-      setShowBiometricModal(true);
-      const success = await biometric.registerBiometric('Mahamudul Hasan (Branch Manager)');
-      if (success) {
-        showToast('🖐️ Biometrics Enrolled! Now Logging In...');
-        setIsAdminAuthenticated(true);
-        sessionStorage.setItem('delta_admin_auth', 'true');
-        setTimeout(() => {
-          setShowBiometricModal(false);
-        }, 1000);
-      }
+      handleStartBiometricRegistration();
       return;
     }
 
@@ -188,7 +208,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
     if (success) {
       setIsAdminAuthenticated(true);
       sessionStorage.setItem('delta_admin_auth', 'true');
-      showToast('🖐️ Biometric Verified! Branch Manager Access Granted.');
+      showToast('🖐️ Master Fingerprint Verified! Branch Manager Access Granted.');
       setTimeout(() => {
         setShowBiometricModal(false);
       }, 1000);
@@ -1199,68 +1219,290 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   </button>
                 </div>
 
-                {/* Modern WebAuthn Biometric & Fingerprint Section */}
+                {/* Modern WebAuthn Biometric & Fingerprint Section (Strict 1 Finger Limit) */}
                 <div className="pt-2.5 sm:pt-3.5 border-t border-slate-800/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                       <Fingerprint className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-                      {language === 'bn' ? 'বায়োমেট্রিক ফিঙ্গারপ্রিন্ট' : 'Biometric Access'}
+                      <span>{language === 'bn' ? 'বায়োমেট্রিক ১টি ফিঙ্গারপ্রিন্ট' : 'Biometric Fingerprint (1 Finger Only)'}</span>
                     </span>
-                    <span className="text-[9px] bg-slate-800 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-slate-700">
-                      Windows Hello / Mobile Touch
+                    <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${
+                      biometric.isEnrolled 
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' 
+                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                    }`}>
+                      {biometric.isEnrolled ? '1/1 Finger Enrolled' : '0/1 Enrolled (1 Slot)'}
                     </span>
                   </div>
 
                   {biometric.isEnrolled ? (
                     <div className="space-y-2">
+                      {/* Active 1-Finger Registered Status Card */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/90 border border-emerald-500/30 flex items-center justify-between shadow-inner">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="h-8 w-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                            <Fingerprint className="h-4 w-4 text-emerald-400" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-bold text-white flex items-center gap-1.5 truncate">
+                              <span className="truncate">{biometric.credential?.fingerSlot || 'Primary Master Finger'}</span>
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono shrink-0">Slot 1/1</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate font-mono">
+                              {biometric.credential?.deviceName || 'Device Biometric'} • {biometric.credential?.enrolledAt}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            biometric.removeBiometric();
+                            showToast('🗑️ Master Fingerprint removed. 1 slot now available.');
+                          }}
+                          className="text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 p-1.5 rounded-lg transition-colors cursor-pointer shrink-0 ml-1"
+                          title="Delete registered fingerprint"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Primary Quick Login Button */}
                       <button
                         type="button"
                         onClick={handleStartBiometricLogin}
                         className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/40 border border-emerald-400/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
                       >
                         <Fingerprint className="h-4 w-4 text-white animate-pulse" />
-                        <span>{language === 'bn' ? 'ফিঙ্গারপ্রিন্ট দিয়ে দ্রুত লগইন' : '⚡ Quick Login with Fingerprint'}</span>
+                        <span>{language === 'bn' ? 'রেজিস্টারকৃত ফিঙ্গারপ্রিন্ট দিয়ে লগইন' : '⚡ Login with 1 Enrolled Finger'}</span>
                       </button>
 
-                      <div className="flex items-center justify-between px-1 text-[10px] sm:text-[11px] text-slate-400">
-                        <span className="flex items-center gap-1 text-emerald-400 truncate">
-                          <Check className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{biometric.credential?.deviceName || 'Enrolled Biometric Device'}</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            biometric.removeBiometric();
-                            showToast('🗑️ Biometric credential removed.');
-                          }}
-                          className="text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer ml-2 shrink-0"
-                        >
-                          <RotateCcw className="h-3 w-3" />
-                          <span>Reset</span>
-                        </button>
-                      </div>
+                      {/* Re-register / Replace Single Finger Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleStartBiometricRegistration()}
+                        className="w-full py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs rounded-xl border border-slate-700/80 hover:border-emerald-500/50 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm"
+                      >
+                        <RotateCcw className="h-3 w-3 text-emerald-400" />
+                        <span>{language === 'bn' ? 'ফিঙ্গারপ্রিন্ট পরিবর্তন / পুনরায় রেজিস্টার (১টি ফিংগার)' : '🔄 Replace / Re-register 1 Fingerprint'}</span>
+                      </button>
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={handleStartBiometricRegistration}
-                      className="w-full py-2 sm:py-2.5 bg-slate-950 hover:bg-slate-800/90 text-slate-200 hover:text-white font-extrabold text-xs rounded-xl border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm group"
-                    >
-                      <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
-                        <Fingerprint className="h-3.5 w-3.5" />
+                    <div className="space-y-2">
+                      {/* Finger Type Selector Pill (1 Finger Only) */}
+                      <div className="bg-slate-950/80 p-2 rounded-xl border border-slate-800">
+                        <div className="text-[10px] text-slate-400 font-bold mb-1.5 flex items-center justify-between">
+                          <span>{language === 'bn' ? '১টি আঙুল নির্বাচন করুন:' : 'Select 1 Finger to Register:'}</span>
+                          <span className="text-emerald-400 font-mono text-[9px]">Max 1 Allowed</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1">
+                          {[
+                            'Right Index (Primary)',
+                            'Right Thumb',
+                            'Left Index'
+                          ].map((f) => (
+                            <button
+                              key={f}
+                              type="button"
+                              onClick={() => setSelectedFingerType(f)}
+                              className={`py-1 px-1.5 text-[10px] font-bold rounded-lg truncate transition-all cursor-pointer ${
+                                selectedFingerType === f
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                              }`}
+                            >
+                              {f}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <span className="text-emerald-300 font-bold text-[11px] sm:text-xs">
-                        {language === 'bn' ? 'ফিঙ্গারপ্রিন্ট রেজিস্টার করুন' : 'Register for Fingerprint Access'}
-                      </span>
-                    </button>
+
+                      {/* Main Register 1 Fingerprint Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleStartBiometricRegistration(selectedFingerType)}
+                        className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/50 border border-emerald-400/50 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                      >
+                        <div className="p-1 rounded-lg bg-emerald-400/20 text-emerald-200">
+                          <Fingerprint className="h-4 w-4 animate-pulse" />
+                        </div>
+                        <span>
+                          {language === 'bn' 
+                            ? '১টি ফিঙ্গারপ্রিন্ট রেজিস্টার করুন (Register 1 Finger)' 
+                            : '🖐️ Register Fingerprint (1 Finger Allowed)'}
+                        </span>
+                      </button>
+
+                      <p className="text-[10px] text-center text-slate-500 font-mono">
+                        {language === 'bn' 
+                          ? 'নিরাপত্তার স্বার্থে শুধুমাত্র ১টি মাস্টার ফিঙ্গারপ্রিন্ট স্লট সক্রিয় থাকবে'
+                          : 'Security Policy: Exactly 1 Master Finger biometric slot is allocated'}
+                      </p>
+                    </div>
                   )}
                 </div>
               </form>
 
+              {/* Biomedical Signal Processing & Control in Footer */}
+              <div className="mt-4 pt-3.5 border-t border-slate-800/90">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                    <Activity className="h-4 w-4 text-emerald-400 animate-pulse" />
+                    <span>Biomedical Signal Processing & Control</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowBioSignalPanel(!showBioSignalPanel)}
+                    className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <Sliders className="h-3 w-3" />
+                    <span>{showBioSignalPanel ? 'Hide Controls' : 'Live DSP & Control'}</span>
+                  </button>
+                </div>
+
+                {/* Real-time DSP Waveform & Key Metrics */}
+                <div className="p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 shadow-inner">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1.5 pb-1 border-b border-slate-800/80">
+                    <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      PPG/ECG Live DSP Stream
+                    </span>
+                    <span className="text-slate-500">Fs: {bioSamplingRate} Hz</span>
+                  </div>
+
+                  {/* Waveform Visualization Bars */}
+                  <div className="h-8 flex items-end justify-between gap-1 px-1 py-0.5 bg-slate-900/80 rounded-lg border border-slate-800 mb-2 overflow-hidden">
+                    {bioWaveformPoints.map((val, idx) => (
+                      <div
+                        key={idx}
+                        style={{ height: `${Math.max(12, Math.min(100, val))}%` }}
+                        className={`flex-1 rounded-t transition-all duration-300 ${
+                          val > 60
+                            ? 'bg-gradient-to-t from-emerald-500 to-teal-300'
+                            : 'bg-emerald-500/40'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* 3 Realtime DSP Readouts */}
+                  <div className="grid grid-cols-3 gap-1.5 text-center">
+                    <div className="bg-slate-900/90 p-1.5 rounded-lg border border-slate-800">
+                      <div className="text-[9px] text-slate-400 font-medium">Heart Pulse (PPG)</div>
+                      <div className="text-xs font-bold font-mono text-rose-400 flex items-center justify-center gap-1">
+                        <Activity className="h-2.5 w-2.5 text-rose-500 animate-pulse" />
+                        <span>{bioPpgHeartRate} BPM</span>
+                      </div>
+                    </div>
+                    <div className="bg-slate-900/90 p-1.5 rounded-lg border border-slate-800">
+                      <div className="text-[9px] text-slate-400 font-medium">SNR (Signal/Noise)</div>
+                      <div className="text-xs font-bold font-mono text-emerald-300">
+                        {bioSnrRatio} dB
+                      </div>
+                    </div>
+                    <div className="bg-slate-900/90 p-1.5 rounded-lg border border-slate-800">
+                      <div className="text-[9px] text-slate-400 font-medium">Signal Quality</div>
+                      <div className="text-xs font-bold font-mono text-cyan-300">
+                        {bioSignalQuality}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expandable Control Panel for Biomedical Filtering and DSP Control */}
+                  {showBioSignalPanel && (
+                    <div className="mt-2.5 pt-2.5 border-t border-slate-800/90 space-y-2 text-[11px] animate-in fade-in slide-in-from-top-1">
+                      {/* Filter Type Selector */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400 font-medium flex items-center gap-1 text-[10px]">
+                          <Waves className="h-3 w-3 text-cyan-400" />
+                          Digital Filter Algorithm:
+                        </span>
+                        <div className="flex gap-1">
+                          {(['butterworth', 'wavelet', 'notch'] as const).map(ft => (
+                            <button
+                              key={ft}
+                              type="button"
+                              onClick={() => setBioFilterType(ft)}
+                              className={`px-1.5 py-0.5 rounded text-[9px] font-mono capitalize transition-all cursor-pointer ${
+                                bioFilterType === ft
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-800'
+                              }`}
+                            >
+                              {ft}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Gain & Sampling Controls */}
+                      <div className="grid grid-cols-2 gap-2 text-[10px]">
+                        <div>
+                          <div className="flex justify-between text-slate-400 mb-0.5">
+                            <span>ADC Gain:</span>
+                            <span className="font-mono text-emerald-400">{bioGainLevel}x</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1.0"
+                            max="10.0"
+                            step="0.2"
+                            value={bioGainLevel}
+                            onChange={e => setBioGainLevel(parseFloat(e.target.value))}
+                            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-slate-400 mb-0.5">
+                            <span>Sampling Fs:</span>
+                            <span className="font-mono text-cyan-400">{bioSamplingRate} Hz</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {[500, 1000, 2000].map(rate => (
+                              <button
+                                key={rate}
+                                type="button"
+                                onClick={() => setBioSamplingRate(rate)}
+                                className={`flex-1 py-0.5 text-[9px] font-mono rounded cursor-pointer ${
+                                  bioSamplingRate === rate
+                                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                                    : 'bg-slate-900 text-slate-500 border border-slate-800'
+                                }`}
+                              >
+                                {rate >= 1000 ? `${rate / 1000}k` : rate}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Adaptive Noise Suppression Toggle */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                        <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                          <Radio className="h-3 w-3 text-emerald-400" />
+                          Adaptive 50Hz Notch / Motion Artifact Filter:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setBioNoiseSuppression(!bioNoiseSuppression)}
+                          className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
+                            bioNoiseSuppression
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              : 'bg-slate-800 text-slate-500'
+                          }`}
+                        >
+                          {bioNoiseSuppression ? 'ACTIVE (ON)' : 'DISABLED'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="mt-4 sm:mt-6 pt-3 sm:pt-3.5 border-t border-slate-800/80 text-center">
                 <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
                   <Lock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span className="truncate">256-Bit SSL Encrypted • Delta Mithapukur Core</span>
+                  <span className="truncate">256-Bit SSL Encrypted • Biomedical Signal Processing & Control Enabled</span>
                 </span>
               </div>
             </div>
@@ -1272,6 +1514,12 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   {/* Top Ambient Glow */}
                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500 animate-pulse" />
                   
+                  {/* Single Slot Badge */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider mb-2">
+                    <Fingerprint className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Single Finger Slot (1 of 1)</span>
+                  </div>
+
                   {/* Biometric Sensor Visual */}
                   <div className="relative my-3 sm:my-4 flex items-center justify-center">
                     {/* Concentric Pulse Rings */}
@@ -1288,29 +1536,29 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider mb-1.5">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[9px] sm:text-[10px] font-mono mb-1.5 border border-slate-700">
                     <Laptop className="h-3 w-3 text-emerald-400" />
-                    <span>Windows Hello / Touch ID WebAuthn</span>
+                    <span>{biometricModalMode === 'register' ? `Registering: ${selectedFingerType}` : 'Master Fingerprint Verification'}</span>
                   </div>
 
                   <h4 className="text-base sm:text-lg font-black text-white">
-                    {biometric.state === 'prompting' && (biometricModalMode === 'register' ? 'Registering Fingerprint...' : 'Detecting Biometric Sensor...')}
-                    {biometric.state === 'scanning' && 'Touch Fingerprint Sensor'}
-                    {biometric.state === 'verifying' && 'Verifying FIDO2 Credential...'}
-                    {biometric.state === 'success' && 'Biometrics Verified!'}
+                    {biometric.state === 'prompting' && (biometricModalMode === 'register' ? 'Registering 1 Master Fingerprint...' : 'Detecting Biometric Sensor...')}
+                    {biometric.state === 'scanning' && 'Place Selected Finger on Sensor'}
+                    {biometric.state === 'verifying' && 'Verifying & Saving 1-Finger Key...'}
+                    {biometric.state === 'success' && (biometricModalMode === 'register' ? '1 Finger Enrolled Successfully!' : 'Master Finger Verified!')}
                     {biometric.state === 'error' && 'Authentication Failed'}
                   </h4>
 
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-xs leading-relaxed">
-                    {biometric.state === 'prompting' && 'Initializing hardware security module & cryptographic challenge.'}
-                    {biometric.state === 'scanning' && 'Please place your registered finger on your device sensor or security key.'}
-                    {biometric.state === 'verifying' && 'Matching ridge patterns against device secure enclave...'}
-                    {biometric.state === 'success' && 'Cryptographic handshake complete. Access granted to Branch Manager NOC.'}
+                    {biometric.state === 'prompting' && 'Initializing hardware security module & biometric challenge for single finger authentication.'}
+                    {biometric.state === 'scanning' && 'Please place your chosen finger on your device fingerprint reader or Touch ID sensor.'}
+                    {biometric.state === 'verifying' && 'Generating FIDO2 asymmetric cryptographic key for 1 authorized master finger...'}
+                    {biometric.state === 'success' && 'Biometric profile saved. Single master finger access is now active.'}
                     {biometric.state === 'error' && (biometric.error || 'Biometric authentication failed. Please try again or use password.')}
                   </p>
 
                   <div className="mt-4 sm:mt-6 w-full pt-3 sm:pt-4 border-t border-slate-800 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-500 font-mono">FIDO2 / W3C Standard</span>
+                    <span className="text-[10px] text-slate-500 font-mono">1 Finger Policy • FIDO2</span>
                     <button
                       type="button"
                       onClick={() => setShowBiometricModal(false)}

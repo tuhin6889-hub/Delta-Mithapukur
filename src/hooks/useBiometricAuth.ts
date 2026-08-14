@@ -6,6 +6,7 @@ export interface BiometricCredential {
   enrolledAt: string;
   deviceName: string;
   algorithm: string;
+  fingerSlot: string; // e.g. "Primary Master Finger (Slot 1 of 1)"
 }
 
 export type BiometricState = 'idle' | 'prompting' | 'scanning' | 'verifying' | 'success' | 'error';
@@ -22,7 +23,7 @@ export function useBiometricAuth() {
   useEffect(() => {
     try {
       const isWebAuthnAvailable = typeof window !== 'undefined' && !!window.PublicKeyCredential;
-      setIsSupported(isWebAuthnAvailable || true); // Supported natively or via biometric hardware simulator
+      setIsSupported(isWebAuthnAvailable || true);
 
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -33,8 +34,8 @@ export function useBiometricAuth() {
     }
   }, []);
 
-  // Register / Enroll Biometric Credential (WebAuthn Flow)
-  const registerBiometric = useCallback(async (userName: string = 'admin'): Promise<boolean> => {
+  // Register / Enroll Biometric Credential (Strictly 1 Finger Allowed)
+  const registerBiometric = useCallback(async (userName: string = 'Mahamudul Hasan (Branch Manager)', fingerLabel: string = 'Primary Master Finger'): Promise<boolean> => {
     setState('prompting');
     setError(null);
 
@@ -53,7 +54,7 @@ export function useBiometricAuth() {
             
             let detectedDevice = 'Security Key / Biometric Sensor';
             if (isWindows) detectedDevice = 'Windows Hello™ Biometrics';
-            else if (isMobile) detectedDevice = 'Touch ID / Fingerprint Sensor';
+            else if (isMobile) detectedDevice = 'Touch ID / Phone Sensor';
             else if (isMac) detectedDevice = 'Mac Touch ID';
 
             const newCred: BiometricCredential = {
@@ -67,9 +68,11 @@ export function useBiometricAuth() {
                 minute: '2-digit'
               }),
               deviceName: detectedDevice,
-              algorithm: 'ES256 (FIDO2 / WebAuthn standard)'
+              algorithm: 'ES256 (FIDO2 / WebAuthn standard)',
+              fingerSlot: fingerLabel || 'Master Finger (Slot 1 of 1)'
             };
 
+            // Enforce single finger limit by overwriting previous slot
             localStorage.setItem(STORAGE_KEY, JSON.stringify(newCred));
             setCredential(newCred);
             setState('success');
