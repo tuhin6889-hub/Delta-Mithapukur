@@ -1083,60 +1083,60 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
 
         {/* Authentication Gate OR Modal Body */}
         {!isAdminAuthenticated ? (
-          <div className="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto py-6 px-4 sm:py-12 sm:px-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+          <div className="flex-1 w-full min-h-[calc(100vh-65px)] flex flex-col items-center justify-center overflow-y-auto p-3 sm:p-6 md:p-8 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
             {/* Ambient Background Aura */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[650px] h-[400px] sm:h-[650px] bg-gradient-to-tr from-blue-600/15 via-indigo-600/10 to-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[550px] md:w-[700px] h-[320px] sm:h-[550px] md:h-[700px] bg-gradient-to-tr from-emerald-600/15 via-blue-600/10 to-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="w-full max-w-lg bg-slate-900/95 border-2 border-slate-700/70 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-9 shadow-[0_25px_60px_-10px_rgba(0,0,0,0.9),0_0_40px_rgba(16,185,129,0.12)] backdrop-blur-2xl relative overflow-hidden z-10 my-auto">
+            <div className="w-full max-w-sm sm:max-w-md md:max-w-lg bg-slate-900/95 border border-slate-700/80 sm:border-2 sm:border-slate-700/70 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-9 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(16,185,129,0.15)] backdrop-blur-2xl relative overflow-hidden z-10 my-auto">
               
               {/* Top Accent Light Beam */}
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500" />
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500" />
               <div className="absolute top-2 right-2 opacity-5 sm:opacity-10 pointer-events-none">
-                <ShieldCheck className="h-32 w-32 sm:h-44 sm:w-44 text-emerald-400" />
+                <ShieldCheck className="h-28 w-28 sm:h-44 sm:w-44 text-emerald-400" />
               </div>
 
               {/* Branch Manager / Admin Login Header */}
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="relative mb-3 group">
-                  <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-emerald-400 shadow-xl shadow-emerald-500/25 ring-4 ring-emerald-500/20">
+              <div className="flex flex-col items-center text-center mb-4 sm:mb-6">
+                <div className="relative mb-2.5 sm:mb-3 group">
+                  <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 rounded-full overflow-hidden border-2 border-emerald-400 shadow-xl shadow-emerald-500/25 ring-4 ring-emerald-500/20">
                     <img
                       src={branchManagerPhoto}
                       alt="Branch Manager - Mahamudul Hasan"
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 bg-gradient-to-r from-blue-600 to-emerald-600 text-white p-1.5 rounded-full border-2 border-slate-900 shadow-lg">
-                    <ShieldCheck className="h-4 w-4 text-white" />
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-1 sm:p-1.5 rounded-full border-2 border-slate-900 shadow-lg">
+                    <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                   </div>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] sm:text-xs font-black uppercase tracking-wider mb-1.5 sm:mb-2">
+                  <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 animate-ping" />
                   <span>Authorized Branch Manager Access</span>
                 </div>
                 
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight">
                   {language === 'bn' ? 'ব্রাঞ্চ ম্যানেজার লগইন পোর্টাল' : 'Branch Manager Portal'}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm leading-relaxed">
+                <p className="text-[11px] sm:text-xs md:text-sm text-slate-400 mt-0.5 sm:mt-1 max-w-sm leading-relaxed">
                   {language === 'bn' 
                     ? 'ডেল্টা ফাইবার মিঠাপুকুর কেন্দ্রীয় এনওসি ও ক্লায়েন্ট ডাটাবেস পোর্টাল'
-                    : 'Delta Broadband Mithapukur Central NOC & Subscriber Operations Database'}
+                    : 'Delta Broadband Mithapukur Central NOC & Subscriber Database'}
                 </p>
               </div>
 
               {/* Login Error Alert */}
               {adminLoginError && (
-                <div className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs font-semibold flex items-center gap-2 shadow-md">
+                <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs font-semibold flex items-center gap-2 shadow-md">
                   <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400 animate-bounce" />
                   <span>{adminLoginError}</span>
                 </div>
               )}
 
               {/* Branch Manager Login Form */}
-              <form onSubmit={handleAdminLogin} className="space-y-4">
+              <form onSubmit={handleAdminLogin} className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-200 mb-1 sm:mb-1.5 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <UserCheck className="h-3.5 w-3.5 text-blue-400" />
                       {language === 'bn' ? 'ইউজারনেম' : 'Admin Username'}
@@ -1149,13 +1149,13 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                       value={adminUsernameInput}
                       onChange={e => setAdminUsernameInput(e.target.value)}
                       placeholder={language === 'bn' ? 'ইউজারনেম টাইপ করুন' : 'Enter admin username'}
-                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
+                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl text-slate-100 text-xs sm:text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-200 mb-1 sm:mb-1.5 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <Key className="h-3.5 w-3.5 text-emerald-400" />
                       {language === 'bn' ? 'পাসওয়ার্ড' : 'Admin Password'}
@@ -1168,7 +1168,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                       value={adminPasswordInput}
                       onChange={e => setAdminPasswordInput(e.target.value)}
                       placeholder={language === 'bn' ? 'পাসওয়ার্ড টাইপ করুন' : 'Enter admin password'}
-                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-4 py-3 pr-11 rounded-xl text-slate-100 text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
+                      className="w-full bg-slate-950/80 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 px-3.5 py-2.5 sm:px-4 sm:py-3 pr-10 sm:pr-11 rounded-xl text-slate-100 text-xs sm:text-sm font-mono placeholder-slate-600 focus:outline-none transition-all shadow-inner"
                     />
                     <button
                       type="button"
@@ -1180,10 +1180,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-2 space-y-2.5">
+                <div className="pt-1 sm:pt-2 space-y-2 sm:space-y-2.5">
                   <button
                     type="submit"
-                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:via-teal-500 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                    className="w-full py-2.5 sm:py-3 md:py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 hover:from-emerald-500 hover:via-teal-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
                   >
                     <ShieldCheck className="h-4 w-4 text-emerald-200" />
                     <span>{language === 'bn' ? 'লগইন করুন (ম্যানেজার এক্সেস)' : 'Login as Branch Manager'}</span>
@@ -1192,7 +1192,7 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   <button
                     type="button"
                     onClick={handleQuickDemoAdmin}
-                    className="w-full py-2.5 bg-slate-950/80 hover:bg-slate-800 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/80 flex items-center justify-center gap-2 cursor-pointer transition-all hover:border-emerald-500/50 shadow-sm"
+                    className="w-full py-2 sm:py-2.5 bg-slate-950/80 hover:bg-slate-800 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700/80 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all hover:border-emerald-500/50 shadow-sm"
                   >
                     <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
                     <span>{language === 'bn' ? 'এক-ক্লিকে টেস্ট এক্সেস (admin / admin)' : 'One-Click Demo Manager (admin / admin)'}</span>
@@ -1200,14 +1200,14 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                 </div>
 
                 {/* Modern WebAuthn Biometric & Fingerprint Section */}
-                <div className="pt-3.5 border-t border-slate-800/80">
-                  <div className="flex items-center justify-between mb-2.5">
+                <div className="pt-2.5 sm:pt-3.5 border-t border-slate-800/80">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                       <Fingerprint className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
                       {language === 'bn' ? 'বায়োমেট্রিক ফিঙ্গারপ্রিন্ট' : 'Biometric Access'}
                     </span>
                     <span className="text-[9px] bg-slate-800 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-slate-700">
-                      Windows Hello™ / FIDO2
+                      Windows Hello / Mobile Touch
                     </span>
                   </div>
 
@@ -1216,13 +1216,13 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                       <button
                         type="button"
                         onClick={handleStartBiometricLogin}
-                        className="w-full py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/40 border border-emerald-400/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                        className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/40 border border-emerald-400/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
                       >
                         <Fingerprint className="h-4 w-4 text-white animate-pulse" />
                         <span>{language === 'bn' ? 'ফিঙ্গারপ্রিন্ট দিয়ে দ্রুত লগইন' : '⚡ Quick Login with Fingerprint'}</span>
                       </button>
 
-                      <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+                      <div className="flex items-center justify-between px-1 text-[10px] sm:text-[11px] text-slate-400">
                         <span className="flex items-center gap-1 text-emerald-400 truncate">
                           <Check className="h-3 w-3 shrink-0" />
                           <span className="truncate">{biometric.credential?.deviceName || 'Enrolled Biometric Device'}</span>
@@ -1244,23 +1244,23 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                     <button
                       type="button"
                       onClick={handleStartBiometricRegistration}
-                      className="w-full py-2.5 bg-slate-950 hover:bg-slate-800/90 text-slate-200 hover:text-white font-extrabold text-xs rounded-xl border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm group"
+                      className="w-full py-2 sm:py-2.5 bg-slate-950 hover:bg-slate-800/90 text-slate-200 hover:text-white font-extrabold text-xs rounded-xl border border-emerald-500/40 hover:border-emerald-400 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm group"
                     >
                       <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
                         <Fingerprint className="h-3.5 w-3.5" />
                       </div>
-                      <span className="text-emerald-300 font-bold text-xs">
-                        {language === 'bn' ? 'ফিঙ্গারপ্রিন্ট রেজিস্টার করুন (Register Fingerprint)' : 'Register for Fingerprint Access'}
+                      <span className="text-emerald-300 font-bold text-[11px] sm:text-xs">
+                        {language === 'bn' ? 'ফিঙ্গারপ্রিন্ট রেজিস্টার করুন' : 'Register for Fingerprint Access'}
                       </span>
                     </button>
                   )}
                 </div>
               </form>
 
-              <div className="mt-6 pt-3.5 border-t border-slate-800/80 text-center">
-                <span className="text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
-                  <Lock className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>256-Bit SSL Encrypted • Delta Mithapukur Branch Core</span>
+              <div className="mt-4 sm:mt-6 pt-3 sm:pt-3.5 border-t border-slate-800/80 text-center">
+                <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">256-Bit SSL Encrypted • Delta Mithapukur Core</span>
                 </span>
               </div>
             </div>
