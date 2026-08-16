@@ -1,10 +1,10 @@
 import React from 'react';
-import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle, CheckCircle2, Server, MapPin } from 'lucide-react';
+import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle, MessageSquare, MessagesSquare, CheckCircle2, Server, MapPin } from 'lucide-react';
 import { ImageSideshow } from './ImageSideshow';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 import branchManagerPhoto from '../assets/images/regenerated_image_1786009739201.jpg';
 import supportManagerPhoto from '../assets/images/support_manager_avatar_1786007253596.jpg';
-import marketingOfficerPhoto from '../assets/images/marketing_officer_avatar_1786007271529.jpg';
+import marketingOfficerPhoto from '../assets/images/regenerated_image_1786855975878.png';
 
 export const Services: React.FC = () => {
   const branchManager = OUR_TEAM.find(t => t.id === 'team-1') || {
@@ -49,11 +49,12 @@ export const Services: React.FC = () => {
   const keyPersonnel = [
     {
       ...branchManager,
-      badgeColor: 'from-blue-600 to-emerald-600',
-      badgeIcon: ShieldCheck,
+      badgeColor: 'from-blue-600 via-indigo-600 to-sky-500',
+      badgeIcon: MessageCircle,
       badgeLabel: 'Branch Manager',
-      borderColor: 'border-emerald-500/40 hover:border-emerald-400/80',
-      tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+      borderColor: 'border-blue-500/40 hover:border-blue-400/80',
+      tagColor: 'bg-blue-500/10 text-sky-400 border-blue-500/30',
+      messenger: BRANCH_INFO.messengerLink,
     },
     {
       ...supportManager,
@@ -61,7 +62,8 @@ export const Services: React.FC = () => {
       badgeIcon: HelpCircle,
       badgeLabel: 'Support Manager',
       borderColor: 'border-amber-500/40 hover:border-amber-400/80',
-      tagColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+      tagColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+      messenger: BRANCH_INFO.messengerLink,
     },
     {
       ...marketingOfficer,
@@ -69,7 +71,8 @@ export const Services: React.FC = () => {
       badgeIcon: Megaphone,
       badgeLabel: 'Marketing Officer',
       borderColor: 'border-cyan-500/40 hover:border-cyan-400/80',
-      tagColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+      tagColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+      messenger: BRANCH_INFO.messengerLink,
     }
   ];
 
@@ -203,13 +206,14 @@ export const Services: React.FC = () => {
                   
                   {/* Executive Portrait Frame */}
                   <div className="relative mb-4">
-                    <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl overflow-hidden p-1 bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 border border-slate-600/80 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.2)] group-hover:border-blue-400/80 group-hover:shadow-[0_10px_30px_-5px_rgba(59,130,246,0.3)] transition-all duration-300">
-                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-950">
+                    <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl overflow-hidden p-1 bg-gradient-to-b from-blue-500/30 via-slate-800 to-slate-900 border border-blue-500/40 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.25)] group-hover:border-blue-400 group-hover:shadow-[0_10px_30px_-5px_rgba(59,130,246,0.4)] transition-all duration-300">
+                      <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-950 flex items-center justify-center">
                         <img
                           src={person.image}
                           alt={person.name}
                           className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105 group-hover:brightness-105"
                           referrerPolicy="no-referrer"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
                       </div>
@@ -243,30 +247,34 @@ export const Services: React.FC = () => {
                     </div>
                     
                     {/* Direct Contact Action Bar */}
-                    <div className="pt-4 mt-4 flex items-center justify-center gap-2 text-xs border-t border-slate-800/80 w-full">
-                      <a 
-                        href={person.whatsapp ? `https://wa.me/88${person.whatsapp.replace(/[^0-9]/g, '')}` : `tel:${person.phone}`} 
-                        target={person.whatsapp ? "_blank" : undefined}
-                        rel={person.whatsapp ? "noopener noreferrer" : undefined}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold transition-all text-xs"
-                        title={person.whatsapp ? "Direct WhatsApp Chat" : "Call Phone"}
-                      >
-                        {person.whatsapp ? (
-                          <>
-                            <MessageCircle className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400/20" />
-                            <span>WhatsApp</span>
-                          </>
-                        ) : (
-                          <>
-                            <Phone className="h-3.5 w-3.5" />
-                            <span>Call Now</span>
-                          </>
-                        )}
-                      </a>
+                    <div className="pt-4 mt-4 grid grid-cols-2 gap-2 text-xs border-t border-slate-800/80 w-full">
+                      {person.messenger ? (
+                        <a 
+                          href={person.messenger}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 hover:border-blue-400 text-sky-300 font-bold transition-all text-[11px] shadow-sm"
+                          title="Direct Facebook Messenger Chat"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5 text-sky-400 fill-sky-400/30" />
+                          <span>Messenger</span>
+                        </a>
+                      ) : (
+                        <a 
+                          href={person.whatsapp ? `https://wa.me/88${person.whatsapp.replace(/[^0-9]/g, '')}` : `tel:${person.phone}`} 
+                          target={person.whatsapp ? "_blank" : undefined}
+                          rel={person.whatsapp ? "noopener noreferrer" : undefined}
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold transition-all text-[11px]"
+                          title={person.whatsapp ? "Direct WhatsApp Chat" : "Call Phone"}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400/20" />
+                          <span>WhatsApp</span>
+                        </a>
+                      )}
 
                       <a 
                         href={`tel:${person.phone}`}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold transition-all text-xs"
+                        className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold transition-all text-[11px]"
                       >
                         <Phone className="h-3.5 w-3.5 text-blue-400" />
                         <span>{person.phone}</span>

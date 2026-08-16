@@ -56,6 +56,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ClientRecord } from '../types/client';
 import { getStoredClients, saveStoredClients } from '../lib/clientStorage';
 import deltaLogoImg from '../assets/images/regenerated_image_1785198851415.jpg';
+import { QRCodeSVG } from 'qrcode.react';
 
 export interface SupportTicket {
   id: string;
@@ -78,7 +79,7 @@ interface SupportTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialCategory?: string;
-  initialTab?: 'fast_login' | 'create' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app';
+  initialTab?: 'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app';
 }
 
 const UNIONS_LIST = [
@@ -101,6 +102,49 @@ const ISSUE_CATEGORIES = [
   { id: 'router_wifi', label: '🛠️ Wi-Fi Password / Router Configuration', defaultPriority: 'normal' },
   { id: 'power_onu', label: '🔌 ONU Device Power / Optical Loss', defaultPriority: 'high' },
   { id: 'other', label: '❓ Other Technical / Line Request', defaultPriority: 'normal' }
+];
+
+export const QR_SUPPORT_PRESETS = [
+  {
+    id: 'los_emergency',
+    title: '🔴 Red LOS Cut',
+    category: '🔴 Red Light (LOS) / Fiber Line Cut',
+    priority: 'emergency' as const,
+    description: 'ONU LOS red light blinking continuously. Immediate fiber drop splice required.',
+    badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+  },
+  {
+    id: 'slow_latency',
+    title: '🐌 Slow Speed & Ping',
+    category: '🐌 Slow Speed / High Ping & Latency',
+    priority: 'medium' as const,
+    description: 'Experiencing severe packet loss and slow download speeds during peak evening hours.',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+  },
+  {
+    id: 'wifi_config',
+    title: '🛠️ Router & Wi-Fi',
+    category: '🛠️ Wi-Fi Password / Router Configuration',
+    priority: 'normal' as const,
+    description: 'Need assistance reconfiguring router SSID password and 5GHz optical channel settings.',
+    badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+  },
+  {
+    id: 'billing_renew',
+    title: '💳 bKash Bill Renewal',
+    category: '💳 Billing / bKash Payment / Renewal',
+    priority: 'normal' as const,
+    description: 'Monthly package fee sent via bKash. Requesting account validity extension.',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+  },
+  {
+    id: 'power_onu',
+    title: '🔌 ONU Power Loss',
+    category: '🔌 ONU Device Power / Optical Loss',
+    priority: 'high' as const,
+    description: 'ONU power indicator off. Optical drop power supply adapter failure suspected.',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+  }
 ];
 
 const DEMO_TECHNICIANS = [
@@ -237,7 +281,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   initialTab
 }) => {
   const { t, language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'fast_login' | 'create' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>(initialTab || 'admin_portal');
+  const [activeTab, setActiveTab] = useState<'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>(initialTab || 'admin_portal');
   const [isMobileAppMode, setIsMobileAppMode] = useState<boolean>(false);
 
   // Form State for Ticket Creation
@@ -250,6 +294,12 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   const [priority, setPriority] = useState<'normal' | 'medium' | 'high' | 'emergency'>('high');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
+
+  // Dynamic QR Code Generation State
+  const [qrTargetType, setQrTargetType] = useState<'whatsapp' | 'web_portal' | 'router_sticker'>('whatsapp');
+  const [showLiveQrSection, setShowLiveQrSection] = useState<boolean>(true);
+  const [qrSize, setQrSize] = useState<number>(180);
+  const [qrPresetSelected, setQrPresetSelected] = useState<string>('');
 
   // Submitted ticket state
   const [lastCreatedTicket, setLastCreatedTicket] = useState<SupportTicket | null>(null);
@@ -662,6 +712,200 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
     showToast(`📩 Email notification dispatched to info@deltamithapukur.net.bd for Ticket ${t.id}!`);
   };
 
+  // Dynamic QR Code Generator: Build Portal URL
+  const buildQuickTicketPortalUrl = (
+    cidVal: string = customerId,
+    nameVal: string = name,
+    phoneVal: string = phone,
+    unionVal: string = union,
+    catVal: string = category,
+    priVal: string = priority,
+    descVal: string = description
+  ) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://deltamithapukur.net.bd';
+    const params = new URLSearchParams();
+    params.set('action', 'quick_ticket');
+    if (cidVal.trim()) params.set('cid', cidVal.trim().toUpperCase());
+    if (nameVal.trim()) params.set('name', nameVal.trim());
+    if (phoneVal.trim()) params.set('phone', phoneVal.trim());
+    if (unionVal) params.set('union', unionVal);
+    if (catVal) params.set('cat', catVal);
+    if (priVal) params.set('pri', priVal);
+    if (descVal.trim()) params.set('desc', descVal.trim());
+    return `${origin}/?${params.toString()}`;
+  };
+
+  // Dynamic QR Code Generator: Build WhatsApp URL
+  const buildWhatsAppDirectTicketUrl = (
+    cidVal: string = customerId,
+    nameVal: string = name,
+    phoneVal: string = phone,
+    unionVal: string = union,
+    catVal: string = category,
+    priVal: string = priority,
+    descVal: string = description
+  ) => {
+    const managerPhone = '8801944455176';
+    const text =
+      `*⚡ DELTA MITHAPUKUR RAPID SUPPORT DISPATCH*\n\n` +
+      `• Subscriber CID: ${cidVal.trim() ? cidVal.trim().toUpperCase() : 'DLT-MITH-GUEST'}\n` +
+      `• Name: ${nameVal.trim() || 'Valued Subscriber'}\n` +
+      `• Contact: ${phoneVal.trim() || 'N/A'}\n` +
+      `• Union/Area: ${unionVal || 'Mithapukur'}\n` +
+      `• Issue Category: ${catVal || 'Optical Fiber Support'}\n` +
+      `• Priority: ${(priVal || 'HIGH').toUpperCase()}\n` +
+      (descVal.trim() ? `• Issue Notes: ${descVal.trim()}\n\n` : '\n') +
+      `_Generated via Delta Mithapukur Dynamic QR Support Desk_\n` +
+      `_NOC Email: info@deltamithapukur.net.bd_`;
+    return `https://wa.me/${managerPhone}?text=${encodeURIComponent(text)}`;
+  };
+
+  // Dynamic QR Code Generator: Router Sticker Payload
+  const buildRouterStickerPayload = (
+    cidVal: string = customerId,
+    nameVal: string = name,
+    phoneVal: string = phone,
+    unionVal: string = union
+  ) => {
+    return (
+      `DELTA-MITHAPUKUR-FIBER-SUPPORT\n` +
+      `CID:${cidVal.trim() ? cidVal.trim().toUpperCase() : 'DLT-MITH-CLIENT'}\n` +
+      `NAME:${nameVal.trim() || 'Subscriber'}\n` +
+      `PHONE:${phoneVal.trim() || '01944455176'}\n` +
+      `AREA:${unionVal || 'Mithapukur'}\n` +
+      `HOTLINE:01944455176\n` +
+      `WEB:https://deltamithapukur.net.bd`
+    );
+  };
+
+  // Get active dynamic QR code value
+  const getDynamicQrValue = () => {
+    if (qrTargetType === 'whatsapp') {
+      return buildWhatsAppDirectTicketUrl();
+    } else if (qrTargetType === 'web_portal') {
+      return buildQuickTicketPortalUrl();
+    } else {
+      return buildRouterStickerPayload();
+    }
+  };
+
+  // Download SVG QR Code as high-res PNG image
+  const downloadQrAsPng = (elementId: string, filename: string = 'delta-support-qr.png') => {
+    const svg = document.getElementById(elementId);
+    if (!svg) {
+      showToast('❌ Unable to find QR code element for download.');
+      return;
+    }
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = (img.width || 240) + 40;
+      canvas.height = (img.height || 240) + 40;
+      if (ctx) {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 20, 20);
+        const pngFile = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.download = filename;
+        downloadLink.href = pngFile;
+        downloadLink.click();
+        showToast(`📥 QR Code saved as ${filename}!`);
+      }
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  // Print Formatted Router QR Sticker
+  const handlePrintQrBadge = (data: {
+    cid?: string;
+    name?: string;
+    phone?: string;
+    union?: string;
+    category?: string;
+    qrSvgId: string;
+  }) => {
+    const svg = document.getElementById(data.qrSvgId);
+    if (!svg) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Delta Mithapukur Quick Support QR Sticker</title>
+          <style>
+            @page { size: auto; margin: 8mm; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; margin: 0; padding: 16px; background: #fff; color: #0f172a; }
+            .badge-card { border: 2.5px dashed #0284c7; border-radius: 16px; padding: 18px; max-width: 320px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+            .logo-title { font-size: 17px; font-weight: 900; color: #0284c7; margin: 2px 0; }
+            .subtitle { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+            .qr-wrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; display: inline-block; margin: 6px 0; }
+            .info-row { font-size: 11.5px; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dotted #cbd5e1; padding-bottom: 3px; }
+            .info-label { color: #64748b; }
+            .info-val { font-weight: bold; color: #0f172a; }
+            .hotline-box { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 8px; margin-top: 10px; }
+            .hotline-title { font-size: 9.5px; font-weight: bold; color: #e11d48; text-transform: uppercase; }
+            .hotline-nums { font-size: 13px; font-weight: 900; color: #be123c; margin-top: 2px; }
+            .footer-note { font-size: 9px; color: #94a3b8; margin-top: 8px; }
+          </style>
+        </head>
+        <body>
+          <div class="badge-card">
+            <div class="logo-title">DELTA MITHAPUKUR ISP</div>
+            <div class="subtitle">Quick Support & Rapid Fiber Outage QR</div>
+            <div class="qr-wrapper">
+              ${svg.outerHTML}
+            </div>
+            <div class="info-row">
+              <span class="info-label">Customer CID:</span>
+              <span class="info-val">${data.cid || 'DLT-MITH-CLIENT'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Subscriber:</span>
+              <span class="info-val">${data.name || 'Valued Client'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone:</span>
+              <span class="info-val">${data.phone || '01944455176'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Area Hub:</span>
+              <span class="info-val">${data.union || 'Mithapukur'}</span>
+            </div>
+            <div class="hotline-box">
+              <div class="hotline-title">24/7 Mithapukur NOC Hotline</div>
+              <div class="hotline-nums">01944455176 • 0171-9394430</div>
+            </div>
+            <div class="footer-note">Stick on ONU / Wi-Fi Router for 1-Touch Smartphone Support</div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  // Apply Quick Support QR Preset
+  const handleApplyQrPreset = (preset: {
+    id: string;
+    title: string;
+    category: string;
+    priority: 'normal' | 'medium' | 'high' | 'emergency';
+    description: string;
+  }) => {
+    setCategory(preset.category);
+    setPriority(preset.priority);
+    setDescription(preset.description);
+    setSubject(`${preset.category} - ${union}`);
+    setQrPresetSelected(preset.id);
+    showToast(`⚡ Loaded preset: ${preset.title}! QR code updated.`);
+  };
+
   // AI Diagnostic Run
   const handleRunAiDiagnostic = () => {
     setIsDiagnosing(true);
@@ -1034,6 +1278,23 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
             >
               <Ticket className="h-3.5 w-3.5 text-rose-400" />
               <span>New Ticket</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('qr_ticket');
+              }}
+              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === 'qr_ticket'
+                  ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <QrCode className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
+              <span>⚡ QR Quick Ticket</span>
+              <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase ml-0.5">
+                Dynamic
+              </span>
             </button>
 
             <button
@@ -1412,19 +1673,85 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                     {language === 'bn' ? 'সাপোর্ট টিকিট সফলভাবে তৈরি হয়েছে!' : 'Support Ticket Logged Successfully!'}
                   </h3>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
-                    Notification alert sent to Email <strong className="text-emerald-400">info@deltamithapukur.net.bd</strong> and Branch Manager WhatsApp <strong className="text-emerald-400">01944455176</strong>.
+                    Notification alert dispatched to Email <strong className="text-emerald-400">info@deltamithapukur.net.bd</strong> and Branch Manager WhatsApp <strong className="text-emerald-400">01944455176</strong>.
                   </p>
                 </div>
 
+                {/* Ticket ID Badge */}
                 <div className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-xs">
                   <span className="text-slate-400">Ticket ID:</span>
                   <strong className="text-emerald-400 font-bold text-sm">{lastCreatedTicket.id}</strong>
                   <button
                     onClick={() => handleCopyId(lastCreatedTicket.id)}
                     className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                    title="Copy Ticket ID"
                   >
                     {copiedTicketId ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   </button>
+                </div>
+
+                {/* Dynamic Ticket Tracking QR Code */}
+                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 max-w-md mx-auto space-y-3 shadow-inner">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-white">
+                      <QrCode className="h-4 w-4 text-emerald-400" />
+                      <span>Scan to Track Ticket Live on Smartphone</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      DYNAMIC QR
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl inline-block shadow-lg border-2 border-emerald-500/40">
+                    <QRCodeSVG
+                      id="ticket-success-qrcode-svg"
+                      value={buildQuickTicketPortalUrl(
+                        lastCreatedTicket.customerId,
+                        lastCreatedTicket.name,
+                        lastCreatedTicket.phone,
+                        lastCreatedTicket.union,
+                        lastCreatedTicket.category,
+                        lastCreatedTicket.priority,
+                        lastCreatedTicket.id
+                      )}
+                      size={150}
+                      level="H"
+                      includeMargin={false}
+                    />
+                  </div>
+
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Scan with any smartphone camera to check lineman ETA & resolution updates.
+                  </p>
+
+                  <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => downloadQrAsPng('ticket-success-qrcode-svg', `ticket-${lastCreatedTicket.id}-qr.png`)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Download className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>Download QR</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handlePrintQrBadge({
+                          cid: lastCreatedTicket.customerId,
+                          name: lastCreatedTicket.name,
+                          phone: lastCreatedTicket.phone,
+                          union: lastCreatedTicket.union,
+                          category: lastCreatedTicket.category,
+                          qrSvgId: 'ticket-success-qrcode-svg'
+                        })
+                      }
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Printer className="h-3.5 w-3.5 text-blue-400" />
+                      <span>Print Router Sticker</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
@@ -1453,183 +1780,678 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmitTicket} className="space-y-4">
-                <div className="bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-amber-500/10 border border-rose-500/30 p-3 rounded-xl flex items-center justify-between gap-2.5 flex-wrap">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-rose-400 shrink-0" />
-                    <p className="text-xs text-rose-200 font-medium">
-                      24/7 Rapid Lineman Dispatch for Mithapukur, Boldipukur, Ranipukur & Akmal Market Fiber lines.
-                    </p>
+              <div className="space-y-4">
+                {/* 1-Click Quick Support Presets Bar */}
+                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-white">
+                      <Zap className="h-4 w-4 text-amber-400" />
+                      <span>1-Click Quick Issue Presets (Auto-Updates Form & Dynamic QR):</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      Hotline: 01944455176 / 0171-9394430
+                    </span>
                   </div>
-                  <div className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5" />
-                    <span>info@deltamithapukur.net.bd</span>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {QR_SUPPORT_PRESETS.map(preset => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleApplyQrPreset(preset)}
+                        className={`p-2 rounded-xl text-left border text-[11px] font-bold transition-all cursor-pointer flex flex-col justify-between gap-1 ${
+                          qrPresetSelected === preset.id
+                            ? `${preset.badgeColor} shadow-md`
+                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'
+                        }`}
+                      >
+                        <span className="truncate">{preset.title}</span>
+                        <span className="text-[9px] opacity-75 font-mono uppercase tracking-wider">{preset.priority}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Subscriber Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="e.g. Mahbubur Rahman"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 px-3.5 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
-                    />
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  {/* Left: Support Ticket Form (7 cols) */}
+                  <div className="lg:col-span-7 space-y-4">
+                    <form onSubmit={handleSubmitTicket} className="space-y-3.5 p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                      <div className="bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-amber-500/10 border border-rose-500/30 p-2.5 rounded-xl flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-3.5 w-3.5 text-rose-400 shrink-0" />
+                          <p className="text-[11px] text-rose-200 font-medium">
+                            24/7 Rapid Lineman Dispatch for Mithapukur, Boldipukur, Ranipukur & Akmal Market.
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          <span>info@deltamithapukur.net.bd</span>
+                        </div>
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Mobile Phone / WhatsApp Number *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      placeholder="01712345678"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 px-3.5 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
-                    />
-                  </div>
-                </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Subscriber Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="e.g. Mahbubur Rahman"
+                            className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                          />
+                        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Subscriber CID Number (e.g. DLT-2026-101)
-                    </label>
-                    <input
-                      type="text"
-                      value={customerId}
-                      onChange={e => setCustomerId(e.target.value)}
-                      placeholder="DLT-2026-101"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 px-3.5 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
-                    />
-                  </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Mobile / WhatsApp Phone *
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            value={phone}
+                            onChange={e => setPhone(e.target.value)}
+                            placeholder="01712345678"
+                            className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 px-3 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
+                          />
+                        </div>
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Connection Union / Area
-                    </label>
-                    <select
-                      value={union}
-                      onChange={e => setUnion(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 px-3.5 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
-                    >
-                      {UNIONS_LIST.map(u => (
-                        <option key={u} value={u}>
-                          {u}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Subscriber CID (e.g. DLT-2026-101)
+                          </label>
+                          <input
+                            type="text"
+                            value={customerId}
+                            onChange={e => setCustomerId(e.target.value)}
+                            placeholder="DLT-2026-101"
+                            className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 px-3 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
+                          />
+                        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Issue Category
-                    </label>
-                    <select
-                      value={category}
-                      onChange={e => {
-                        const val = e.target.value;
-                        setCategory(val);
-                        if (val.includes('Red Light') || val.includes('Line Cut')) {
-                          setPriority('emergency');
-                        }
-                      }}
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 px-3.5 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
-                    >
-                      {ISSUE_CATEGORIES.map(cat => (
-                        <option key={cat.id} value={cat.label}>
-                          {cat.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
-                      Priority Level
-                    </label>
-                    <div className="grid grid-cols-4 gap-1">
-                      {[
-                        { id: 'normal', label: 'Low', icon: CheckCircle2, activeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50 font-bold' },
-                        { id: 'medium', label: 'Medium', icon: Activity, activeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold' },
-                        { id: 'high', label: 'High', icon: AlertTriangle, activeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/50 font-bold' },
-                        { id: 'emergency', label: 'Emergency', icon: ShieldAlert, activeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/50 font-bold' }
-                      ].map(p => {
-                        const IconComp = p.icon;
-                        const isSelected = priority === p.id;
-                        return (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => setPriority(p.id as any)}
-                            className={`py-1.5 px-1 rounded-lg text-[10px] border cursor-pointer flex items-center justify-center gap-1 transition-all ${
-                              isSelected ? p.activeColor : 'border-slate-800 text-slate-500 hover:text-slate-300 bg-slate-950'
-                            }`}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Connection Union / Area
+                          </label>
+                          <select
+                            value={union}
+                            onChange={e => setUnion(e.target.value)}
+                            className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
                           >
-                            <IconComp className={`h-3 w-3 ${isSelected ? '' : 'opacity-60'}`} />
-                            <span>{p.label}</span>
-                          </button>
-                        );
-                      })}
+                            {UNIONS_LIST.map(u => (
+                              <option key={u} value={u}>
+                                {u}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Issue Category
+                          </label>
+                          <select
+                            value={category}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setCategory(val);
+                              if (val.includes('Red Light') || val.includes('Line Cut')) {
+                                setPriority('emergency');
+                              }
+                            }}
+                            className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                          >
+                            {ISSUE_CATEGORIES.map(cat => (
+                              <option key={cat.id} value={cat.label}>
+                                {cat.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Priority Level
+                          </label>
+                          <div className="grid grid-cols-4 gap-1">
+                            {[
+                              { id: 'normal', label: 'Low', icon: CheckCircle2, activeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50 font-bold' },
+                              { id: 'medium', label: 'Medium', icon: Activity, activeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold' },
+                              { id: 'high', label: 'High', icon: AlertTriangle, activeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/50 font-bold' },
+                              { id: 'emergency', label: 'Urgent', icon: ShieldAlert, activeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/50 font-bold' }
+                            ].map(p => {
+                              const IconComp = p.icon;
+                              const isSelected = priority === p.id;
+                              return (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => setPriority(p.id as any)}
+                                  className={`py-1.5 px-1 rounded-lg text-[10px] border cursor-pointer flex items-center justify-center gap-1 transition-all ${
+                                    isSelected ? p.activeColor : 'border-slate-800 text-slate-500 hover:text-slate-300 bg-slate-900'
+                                  }`}
+                                >
+                                  <IconComp className={`h-3 w-3 ${isSelected ? '' : 'opacity-60'}`} />
+                                  <span>{p.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Detailed Problem Description *
+                        </label>
+                        <textarea
+                          required
+                          rows={2}
+                          value={description}
+                          onChange={e => setDescription(e.target.value)}
+                          placeholder="Describe your ONU light status (e.g. LOS red light blinking), router wifi issue, or optical loss..."
+                          className="w-full bg-slate-900 border border-slate-700 focus:border-rose-500 p-2.5 rounded-xl text-slate-100 text-xs focus:outline-none resize-none"
+                        />
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-3 text-xs text-slate-400">
+                          <a href="tel:01944455176" className="text-amber-400 hover:underline font-bold flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>01944455176</span>
+                          </a>
+                          <a href="tel:01719394430" className="text-blue-400 hover:underline font-bold flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5 text-blue-400" />
+                            <span>0171-9394430</span>
+                          </a>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isSubmittingTicket}
+                          className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 disabled:opacity-75 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-rose-600/20 flex items-center gap-2 cursor-pointer"
+                        >
+                          {isSubmittingTicket ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-200" />
+                              <span>Submitting Ticket & Alerting NOC...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-3.5 w-3.5" />
+                              <span>Submit Ticket & Send NOC Alert</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Right: Real-time Dynamic QR Code Panel (5 cols) */}
+                  <div className="lg:col-span-5 space-y-3">
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-cyan-500/30 text-center space-y-3 shadow-xl">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-black text-white">
+                          <QrCode className="h-4 w-4 text-cyan-400 animate-pulse" />
+                          <span>Dynamic Quick Support QR</span>
+                        </div>
+                        <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                          Live Sync
+                        </span>
+                      </div>
+
+                      {/* Mode Switcher */}
+                      <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => setQrTargetType('whatsapp')}
+                          className={`py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                            qrTargetType === 'whatsapp'
+                              ? 'bg-emerald-600 text-white shadow'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          WhatsApp NOC
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setQrTargetType('web_portal')}
+                          className={`py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                            qrTargetType === 'web_portal'
+                              ? 'bg-blue-600 text-white shadow'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          Portal Link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setQrTargetType('router_sticker')}
+                          className={`py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                            qrTargetType === 'router_sticker'
+                              ? 'bg-purple-600 text-white shadow'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          Router Badge
+                        </button>
+                      </div>
+
+                      {/* Live Dynamic QR Display */}
+                      <div className="p-3 bg-white rounded-xl inline-block shadow-2xl border-2 border-cyan-500/40 mx-auto">
+                        <QRCodeSVG
+                          id="form-dynamic-qrcode-svg"
+                          value={getDynamicQrValue()}
+                          size={155}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-bold text-slate-200">
+                          {qrTargetType === 'whatsapp' && 'Scan to Dispatch Ticket directly to Branch Manager WhatsApp'}
+                          {qrTargetType === 'web_portal' && 'Scan to Auto-Fill & Open Ticket on any Phone Browser'}
+                          {qrTargetType === 'router_sticker' && 'Printable Router / ONU Support Diagnostic Sticker'}
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          Target: {customerId || 'DLT-MITH-GUEST'} • {phone || '01944455176'} • {union}
+                        </p>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => downloadQrAsPng('form-dynamic-qrcode-svg', `delta-support-${customerId || 'quick'}-qr.png`)}
+                          className="py-2 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow"
+                        >
+                          <Download className="h-3.5 w-3.5 text-cyan-400" />
+                          <span>Save QR (.PNG)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handlePrintQrBadge({
+                              cid: customerId,
+                              name: name,
+                              phone: phone,
+                              union: union,
+                              category: category,
+                              qrSvgId: 'form-dynamic-qrcode-svg'
+                            })
+                          }
+                          className="py-2 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow"
+                        >
+                          <Printer className="h-3.5 w-3.5 text-amber-400" />
+                          <span>Print Sticker</span>
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = qrTargetType === 'whatsapp' ? buildWhatsAppDirectTicketUrl() : buildQuickTicketPortalUrl();
+                          navigator.clipboard.writeText(url);
+                          showToast('📋 Quick Support Link copied to clipboard!');
+                        }}
+                        className="w-full py-1.5 bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Copy className="h-3 w-3 text-cyan-400" />
+                        <span>Copy Dynamic Ticket Link / URL</span>
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+            )
+          )}
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    Detailed Problem Description *
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    placeholder="Describe your ONU light status (e.g. LOS red light blinking), router wifi issue, or optical loss..."
-                    className="w-full bg-slate-950 border border-slate-700 focus:border-rose-500 p-3 rounded-xl text-slate-100 text-xs focus:outline-none resize-none"
-                  />
+          {/* TAB 1.5: DEDICATED DYNAMIC QR TICKET & ROUTER STICKER HUB */}
+          {activeTab === 'qr_ticket' && (
+            <div className="space-y-4">
+              {/* Header Banner */}
+              <div className="p-4 bg-gradient-to-r from-cyan-950/80 via-slate-900 to-indigo-950/80 border border-cyan-500/30 rounded-2xl flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                    <QrCode className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white flex items-center gap-2">
+                      <span>⚡ Dynamic QR Quick Support & Dispatch Hub</span>
+                      <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-mono">
+                        ROUTER STICKER & 1-TAP DISPATCH
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Generate dynamic QR codes for ONU routers, client cards, and 1-tap WhatsApp support dispatch to Branch Manager (01944455176).
+                    </p>
+                  </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <a href="tel:01944455176" className="text-amber-400 hover:underline font-bold flex items-center gap-1">
-                      <Phone className="h-3.5 w-3.5 text-emerald-400" />
-                      <span>01944455176</span>
-                    </a>
-                    <a href="tel:01719394430" className="text-blue-400 hover:underline font-bold flex items-center gap-1">
-                      <Phone className="h-3.5 w-3.5 text-blue-400" />
-                      <span>0171-9394430</span>
-                    </a>
+                <div className="flex items-center gap-2 text-xs font-mono">
+                  <span className="text-slate-400">Branch NOC:</span>
+                  <strong className="text-emerald-400">01944455176 / 0171-9394430</strong>
+                </div>
+              </div>
+
+              {/* 1-Click Presets */}
+              <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+                <span className="text-xs font-bold text-slate-300">Quick Issue Presets:</span>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {QR_SUPPORT_PRESETS.map(preset => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => handleApplyQrPreset(preset)}
+                      className={`p-2 rounded-xl text-left border text-[11px] font-bold transition-all cursor-pointer flex flex-col justify-between gap-1 ${
+                        qrPresetSelected === preset.id
+                          ? `${preset.badgeColor} shadow-md`
+                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      <span className="truncate">{preset.title}</span>
+                      <span className="text-[9px] opacity-75 font-mono uppercase">{preset.priority}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Main Grid: Form Configurator on Left, Dynamic QR Output on Right */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                {/* Configurator */}
+                <div className="lg:col-span-7 space-y-3.5 p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                  <h4 className="text-xs font-black text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <Zap className="h-3.5 w-3.5 text-cyan-400" />
+                    <span>Dynamic Payload Parameters</span>
+                  </h4>
+
+                  {/* Pick Existing Client or Enter Custom */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">
+                      Quick Pick Registered Client (Auto-Populate)
+                    </label>
+                    <select
+                      onChange={e => {
+                        const sel = clientsList.find(c => c.id === e.target.value);
+                        if (sel) {
+                          setCustomerId(sel.id);
+                          setName(sel.fullName);
+                          setPhone(sel.phone);
+                          setUnion(sel.area);
+                          showToast(`✅ Loaded data for ${sel.fullName} (${sel.id})`);
+                        }
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                    >
+                      <option value="">-- Choose Existing Subscriber CID or Enter Custom Below --</option>
+                      {clientsList.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.id} — {c.fullName} ({c.area}, {c.phone})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmittingTicket}
-                    className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 disabled:opacity-75 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-rose-600/20 flex items-center gap-2 cursor-pointer"
-                  >
-                    {isSubmittingTicket ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-200" />
-                        <span>Submitting Ticket & Dispatching Alert...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-3.5 w-3.5" />
-                        <span>Submit Ticket & Send Email/WhatsApp Alert</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Subscriber CID
+                      </label>
+                      <input
+                        type="text"
+                        value={customerId}
+                        onChange={e => setCustomerId(e.target.value)}
+                        placeholder="DLT-2026-101"
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Subscriber Name
+                      </label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="e.g. Mahbubur Rahman"
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Contact / WhatsApp Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        placeholder="01712345678"
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs font-mono focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Union / Area
+                      </label>
+                      <select
+                        value={union}
+                        onChange={e => setUnion(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                      >
+                        {UNIONS_LIST.map(u => (
+                          <option key={u} value={u}>
+                            {u}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Issue Category
+                      </label>
+                      <select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                      >
+                        {ISSUE_CATEGORIES.map(cat => (
+                          <option key={cat.id} value={cat.label}>
+                            {cat.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                        Priority
+                      </label>
+                      <select
+                        value={priority}
+                        onChange={e => setPriority(e.target.value as any)}
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none font-bold"
+                      >
+                        <option value="normal">Normal (Low)</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High Priority</option>
+                        <option value="emergency">🚨 Emergency Outage</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">
+                      Problem Note / Description
+                    </label>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      placeholder="Brief note or leave blank for preset description"
+                      className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('create')}
+                      className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <Ticket className="h-3.5 w-3.5" />
+                      <span>Switch to Standard Form</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = buildWhatsAppDirectTicketUrl();
+                        window.open(url, '_blank');
+                      }}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      <span>Test WhatsApp Dispatch (01944455176)</span>
+                    </button>
+                  </div>
                 </div>
-              </form>
-            )
+
+                {/* Live Dynamic QR Card */}
+                <div className="lg:col-span-5 space-y-3">
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-cyan-500/40 text-center space-y-3.5 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-white">
+                        <QrCode className="h-4 w-4 text-cyan-400 animate-spin" style={{ animationDuration: '6s' }} />
+                        <span>Dynamic QR Live Preview</span>
+                      </div>
+                      <span className="text-[9px] font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/40 px-2 py-0.5 rounded-full">
+                        HIGH RES SVG
+                      </span>
+                    </div>
+
+                    {/* Mode selector */}
+                    <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => setQrTargetType('whatsapp')}
+                        className={`py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          qrTargetType === 'whatsapp'
+                            ? 'bg-emerald-600 text-white shadow'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        WhatsApp NOC
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQrTargetType('web_portal')}
+                        className={`py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          qrTargetType === 'web_portal'
+                            ? 'bg-blue-600 text-white shadow'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Web Portal
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQrTargetType('router_sticker')}
+                        className={`py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                          qrTargetType === 'router_sticker'
+                            ? 'bg-purple-600 text-white shadow'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Router Badge
+                      </button>
+                    </div>
+
+                    {/* High Precision QR Display */}
+                    <div className="p-4 bg-white rounded-2xl inline-block shadow-2xl border-4 border-cyan-500/50 mx-auto">
+                      <QRCodeSVG
+                        id="dedicated-dynamic-qrcode-svg"
+                        value={getDynamicQrValue()}
+                        size={175}
+                        level="H"
+                        includeMargin={false}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center gap-1.5 text-xs font-black text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-xl">
+                        <span>CID: {customerId || 'DLT-MITH-GUEST'}</span>
+                        <span>•</span>
+                        <span>{union}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-mono">
+                        {qrTargetType === 'whatsapp' && 'Opens WhatsApp chat with pre-written ticket details to 01944455176'}
+                        {qrTargetType === 'web_portal' && 'Direct web link auto-completes ticket and triggers fast submission'}
+                        {qrTargetType === 'router_sticker' && 'Printable 2x2 waterproof sticker for ONU / Fiber router backplate'}
+                      </p>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => downloadQrAsPng('dedicated-dynamic-qrcode-svg', `delta-${customerId || 'support'}-dynamic-qr.png`)}
+                        className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow"
+                      >
+                        <Download className="h-3.5 w-3.5 text-cyan-400" />
+                        <span>Save PNG</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handlePrintQrBadge({
+                            cid: customerId,
+                            name: name,
+                            phone: phone,
+                            union: union,
+                            category: category,
+                            qrSvgId: 'dedicated-dynamic-qrcode-svg'
+                          })
+                        }
+                        className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow"
+                      >
+                        <Printer className="h-3.5 w-3.5 text-amber-400" />
+                        <span>Print Sticker</span>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = qrTargetType === 'whatsapp' ? buildWhatsAppDirectTicketUrl() : buildQuickTicketPortalUrl();
+                        navigator.clipboard.writeText(url);
+                        showToast('📋 Dynamic Quick Support Link copied to clipboard!');
+                      }}
+                      className="w-full py-2 bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Copy className="h-3.5 w-3.5 text-cyan-400" />
+                      <span>Copy Encoded Dynamic Link</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* TAB 2: CLIENT LOGIN STRICTLY VIA CID NUMBER */}
@@ -2398,14 +3220,17 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                   </p>
 
                   <div className="p-4 bg-white rounded-xl inline-block text-center border-2 border-teal-500/40 shadow-inner mx-auto">
-                    <div className="h-28 w-28 bg-slate-900 rounded flex items-center justify-center text-teal-400 font-mono text-[10px] text-center p-2 font-bold leading-tight">
-                      [QR CODE]
-                      www.deltamithapukur.net.com
-                    </div>
+                    <QRCodeSVG
+                      id="pwa-install-qrcode-svg"
+                      value={typeof window !== 'undefined' ? window.location.origin : 'https://deltamithapukur.net.bd'}
+                      size={135}
+                      level="H"
+                      includeMargin={false}
+                    />
                   </div>
 
                   <p className="text-[11px] text-slate-400 text-center font-mono">
-                    Official App Host: www.deltamithapukur.net.com
+                    Official App Host: deltamithapukur.net.bd
                   </p>
                 </div>
               </div>

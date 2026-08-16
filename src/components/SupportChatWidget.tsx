@@ -139,44 +139,45 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
 
   return (
     <div className="fixed bottom-5 right-5 z-50 font-sans">
-      {/* Closed Floating Launcher Button */}
+      {/* Closed Floating Launcher Button - Short 24/7 Icon & Compact Badge */}
       {!isOpen && (
         <button
+          id="floating-247-support-button"
           onClick={handleOpenChat}
           disabled={isLauncherLoading}
-          className="group relative flex items-center gap-2.5 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-blue-600/50 transition-all transform hover:scale-105 active:scale-95 cursor-pointer border border-blue-400/30 disabled:opacity-85"
-          aria-label="Open Mithapukur Fiber Support Chat"
+          className="group relative flex items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white px-3.5 py-2.5 rounded-full shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer border border-sky-400/40 disabled:opacity-85"
+          aria-label="Open 24/7 Support Chat"
         >
           <div className="relative flex items-center justify-center">
             {isLauncherLoading ? (
-              <Loader2 className="h-6 w-6 text-white animate-spin" />
+              <Loader2 className="h-4.5 w-4.5 text-white animate-spin" />
             ) : (
-              <>
-                <MessageSquare className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-1.5">
+                <span className="bg-white/20 text-white text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded-full border border-white/30 leading-none">
+                  24/7
+                </span>
+                <MessageSquare className="h-4.5 w-4.5 text-white" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border border-white">
+                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white border border-white">
                     {unreadCount}
                   </span>
                 )}
-              </>
+              </div>
             )}
           </div>
-          <div className="hidden sm:flex flex-col text-left">
-            <span className="font-extrabold text-xs tracking-wide flex items-center gap-1.5">
-              {isLauncherLoading ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 text-sky-200 animate-spin" />
-                  <span>Connecting Node...</span>
-                </>
-              ) : (
-                'Delta Support Desk'
-              )}
-            </span>
-            <span className="text-[10px] text-emerald-200 font-semibold flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Mithapukur Node Active
-            </span>
-          </div>
+          <span className="font-extrabold text-xs tracking-tight text-white flex items-center gap-1">
+            {isLauncherLoading ? (
+              <>
+                <Loader2 className="h-3 w-3 text-sky-200 animate-spin" />
+                <span>Connecting...</span>
+              </>
+            ) : (
+              <>
+                <span>Support</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+              </>
+            )}
+          </span>
         </button>
       )}
 

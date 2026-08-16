@@ -1,7 +1,7 @@
 import { Plan, CoverageLocation } from '../types';
 import managerAvatar from '../assets/images/regenerated_image_1786009739201.jpg';
 import supportManagerAvatar from '../assets/images/support_manager_avatar_1786007253596.jpg';
-import marketingOfficerAvatar from '../assets/images/marketing_officer_avatar_1786007271529.jpg';
+import marketingOfficerAvatar from '../assets/images/regenerated_image_1786855975878.png';
 
 export const PLANS: Plan[] = [
   {

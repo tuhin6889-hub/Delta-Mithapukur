@@ -53,16 +53,16 @@ interface ServerNode {
 
 const SERVERS: ServerNode[] = [
   {
-    id: 'boldipukur-hub',
-    name: 'Boldipukur Primary Hub',
-    location: 'Akmal Market, Mithapukur',
+    id: 'delta-main-node',
+    name: 'Delta Software and Communication Limited',
+    location: 'Akmal Market, Mithapukur, Rangpur',
     basePing: 4,
     maxSpeedMbps: 120,
   },
   {
     id: 'rangpur-node',
-    name: 'Rangpur Division Edge Node',
-    location: 'Rangpur Sadar',
+    name: 'Delta Rangpur Regional Edge Node',
+    location: 'Rangpur Division',
     basePing: 8,
     maxSpeedMbps: 100,
   },
@@ -513,7 +513,7 @@ export const SpeedTest: React.FC<SpeedTestProps> = ({ onSelectPlan, onOpenInquir
                     const found = SERVERS.find((s) => s.id === e.target.value);
                     if (found) setSelectedServer(found);
                   }}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                  className="w-full bg-slate-900/90 border border-blue-500/30 hover:border-blue-400/60 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {SERVERS.map((s) => (
                     <option key={s.id} value={s.id}>

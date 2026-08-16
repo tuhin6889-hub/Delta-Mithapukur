@@ -1,6 +1,6 @@
 import React from 'react';
 import { Logo } from './Logo';
-import { Zap, ShieldCheck, Activity, MapPin, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Zap, ShieldCheck, Activity, MapPin, ArrowRight, CheckCircle2, Users } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -131,10 +131,46 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
 
               {/* Quick Branch Info Grid */}
               <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <span className="text-slate-400">{language === 'bn' ? 'শাখার নাম:' : 'Branch Name:'}</span>
-                  <span className="font-bold text-slate-100">{BRANCH_INFO.name}</span>
+                {/* Honored Delta Family Members List */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-950/60 via-slate-900/90 to-slate-950/90 border border-blue-500/30 shadow-lg space-y-2.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <span className="text-sky-300 font-black text-xs flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-sky-400" />
+                      <span>{language === 'bn' ? 'সম্মানিত ডেল্টা পরিবারের সদস্য' : 'Honored Delta Family Members'}</span>
+                    </span>
+                    <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      {language === 'bn' ? '৬ জন প্রতিনিধি' : '6 Key Representatives'}
+                    </span>
+                  </div>
+
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {[
+                      { nameBn: 'মাহামুদুল হাসান', nameEn: 'Mahamudul Hasan', areaBn: 'বলদীপুকুর', areaEn: 'Boldipukur' },
+                      { nameBn: 'মোক্কাবার মিয়া', nameEn: 'Mokkabar Mia', areaBn: 'শানেরহাট', areaEn: 'Shanerhat' },
+                      { nameBn: 'গোলাম রব্বানি', nameEn: 'Golam Rabbani', areaBn: 'মগঙ্ঘাট', areaEn: 'Moganghat' },
+                      { nameBn: 'জাহাঙ্গীর আলম', nameEn: 'Jahangir Alam', areaBn: 'দরগা', areaEn: 'Dorga' },
+                      { nameBn: 'মশিয়র রহমান', nameEn: 'Moshiur Rahman', areaBn: 'চাতালবাজার', areaEn: 'Chatalbazar' },
+                      { nameBn: 'রাব্বি হাসান', nameEn: 'Rabbi Hasan', areaBn: 'শাল্লাইপুর', areaEn: 'Shallaipur' },
+                    ].map((member, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-center justify-between gap-1.5 p-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800/90 transition-all group"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                          <span className="font-bold text-slate-100 group-hover:text-white truncate text-[11px]">
+                            {language === 'bn' ? member.nameBn : member.nameEn}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-blue-500/10 text-sky-300 border border-blue-500/20 shrink-0">
+                          {language === 'bn' ? member.areaBn : member.areaEn}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+
                 <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
                   <span className="text-slate-400">{language === 'bn' ? 'ট্যাগলাইন:' : 'Brand Tagline:'}</span>
                   <span className="font-bold text-blue-300">{BRANCH_INFO.tagline}</span>
