@@ -139,45 +139,105 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
 
   return (
     <div className="fixed bottom-5 right-5 z-50 font-sans">
-      {/* Closed Floating Launcher Button - Short 24/7 Icon & Compact Badge */}
+      {/* Closed Floating Launcher Button - Styled after the 24/7 Chat Icon */}
       {!isOpen && (
         <button
           id="floating-247-support-button"
           onClick={handleOpenChat}
           disabled={isLauncherLoading}
-          className="group relative flex items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white px-3.5 py-2.5 rounded-full shadow-xl shadow-blue-600/40 hover:shadow-blue-500/60 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer border border-sky-400/40 disabled:opacity-85"
-          aria-label="Open 24/7 Support Chat"
+          className="group relative flex items-center justify-center p-1 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-85 focus:outline-none"
+          aria-label="Open 24/7 Mithapukur Support Chat"
         >
-          <div className="relative flex items-center justify-center">
+          {/* Subtle Outer Pulsing Halo */}
+          <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-rose-500/40 via-red-500/20 to-amber-500/30 blur-md opacity-75 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 animate-pulse" />
+
+          {/* Icon Container with Circular Border and Backdrop */}
+          <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-rose-100 via-rose-50 to-red-100 p-1 shadow-2xl shadow-rose-900/50 border-2 border-white/80 flex items-center justify-center overflow-hidden">
             {isLauncherLoading ? (
-              <Loader2 className="h-4.5 w-4.5 text-white animate-spin" />
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <span className="bg-white/20 text-white text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded-full border border-white/30 leading-none">
-                  24/7
-                </span>
-                <MessageSquare className="h-4.5 w-4.5 text-white" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white border border-white">
-                    {unreadCount}
-                  </span>
-                )}
+              <div className="flex flex-col items-center justify-center gap-1">
+                <Loader2 className="h-6 w-6 text-rose-600 animate-spin" />
               </div>
+            ) : (
+              /* Custom SVG replicating the exact uploaded 24/7 Red Chat Bubble Icon */
+              <svg
+                viewBox="0 0 100 100"
+                className="w-full h-full transform group-hover:rotate-[-3deg] transition-transform duration-200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Inner ambient circle */}
+                <circle cx="50" cy="50" r="46" fill="#FFF1F2" />
+                <circle cx="50" cy="50" r="46" fill="url(#bubble-ambient-radial)" />
+
+                {/* 24/7 Chat Bubble Base */}
+                <g filter="url(#bubble-drop-shadow)">
+                  <path
+                    d="M26 23C26 18.0294 30.0294 14 35 14H65C69.9706 14 74 18.0294 74 23V58C74 62.9706 69.9706 67 65 67H39.5L27.5 78.5C26.5 79.5 25.5 79 25.5 77.5V66.2C25.8 65.5 26 64.7 26 63.8V23Z"
+                    fill="url(#red-speech-gradient)"
+                  />
+                  {/* Subtle top gloss highlight */}
+                  <path
+                    d="M28 24C28 20 31 16.5 35.5 16.5H64.5C69 16.5 72 20 72 24V32C72 32 55 35 28 35V24Z"
+                    fill="#FFFFFF"
+                    fillOpacity="0.18"
+                  />
+                </g>
+
+                {/* 24/7 Bold Text matching uploaded image */}
+                <text
+                  x="50"
+                  y="44.5"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="#FFFFFF"
+                  fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+                  fontWeight="900"
+                  fontSize="25"
+                  letterSpacing="-0.8px"
+                  style={{ filter: 'drop-shadow(0px 1px 2px rgba(159,18,57,0.4))' }}
+                >
+                  24/7
+                </text>
+
+                {/* Definitions */}
+                <defs>
+                  <radialGradient id="bubble-ambient-radial" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FFE4E6" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#FECDD3" stopOpacity="0.3" />
+                  </radialGradient>
+                  
+                  <linearGradient id="red-speech-gradient" x1="26" y1="14" x2="74" y2="78" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#FF3B30" />
+                    <stop offset="50%" stopColor="#EF233C" />
+                    <stop offset="100%" stopColor="#D90429" />
+                  </linearGradient>
+
+                  <filter id="bubble-drop-shadow" x="18" y="10" width="64" height="76" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                    <feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#9F1239" floodOpacity="0.45" />
+                  </filter>
+                </defs>
+              </svg>
+            )}
+
+            {/* Live Active Online Green Status Pip */}
+            <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 items-center justify-center">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-white"></span>
+            </span>
+
+            {/* Unread Badge Counter */}
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-black text-white border-2 border-white shadow-md animate-bounce">
+                {unreadCount}
+              </span>
             )}
           </div>
-          <span className="font-extrabold text-xs tracking-tight text-white flex items-center gap-1">
-            {isLauncherLoading ? (
-              <>
-                <Loader2 className="h-3 w-3 text-sky-200 animate-spin" />
-                <span>Connecting...</span>
-              </>
-            ) : (
-              <>
-                <span>Support</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
-              </>
-            )}
-          </span>
+
+          {/* Quick Hover Label Chip */}
+          <div className="absolute right-full mr-3 hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/95 text-white text-xs font-bold shadow-xl border border-slate-700/80 whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:-translate-x-1 transition-all duration-200 pointer-events-none">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>24/7 Live Support | ২৪/৭ সাপোর্ট</span>
+          </div>
         </button>
       )}
 

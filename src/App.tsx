@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { TopPromoBanner } from './components/TopPromoBanner';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { CoreBenefits } from './components/CoreBenefits';
@@ -55,6 +56,16 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
+          {/* Dismissible Top Promotional & Maintenance Alert Banner */}
+          <TopPromoBanner
+            onClaimOffer={handleOpenGeneralInquiry}
+            onViewPricing={() => {
+              const pricingEl = document.getElementById('pricing');
+              pricingEl?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onOpenSupportTicket={handleOpenSupportTicket}
+          />
+
           {/* App Header */}
           <Header
             onOpenInquiryModal={handleOpenGeneralInquiry}

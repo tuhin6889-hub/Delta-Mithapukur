@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play, Maximize2, X, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+import posterCoverImg from '../assets/images/delta_mithapukur_cover_1787008989117.jpg';
 import poster1Img from '../assets/images/regenerated_image_1785277610229.jpg';
 import poster2Img from '../assets/images/regenerated_image_1785277611652.webp';
 import poster3Img from '../assets/images/regenerated_image_1785277613279.webp';
@@ -19,6 +20,16 @@ interface SlideImage {
 }
 
 const SLIDES: SlideImage[] = [
+  {
+    id: 'slide-cover',
+    src: posterCoverImg,
+    titleEn: 'Delta Mithapukur - Ultra-Fast Fiber Broadband Network',
+    titleBn: 'ডেল্টা মিঠাপুকুর - আল্ট্রা-ফাস্ট ফাইবার ব্রডব্যান্ড নেটওয়ার্ক',
+    subtitleEn: 'High-speed optical fiber coverage reaching every village and household in Mithapukur',
+    subtitleBn: 'মিঠাপুকুর উপজেলার প্রতিটি ইউনিয়ন ও গ্রামে নিরবচ্ছিন্ন উচ্চগতির অপটিক্যাল ফাইবার সংযোগ',
+    tagEn: 'Delta Mithapukur',
+    tagBn: 'ডেল্টা মিঠাপুকুর',
+  },
   {
     id: 'slide-1',
     src: poster1Img,
