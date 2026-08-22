@@ -170,7 +170,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClien
                       onOpenSupportTicket();
                     }
                   }}
-                  className="w-full text-left p-3 rounded-2xl bg-gradient-to-r from-rose-950/80 via-red-950/60 to-amber-950/70 hover:from-rose-900/90 hover:via-red-900/80 hover:to-amber-900/80 border-2 border-rose-500/60 hover:border-rose-400 text-rose-100 font-black flex items-center justify-between gap-2 transition-all duration-300 group cursor-pointer shadow-xl shadow-rose-950/60 hover:shadow-2xl hover:shadow-rose-600/30 hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full text-left p-3 rounded-2xl bg-gradient-to-r from-rose-950/90 via-red-950/70 to-amber-950/80 hover:from-rose-900 hover:via-red-900/90 hover:to-amber-900/90 border-2 border-rose-500/70 hover:border-rose-400 text-rose-100 font-black flex items-center justify-between gap-2 transition-all duration-300 group cursor-pointer shadow-xl shadow-rose-950/70 hover:shadow-2xl hover:shadow-rose-600/30 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-rose-400"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="p-1.5 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 text-slate-950 shadow-md group-hover:scale-110 transition-transform">

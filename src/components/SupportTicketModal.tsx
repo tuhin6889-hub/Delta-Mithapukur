@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  AlertCircle,
   Phone,
   User,
   MapPin,
@@ -32,6 +33,16 @@ import {
   PlusCircle,
   Building2,
   CheckSquare,
+  Square,
+  CheckCheck,
+  ListChecks,
+  Layers,
+  GripVertical,
+  Kanban,
+  LayoutGrid,
+  List,
+  HardHat,
+  MoveRight,
   ExternalLink,
   Smartphone,
   Laptop,
@@ -49,7 +60,8 @@ import {
   QrCode,
   Globe,
   Eye,
-  EyeOff
+  EyeOff,
+  BarChart3
 } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { useLanguage } from '../context/LanguageContext';
@@ -57,6 +69,7 @@ import { ClientRecord } from '../types/client';
 import { getStoredClients, saveStoredClients } from '../lib/clientStorage';
 import deltaLogoImg from '../assets/images/regenerated_image_1785198851415.jpg';
 import { QRCodeSVG } from 'qrcode.react';
+import { NocTelemetryCharts } from './NocTelemetryCharts';
 
 export interface SupportTicket {
   id: string;
@@ -75,12 +88,23 @@ export interface SupportTicket {
   updates?: { text: string; time: string; author: string }[];
 }
 
+export type UserRole = 'client' | 'staff' | 'manager';
+export type TabType = 'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'noc_telemetry' | 'client_db' | 'ai_diagnostics' | 'android_app';
+
 interface SupportTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialCategory?: string;
-  initialTab?: 'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app';
+  initialTab?: TabType;
+  authenticatedUser?: { role: string; data?: any } | null;
+  onRoleChange?: (role: UserRole) => void;
 }
+
+export const ROLE_ALLOWED_TABS: Record<UserRole, TabType[]> = {
+  client: ['client_portal', 'create', 'qr_ticket', 'ai_diagnostics', 'android_app'],
+  staff: ['admin_portal', 'noc_telemetry', 'client_db', 'ai_diagnostics', 'qr_ticket', 'create', 'android_app'],
+  manager: ['admin_portal', 'noc_telemetry', 'client_db', 'create', 'qr_ticket', 'client_portal', 'ai_diagnostics', 'android_app', 'fast_login']
+};
 
 const UNIONS_LIST = [
   'Mithapukur Sadar',
@@ -155,6 +179,49 @@ const DEMO_TECHNICIANS = [
   'Payraband Local Support Lineman'
 ];
 
+export const LINEMAN_SQUADS = [
+  {
+    name: 'Mithapukur Emergency Line Squad (Akmal Market Hub)',
+    shortName: 'Emergency Squad (Akmal Hub)',
+    area: 'Mithapukur Sadar & Central Hub',
+    color: 'border-rose-500/40 bg-rose-950/20 text-rose-300',
+    iconColor: 'text-rose-400',
+    badge: '⚡ Rapid Response'
+  },
+  {
+    name: 'Boldipukur Field Tech Team B',
+    shortName: 'Boldipukur Team B',
+    area: 'Boldipukur Market & Latifpur',
+    color: 'border-amber-500/40 bg-amber-950/20 text-amber-300',
+    iconColor: 'text-amber-400',
+    badge: '🛠️ Field Splicing'
+  },
+  {
+    name: 'Ranipukur Fiber Splicing Specialist',
+    shortName: 'Ranipukur Splicer',
+    area: 'Ranipukur & Gopalpur Area',
+    color: 'border-cyan-500/40 bg-cyan-950/20 text-cyan-300',
+    iconColor: 'text-cyan-400',
+    badge: '🔬 Fiber Specialist'
+  },
+  {
+    name: 'Sadar Central NOC Engineer (Sharif)',
+    shortName: 'NOC Engineer Sharif',
+    area: 'Central PoP & Core OLT',
+    color: 'border-indigo-500/40 bg-indigo-950/20 text-indigo-300',
+    iconColor: 'text-indigo-400',
+    badge: '🖥️ Core Network'
+  },
+  {
+    name: 'Payraband Local Support Lineman',
+    shortName: 'Payraband Lineman',
+    area: 'Payraband & Mirzapur Area',
+    color: 'border-emerald-500/40 bg-emerald-950/20 text-emerald-300',
+    iconColor: 'text-emerald-400',
+    badge: '📍 Local Dispatch'
+  }
+];
+
 const PLAN_PRESETS = [
   { name: '20 Mbps Economy Fiber', fee: 525 },
   { name: '30 Mbps Starter Fiber', fee: 630 },
@@ -169,36 +236,56 @@ const getPriorityInfo = (priority: SupportTicket['priority']) => {
   switch (priority) {
     case 'emergency':
       return {
-        label: 'Emergency Cut',
+        label: 'Critical Emergency',
         shortLabel: 'EMERGENCY',
+        color: 'rose',
+        dotColor: 'bg-rose-500',
+        pulseDot: true,
         icon: ShieldAlert,
-        badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-sm shadow-rose-950',
-        iconColor: 'text-rose-400 animate-pulse'
+        badgeBg: 'bg-rose-500/20 text-rose-200 border-rose-500/60 ring-1 ring-rose-500/40 shadow-sm shadow-rose-950/50',
+        iconColor: 'text-rose-400',
+        borderAccent: 'border-l-4 border-l-rose-500',
+        cardGlow: 'hover:border-rose-500/50'
       };
     case 'high':
       return {
         label: 'High Priority',
         shortLabel: 'HIGH',
+        color: 'orange',
+        dotColor: 'bg-orange-400',
+        pulseDot: false,
         icon: AlertTriangle,
-        badgeBg: 'bg-orange-500/20 text-orange-300 border-orange-500/40 shadow-sm shadow-orange-950',
-        iconColor: 'text-orange-400'
+        badgeBg: 'bg-orange-500/20 text-orange-200 border-orange-500/60 ring-1 ring-orange-500/40 shadow-sm shadow-orange-950/50',
+        iconColor: 'text-orange-400',
+        borderAccent: 'border-l-4 border-l-orange-500',
+        cardGlow: 'hover:border-orange-500/50'
       };
     case 'medium':
       return {
         label: 'Medium Priority',
         shortLabel: 'MEDIUM',
+        color: 'amber',
+        dotColor: 'bg-amber-400',
+        pulseDot: false,
         icon: Activity,
-        badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm shadow-amber-950',
-        iconColor: 'text-amber-400'
+        badgeBg: 'bg-amber-500/20 text-amber-200 border-amber-500/60 ring-1 ring-amber-500/40 shadow-sm shadow-amber-950/50',
+        iconColor: 'text-amber-400',
+        borderAccent: 'border-l-4 border-l-amber-500',
+        cardGlow: 'hover:border-amber-500/50'
       };
     case 'normal':
     default:
       return {
-        label: 'Low / Normal',
+        label: 'Low Priority',
         shortLabel: 'LOW',
+        color: 'emerald',
+        dotColor: 'bg-emerald-400',
+        pulseDot: false,
         icon: CheckCircle2,
-        badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-sm shadow-blue-950',
-        iconColor: 'text-blue-400'
+        badgeBg: 'bg-emerald-500/20 text-emerald-200 border-emerald-500/60 ring-1 ring-emerald-500/40 shadow-sm shadow-emerald-950/50',
+        iconColor: 'text-emerald-400',
+        borderAccent: 'border-l-4 border-l-emerald-500',
+        cardGlow: 'hover:border-emerald-500/50'
       };
   }
 };
@@ -207,15 +294,28 @@ export const PriorityBadge: React.FC<{
   priority: SupportTicket['priority'];
   showFullLabel?: boolean;
   className?: string;
-}> = ({ priority, showFullLabel = false, className = '' }) => {
+  size?: 'sm' | 'md' | 'lg';
+}> = ({ priority, showFullLabel = false, className = '', size = 'sm' }) => {
   const info = getPriorityInfo(priority);
   const IconComponent = info.icon;
 
+  const sizeClasses = size === 'lg'
+    ? 'px-3 py-1 text-xs gap-2 font-black'
+    : size === 'md'
+    ? 'px-2.5 py-0.5 text-[11px] gap-1.5 font-extrabold'
+    : 'px-2 py-0.5 text-[10px] gap-1.5 font-extrabold';
+
   return (
     <span
-      className={`inline-flex items-center gap-1 font-extrabold px-2 py-0.5 rounded-full text-[10px] uppercase border tracking-wider transition-all ${info.badgeBg} ${className}`}
+      className={`inline-flex items-center rounded-full uppercase border tracking-wider transition-all whitespace-nowrap ${sizeClasses} ${info.badgeBg} ${className}`}
       title={`Ticket Priority: ${info.label}`}
     >
+      <span className="relative flex h-2 w-2 shrink-0">
+        {info.pulseDot && (
+          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${info.dotColor} opacity-75`} />
+        )}
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${info.dotColor}`} />
+      </span>
       <IconComponent className={`h-3 w-3 ${info.iconColor} shrink-0`} />
       <span>{showFullLabel ? info.label : info.shortLabel}</span>
     </span>
@@ -274,15 +374,158 @@ export function calculateNocResponseStats(ticketsList: SupportTicket[]): NocResp
   };
 }
 
+export const TAB_DEFINITIONS: Record<TabType, {
+  id: TabType;
+  label: string;
+  bengaliLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  badge?: string;
+  badgeColor?: string;
+}> = {
+  admin_portal: {
+    id: 'admin_portal',
+    label: 'Branch Manager NOC',
+    bengaliLabel: 'অপারেশন ও টিকিট ডেস্কে',
+    icon: ShieldCheck,
+    color: 'amber',
+    badge: 'Operations',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+  },
+  noc_telemetry: {
+    id: 'noc_telemetry',
+    label: 'NOC Fiber Charts',
+    bengaliLabel: 'এনওসি ফাইবার চার্ট',
+    icon: BarChart3,
+    color: 'rose',
+    badge: 'Live Recharts',
+    badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+  },
+  client_portal: {
+    id: 'client_portal',
+    label: 'Client CID Login',
+    bengaliLabel: 'গ্রাহক সিআইডি পোর্টাল',
+    icon: UserCheck,
+    color: 'emerald',
+    badge: 'Self-Care',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+  },
+  create: {
+    id: 'create',
+    label: 'New Ticket',
+    bengaliLabel: 'নতুন সাপোর্ট টিকিট',
+    icon: Ticket,
+    color: 'rose'
+  },
+  qr_ticket: {
+    id: 'qr_ticket',
+    label: '⚡ Dynamic QR Ticket',
+    bengaliLabel: '⚡ ডায়নামিক কিউআর টিকিট',
+    icon: QrCode,
+    color: 'cyan',
+    badge: 'Dynamic',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+  },
+  client_db: {
+    id: 'client_db',
+    label: 'Client Database',
+    bengaliLabel: 'গ্রাহক ডাটাবেস',
+    icon: Users,
+    color: 'indigo'
+  },
+  ai_diagnostics: {
+    id: 'ai_diagnostics',
+    label: 'AI Optical Scan',
+    bengaliLabel: 'এআই ফাইবার স্ক্যান',
+    icon: Bot,
+    color: 'purple'
+  },
+  android_app: {
+    id: 'android_app',
+    label: 'Android App (.APK)',
+    bengaliLabel: 'অ্যান্ড্রয়েড অ্যাপ (.APK)',
+    icon: Smartphone,
+    color: 'teal'
+  },
+  fast_login: {
+    id: 'fast_login',
+    label: '⚡ Fast Login',
+    bengaliLabel: '⚡ দ্রুত লগইন ও রোল',
+    icon: Zap,
+    color: 'amber',
+    badge: 'Auth',
+    badgeColor: 'bg-amber-400 text-slate-950 border-amber-300'
+  }
+};
+
 export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   isOpen,
   onClose,
   initialCategory = '',
-  initialTab
+  initialTab,
+  authenticatedUser,
+  onRoleChange
 }) => {
   const { t, language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>(initialTab || 'admin_portal');
+
+  // Dynamic Session Role state: 'client' | 'staff' | 'manager'
+  const [sessionRole, setSessionRole] = useState<UserRole>(() => {
+    if (authenticatedUser?.role) {
+      const r = authenticatedUser.role.toLowerCase();
+      if (r === 'client') return 'client';
+      if (r === 'staff' || r === 'noc') return 'staff';
+      return 'manager';
+    }
+    return 'manager';
+  });
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (initialTab) return initialTab;
+    if (authenticatedUser?.role === 'client') return 'client_portal';
+    return 'admin_portal';
+  });
   const [isMobileAppMode, setIsMobileAppMode] = useState<boolean>(false);
+
+  // Sync session role when authenticatedUser changes
+  useEffect(() => {
+    if (authenticatedUser?.role) {
+      const r = authenticatedUser.role.toLowerCase();
+      let targetRole: UserRole = 'manager';
+      if (r === 'client') targetRole = 'client';
+      else if (r === 'staff' || r === 'noc') targetRole = 'staff';
+      else if (r === 'manager' || r === 'admin') targetRole = 'manager';
+
+      setSessionRole(targetRole);
+
+      const allowed = ROLE_ALLOWED_TABS[targetRole];
+      if (!allowed.includes(activeTab)) {
+        if (targetRole === 'client') setActiveTab('client_portal');
+        else setActiveTab('admin_portal');
+      }
+    }
+  }, [authenticatedUser]);
+
+  const handleSwitchRole = (newRole: UserRole) => {
+    setSessionRole(newRole);
+    if (onRoleChange) {
+      onRoleChange(newRole);
+    }
+    const allowed = ROLE_ALLOWED_TABS[newRole];
+    if (!allowed.includes(activeTab)) {
+      if (newRole === 'client') {
+        setActiveTab('client_portal');
+      } else {
+        setActiveTab('admin_portal');
+      }
+    }
+    setNotificationToast(
+      newRole === 'manager'
+        ? '🏢 Switched to Branch Manager Full Access Desk'
+        : newRole === 'staff'
+        ? '🛠️ Switched to Field Staff & NOC Queue'
+        : '👤 Switched to Client Self-Care Portal'
+    );
+  };
 
   // Form State for Ticket Creation
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
@@ -311,6 +554,17 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'OPEN' | 'IN_PROGRESS' | 'RESOLVED'>('ALL');
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+
+  // Manager Bulk Ticket Actions State
+  const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
+  const [bulkTargetTech, setBulkTargetTech] = useState<string>(DEMO_TECHNICIANS[0]);
+  const [bulkTargetPriority, setBulkTargetPriority] = useState<'normal' | 'medium' | 'high' | 'emergency'>('high');
+
+  // Manager Drag & Drop Ticket Reassignment State
+  const [managerViewMode, setManagerViewMode] = useState<'list' | 'squad_board'>('list');
+  const [draggedTicketId, setDraggedTicketId] = useState<string | null>(null);
+  const [dragOverTech, setDragOverTech] = useState<string | null>(null);
+  const [selectedLinemanFilter, setSelectedLinemanFilter] = useState<string>('ALL');
 
   // Calculate NOC engineer update response stats via monitoring helper
   const nocResponseStats = useMemo(() => calculateNocResponseStats(tickets), [tickets]);
@@ -686,8 +940,243 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
       const updated = tickets.filter(t => t.id !== ticketId);
       saveTicketsToStorage(updated);
       setSelectedTicket(null);
+      setSelectedTicketIds(prev => prev.filter(id => id !== ticketId));
       showToast('🗑️ Ticket permanently removed.');
     }
+  };
+
+  // --- Manager Quick-Action Bulk Operations ---
+  const handleToggleSelectTicket = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedTicketIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllFiltered = () => {
+    const filteredIds = filteredTickets.map(t => t.id);
+    if (filteredIds.length === 0) return;
+    const allSelected = filteredIds.every(id => selectedTicketIds.includes(id));
+    if (allSelected) {
+      setSelectedTicketIds(prev => prev.filter(id => !filteredIds.includes(id)));
+    } else {
+      setSelectedTicketIds(prev => Array.from(new Set([...prev, ...filteredIds])));
+    }
+  };
+
+  const handleSelectByStatus = (status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED') => {
+    const ids = tickets.filter(t => t.status === status).map(t => t.id);
+    setSelectedTicketIds(ids);
+    showToast(`🎯 Selected ${ids.length} ${status} ticket(s).`);
+  };
+
+  const handleSelectByPriority = (pri: 'normal' | 'medium' | 'high' | 'emergency') => {
+    const ids = tickets.filter(t => t.priority === pri).map(t => t.id);
+    setSelectedTicketIds(ids);
+    showToast(`🎯 Selected ${ids.length} ${pri.toUpperCase()} priority ticket(s).`);
+  };
+
+  const handleClearTicketSelection = () => {
+    setSelectedTicketIds([]);
+  };
+
+  // Bulk Assign Technician
+  const handleBulkAssignTechnicians = (techName: string) => {
+    if (selectedTicketIds.length === 0) {
+      showToast('⚠️ Please select at least one ticket to assign.');
+      return;
+    }
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const count = selectedTicketIds.length;
+    const updated = tickets.map(t => {
+      if (selectedTicketIds.includes(t.id)) {
+        return {
+          ...t,
+          assignedTechnician: techName,
+          updatedAt: new Date().toLocaleString(),
+          updates: [
+            {
+              text: `Bulk assignment: Assigned to ${techName} by Branch Manager.`,
+              time: timeStr,
+              author: 'Branch Manager (MD. Mahamudul Hasan)'
+            },
+            ...(t.updates || [])
+          ]
+        };
+      }
+      return t;
+    });
+
+    saveTicketsToStorage(updated);
+    if (selectedTicket && selectedTicketIds.includes(selectedTicket.id)) {
+      setSelectedTicket(updated.find(x => x.id === selectedTicket.id) || null);
+    }
+    showToast(`⚡ Bulk assigned ${count} ticket(s) to ${techName}!`);
+  };
+
+  // Bulk Status Update (Bulk Close / Resolve / In-Progress / Re-open)
+  const handleBulkUpdateStatus = (newStatus: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED') => {
+    if (selectedTicketIds.length === 0) {
+      showToast('⚠️ Please select at least one ticket to update.');
+      return;
+    }
+    const count = selectedTicketIds.length;
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const updated = tickets.map(t => {
+      if (selectedTicketIds.includes(t.id)) {
+        return {
+          ...t,
+          status: newStatus,
+          updatedAt: new Date().toLocaleString(),
+          updates: [
+            {
+              text: `Bulk status update: Marked as ${newStatus} by Branch Manager.`,
+              time: timeStr,
+              author: 'Branch Manager (MD. Mahamudul Hasan)'
+            },
+            ...(t.updates || [])
+          ]
+        };
+      }
+      return t;
+    });
+
+    saveTicketsToStorage(updated);
+    if (selectedTicket && selectedTicketIds.includes(selectedTicket.id)) {
+      setSelectedTicket(updated.find(x => x.id === selectedTicket.id) || null);
+    }
+    showToast(
+      newStatus === 'RESOLVED'
+        ? `✅ Bulk closed: ${count} ticket(s) marked as RESOLVED!`
+        : `⚡ Bulk status changed: ${count} ticket(s) set to ${newStatus}!`
+    );
+  };
+
+  // Bulk Priority Update
+  const handleBulkUpdatePriority = (newPri: 'normal' | 'medium' | 'high' | 'emergency') => {
+    if (selectedTicketIds.length === 0) {
+      showToast('⚠️ Please select at least one ticket to update.');
+      return;
+    }
+    const count = selectedTicketIds.length;
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const updated = tickets.map(t => {
+      if (selectedTicketIds.includes(t.id)) {
+        return {
+          ...t,
+          priority: newPri,
+          updatedAt: new Date().toLocaleString(),
+          updates: [
+            {
+              text: `Bulk priority update: Escalated to ${newPri.toUpperCase()} by Branch Manager.`,
+              time: timeStr,
+              author: 'Branch Manager (MD. Mahamudul Hasan)'
+            },
+            ...(t.updates || [])
+          ]
+        };
+      }
+      return t;
+    });
+
+    saveTicketsToStorage(updated);
+    if (selectedTicket && selectedTicketIds.includes(selectedTicket.id)) {
+      setSelectedTicket(updated.find(x => x.id === selectedTicket.id) || null);
+    }
+    showToast(`⚡ Bulk updated ${count} ticket(s) priority to ${newPri.toUpperCase()}!`);
+  };
+
+  // Bulk Delete
+  const handleBulkDeleteSelected = () => {
+    if (selectedTicketIds.length === 0) return;
+    if (confirm(`Are you sure you want to permanently delete ${selectedTicketIds.length} selected ticket(s)?`)) {
+      const updated = tickets.filter(t => !selectedTicketIds.includes(t.id));
+      saveTicketsToStorage(updated);
+      if (selectedTicket && selectedTicketIds.includes(selectedTicket.id)) {
+        setSelectedTicket(null);
+      }
+      showToast(`🗑️ ${selectedTicketIds.length} ticket(s) permanently deleted.`);
+      setSelectedTicketIds([]);
+    }
+  };
+
+  // --- Manager Interactive Drag & Drop Reassignment Handlers ---
+  const handleDragStartTicket = (e: React.DragEvent, ticket: SupportTicket) => {
+    setDraggedTicketId(ticket.id);
+    e.dataTransfer.setData('text/plain', ticket.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEndTicket = () => {
+    setDraggedTicketId(null);
+    setDragOverTech(null);
+  };
+
+  const handleDragOverTechZone = (e: React.DragEvent, techName: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverTech !== techName) {
+      setDragOverTech(techName);
+    }
+  };
+
+  const handleDragLeaveTechZone = (e: React.DragEvent, techName: string) => {
+    e.preventDefault();
+    if (dragOverTech === techName) {
+      setDragOverTech(null);
+    }
+  };
+
+  const handleDropOnTechSquad = (e: React.DragEvent, targetTech: string) => {
+    e.preventDefault();
+    const ticketId = e.dataTransfer.getData('text/plain') || draggedTicketId;
+    setDragOverTech(null);
+    setDraggedTicketId(null);
+
+    if (!ticketId) return;
+    const targetTicket = tickets.find(t => t.id === ticketId);
+    if (!targetTicket) return;
+
+    if (targetTicket.assignedTechnician === targetTech) {
+      showToast(`ℹ️ Ticket ${ticketId} is already assigned to ${targetTech}.`);
+      return;
+    }
+
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const isUnassign = targetTech === 'UNASSIGNED';
+    const finalTechName = isUnassign ? '' : targetTech;
+
+    const updated = tickets.map(t => {
+      if (t.id === ticketId) {
+        return {
+          ...t,
+          assignedTechnician: finalTechName,
+          updatedAt: new Date().toLocaleString(),
+          updates: [
+            {
+              text: isUnassign
+                ? 'Moved back to Open Dispatch Pool (Unassigned) via Drag-and-Drop.'
+                : `Reassigned to ${targetTech} via Manager Drag-and-Drop dispatch.`,
+              time: timeStr,
+              author: 'Branch Manager (MD. Mahamudul Hasan)'
+            },
+            ...(t.updates || [])
+          ]
+        };
+      }
+      return t;
+    });
+
+    saveTicketsToStorage(updated);
+    if (selectedTicket && selectedTicket.id === ticketId) {
+      setSelectedTicket(updated.find(x => x.id === ticketId) || null);
+    }
+
+    showToast(
+      isUnassign
+        ? `⚡ Ticket ${ticketId} moved to Open Pool.`
+        : `🎯 Reassigned ${ticketId} (${targetTicket.name}) to ${targetTech}!`
+    );
   };
 
   // WhatsApp Alert Trigger to Manager & Client
@@ -1123,8 +1612,13 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
 
     const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
     const matchesPriority = priorityFilter === 'ALL' || t.priority === priorityFilter;
+    const matchesLineman =
+      selectedLinemanFilter === 'ALL' ||
+      (selectedLinemanFilter === 'UNASSIGNED'
+        ? !t.assignedTechnician
+        : t.assignedTechnician === selectedLinemanFilter);
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesStatus && matchesPriority && matchesLineman;
   });
 
   const clientTickets = loggedInClient
@@ -1147,6 +1641,9 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   const progressCount = tickets.filter(t => t.status === 'IN_PROGRESS').length;
   const resolvedCount = tickets.filter(t => t.status === 'RESOLVED').length;
   const emergencyCount = tickets.filter(t => t.priority === 'emergency').length;
+  const highCount = tickets.filter(t => t.priority === 'high').length;
+  const mediumCount = tickets.filter(t => t.priority === 'medium').length;
+  const lowCount = tickets.filter(t => t.priority === 'normal').length;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-0 sm:p-2 overflow-hidden">
@@ -1247,117 +1744,126 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
           </div>
         )}
 
-        {/* Navigation Tabs (Hidden on Login Page when not logged in) */}
-        {!(activeTab === 'fast_login' && !isAdminLoggedIn) && (
-          <div className="flex items-center gap-1 border-b border-slate-800 px-3 sm:px-6 bg-slate-950/90 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab('fast_login')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-black text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'fast_login'
-                  ? 'border-amber-400 text-amber-300 bg-amber-500/15'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+        {/* Dynamic Session State & Interactive Role Switcher Bar */}
+        <div className="bg-slate-900/95 border-b border-slate-800 px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+              {language === 'bn' ? 'অ্যাক্টিভ রোল সেশন:' : 'Session Role:'}
+            </span>
+            <div
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-black shadow-sm transition-all ${
+                sessionRole === 'manager'
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                  : sessionRole === 'staff'
+                  ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
+                  : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
               }`}
             >
-              <Zap className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
-              <span>⚡ Fast Login</span>
-              <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase ml-0.5">
-                Manager & NOC
+              <span
+                className={`h-2 w-2 rounded-full animate-pulse ${
+                  sessionRole === 'manager'
+                    ? 'bg-amber-400'
+                    : sessionRole === 'staff'
+                    ? 'bg-blue-400'
+                    : 'bg-emerald-400'
+                }`}
+              />
+              <span>
+                {sessionRole === 'manager' && (language === 'bn' ? '🏢 ব্রাঞ্চ ম্যানেজার (পূর্ণ এক্সেস)' : '🏢 Branch Manager (Full Access)')}
+                {sessionRole === 'staff' && (language === 'bn' ? '🛠️ NOC ইঞ্জিনিয়ার ও ফিল্ড স্টাফ' : '🛠️ NOC Engineer & Field Staff')}
+                {sessionRole === 'client' && (language === 'bn' ? '👤 ক্লায়েন্ট / সেলফ-সার্ভিস' : '👤 Client / Subscriber Self-Care')}
               </span>
+            </div>
+          </div>
+
+          {/* Quick Role Switch Buttons */}
+          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+            <span className="text-[10px] text-slate-500 font-bold px-1.5 hidden sm:inline">Switch Role:</span>
+            <button
+              type="button"
+              onClick={() => handleSwitchRole('client')}
+              className={`px-2.5 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 ${
+                sessionRole === 'client'
+                  ? 'bg-emerald-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <User className="h-3 w-3" />
+              <span>Client</span>
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('create');
-                setLastCreatedTicket(null);
-              }}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'create'
-                  ? 'border-rose-500 text-rose-400 bg-rose-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              type="button"
+              onClick={() => handleSwitchRole('staff')}
+              className={`px-2.5 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 ${
+                sessionRole === 'staff'
+                  ? 'bg-blue-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <Ticket className="h-3.5 w-3.5 text-rose-400" />
-              <span>New Ticket</span>
+              <Wrench className="h-3 w-3" />
+              <span>Staff</span>
             </button>
 
             <button
-              onClick={() => {
-                setActiveTab('qr_ticket');
-              }}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'qr_ticket'
-                  ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              type="button"
+              onClick={() => handleSwitchRole('manager')}
+              className={`px-2.5 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 ${
+                sessionRole === 'manager'
+                  ? 'bg-amber-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <QrCode className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
-              <span>⚡ QR Quick Ticket</span>
-              <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase ml-0.5">
-                Dynamic
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('client_portal')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'client_portal'
-                  ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <UserCheck className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Client CID Login</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('admin_portal')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'admin_portal'
-                  ? 'border-amber-500 text-amber-400 bg-amber-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-              <span>Branch Manager NOC</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('client_db')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'client_db'
-                  ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Users className="h-3.5 w-3.5 text-indigo-400" />
-              <span>Client Database ({clientsList.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('ai_diagnostics')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'ai_diagnostics'
-                  ? 'border-purple-500 text-purple-400 bg-purple-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Bot className="h-3.5 w-3.5 text-purple-400" />
-              <span>AI Optical Scan</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('android_app')}
-              className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-                activeTab === 'android_app'
-                  ? 'border-teal-500 text-teal-400 bg-teal-500/10'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Smartphone className="h-3.5 w-3.5 text-teal-400" />
-              <span>Android App (.APK)</span>
+              <ShieldCheck className="h-3 w-3" />
+              <span>Manager</span>
             </button>
           </div>
-        )}
+        </div>
+
+        {/* Dynamic Navigation Tabs (Rendered based on sessionRole) */}
+        <div className="flex items-center gap-1 border-b border-slate-800 px-3 sm:px-6 bg-slate-950/90 overflow-x-auto">
+          {ROLE_ALLOWED_TABS[sessionRole].map((tabKey) => {
+            const tabDef = TAB_DEFINITIONS[tabKey];
+            if (!tabDef) return null;
+            const IconComponent = tabDef.icon;
+            const isActive = activeTab === tabKey;
+
+            let activeStyles = 'border-transparent text-slate-400 hover:text-slate-200';
+            if (isActive) {
+              if (tabDef.color === 'amber') activeStyles = 'border-amber-400 text-amber-300 bg-amber-500/15';
+              else if (tabDef.color === 'emerald') activeStyles = 'border-emerald-500 text-emerald-400 bg-emerald-500/10';
+              else if (tabDef.color === 'rose') activeStyles = 'border-rose-500 text-rose-400 bg-rose-500/10';
+              else if (tabDef.color === 'cyan') activeStyles = 'border-cyan-500 text-cyan-400 bg-cyan-500/10';
+              else if (tabDef.color === 'indigo') activeStyles = 'border-indigo-500 text-indigo-400 bg-indigo-500/10';
+              else if (tabDef.color === 'purple') activeStyles = 'border-purple-500 text-purple-400 bg-purple-500/10';
+              else if (tabDef.color === 'teal') activeStyles = 'border-teal-500 text-teal-400 bg-teal-500/10';
+              else activeStyles = 'border-blue-500 text-blue-400 bg-blue-500/10';
+            }
+
+            return (
+              <button
+                key={tabKey}
+                onClick={() => {
+                  setActiveTab(tabKey);
+                  if (tabKey === 'create') setLastCreatedTicket(null);
+                }}
+                className={`flex items-center gap-1.5 py-2.5 px-3 font-bold text-xs border-b-2 transition-colors cursor-pointer whitespace-nowrap ${activeStyles}`}
+              >
+                <IconComponent className={`h-3.5 w-3.5 ${isActive ? '' : 'text-slate-400'}`} />
+                <span>
+                  {tabKey === 'client_db'
+                    ? `${language === 'bn' ? tabDef.bengaliLabel : tabDef.label} (${clientsList.length})`
+                    : language === 'bn' ? tabDef.bengaliLabel : tabDef.label}
+                </span>
+                {tabDef.badge && (
+                  <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase ml-0.5 border ${tabDef.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+                    {tabDef.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
         {/* Modal Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
@@ -2285,12 +2791,12 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       <select
                         value={priority}
                         onChange={e => setPriority(e.target.value as any)}
-                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none font-bold"
+                        className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 px-3 py-2 rounded-xl text-slate-100 text-xs focus:outline-none font-bold cursor-pointer"
                       >
-                        <option value="normal">Normal (Low)</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High Priority</option>
-                        <option value="emergency">🚨 Emergency Outage</option>
+                        <option value="normal">🟢 Low Priority</option>
+                        <option value="medium">🟨 Medium Priority</option>
+                        <option value="high">🟧 High Priority</option>
+                        <option value="emergency">🔴 Critical Emergency</option>
                       </select>
                     </div>
                   </div>
@@ -2728,16 +3234,20 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Admin Status Banner & Controls */}
-                <div className="p-3.5 bg-gradient-to-r from-amber-950/90 via-slate-900 to-slate-900 border border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                {/* Status Banner & Controls */}
+                <div className={`p-3.5 bg-gradient-to-r ${sessionRole === 'staff' ? 'from-blue-950/90 via-slate-900 to-slate-900 border-blue-500/40' : 'from-amber-950/90 via-slate-900 to-slate-900 border-amber-500/40'} border rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg`}>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400">
-                      <ShieldCheck className="h-5 w-5" />
+                    <div className={`h-10 w-10 rounded-xl ${sessionRole === 'staff' ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400'} border flex items-center justify-center`}>
+                      {sessionRole === 'staff' ? <Wrench className="h-5 w-5" /> : <ShieldCheck className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h3 className="text-xs font-black text-white">Branch Manager Full Access Desk</h3>
+                      <h3 className="text-xs font-black text-white">
+                        {sessionRole === 'staff' ? 'NOC Field Operations & Lineman Queue' : 'Branch Manager Full Access Desk'}
+                      </h3>
                       <p className="text-[11px] text-slate-400">
-                        Manager: MD. Mahamudul Hasan • Email: info@deltamithapukur.net.bd • WhatsApp: 01944455176
+                        {sessionRole === 'staff'
+                          ? 'Lead Engineer: NOC Mithapukur Hub • Emergency Line Maintenance & Dispatch'
+                          : 'Manager: MD. Mahamudul Hasan • Email: info@deltamithapukur.net.bd • WhatsApp: 01944455176'}
                       </p>
                     </div>
                   </div>
@@ -2747,6 +3257,14 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       <Clock className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
                       <span>NOC Update SLA: <strong className="text-cyan-200 font-bold">{nocResponseStats.avgResponseTimeFormatted}</strong></span>
                     </div>
+
+                    <button
+                      onClick={() => setActiveTab('noc_telemetry')}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer shadow"
+                    >
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      <span>Fiber Telemetry</span>
+                    </button>
 
                     <button
                       onClick={() => setActiveTab('client_db')}
@@ -2766,32 +3284,89 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                   </div>
                 </div>
 
-                {/* Admin Analytics Grid */}
+                {/* Analytics & Priority Quick Triage Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center text-xs">
-                  <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setPriorityFilter('ALL')}
+                    className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      priorityFilter === 'ALL'
+                        ? 'bg-slate-900 border-slate-500 ring-1 ring-slate-500/50 shadow-md'
+                        : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
                     <span className="text-[9px] font-bold text-slate-400 uppercase block">Total Tickets</span>
                     <strong className="text-base font-black text-white">{totalCount}</strong>
-                  </div>
-                  <div className="p-2.5 bg-rose-950/40 rounded-xl border border-rose-500/30">
-                    <span className="text-[9px] font-bold text-rose-300 uppercase block">Open</span>
-                    <strong className="text-base font-black text-rose-400">{openCount}</strong>
-                  </div>
-                  <div className="p-2.5 bg-amber-950/40 rounded-xl border border-amber-500/30">
-                    <span className="text-[9px] font-bold text-amber-300 uppercase block">In Progress</span>
-                    <strong className="text-base font-black text-amber-400">{progressCount}</strong>
-                  </div>
-                  <div className="p-2.5 bg-emerald-950/40 rounded-xl border border-emerald-500/30">
-                    <span className="text-[9px] font-bold text-emerald-300 uppercase block">Resolved</span>
-                    <strong className="text-base font-black text-emerald-400">{resolvedCount}</strong>
-                  </div>
-                  <div className="p-2.5 bg-purple-950/40 rounded-xl border border-purple-500/30">
-                    <span className="text-[9px] font-bold text-purple-300 uppercase block">Emergency</span>
-                    <strong className="text-base font-black text-purple-400">{emergencyCount}</strong>
-                  </div>
-                  <div className="p-2.5 bg-cyan-950/40 rounded-xl border border-cyan-500/30 col-span-2 sm:col-span-1 flex flex-col items-center justify-center relative group cursor-help">
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPriorityFilter('emergency')}
+                    className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      priorityFilter === 'emergency'
+                        ? 'bg-rose-950/80 border-rose-500 ring-1 ring-rose-500/50 shadow-md shadow-rose-950'
+                        : 'bg-rose-950/40 border-rose-500/30 hover:border-rose-500/60'
+                    }`}
+                  >
+                    <span className="text-[9px] font-extrabold text-rose-300 uppercase flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-ping" />
+                      <span>Emergency</span>
+                    </span>
+                    <strong className="text-base font-black text-rose-400">{emergencyCount}</strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPriorityFilter('high')}
+                    className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      priorityFilter === 'high'
+                        ? 'bg-orange-950/80 border-orange-500 ring-1 ring-orange-500/50 shadow-md shadow-orange-950'
+                        : 'bg-orange-950/40 border-orange-500/30 hover:border-orange-500/60'
+                    }`}
+                  >
+                    <span className="text-[9px] font-extrabold text-orange-300 uppercase flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+                      <span>High</span>
+                    </span>
+                    <strong className="text-base font-black text-orange-400">{highCount}</strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPriorityFilter('medium')}
+                    className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      priorityFilter === 'medium'
+                        ? 'bg-amber-950/80 border-amber-500 ring-1 ring-amber-500/50 shadow-md shadow-amber-950'
+                        : 'bg-amber-950/40 border-amber-500/30 hover:border-amber-500/60'
+                    }`}
+                  >
+                    <span className="text-[9px] font-extrabold text-amber-300 uppercase flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      <span>Medium</span>
+                    </span>
+                    <strong className="text-base font-black text-amber-400">{mediumCount}</strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPriorityFilter('normal')}
+                    className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      priorityFilter === 'normal'
+                        ? 'bg-emerald-950/80 border-emerald-500 ring-1 ring-emerald-500/50 shadow-md shadow-emerald-950'
+                        : 'bg-emerald-950/40 border-emerald-500/30 hover:border-emerald-500/60'
+                    }`}
+                  >
+                    <span className="text-[9px] font-extrabold text-emerald-300 uppercase flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span>Low</span>
+                    </span>
+                    <strong className="text-base font-black text-emerald-400">{lowCount}</strong>
+                  </button>
+
+                  <div className="p-2.5 bg-cyan-950/40 rounded-xl border border-cyan-500/30 flex flex-col items-center justify-center relative group cursor-help text-center">
                     <div className="flex items-center gap-1 text-[9px] font-bold text-cyan-300 uppercase">
                       <Clock className="h-3 w-3 text-cyan-400 animate-pulse" />
-                      <span>NOC Response</span>
+                      <span>NOC SLA</span>
                     </div>
                     <strong className="text-base font-black text-cyan-400 font-mono">{nocResponseStats.avgResponseTimeFormatted}</strong>
 
@@ -2810,7 +3385,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                   </div>
                 </div>
 
-                {/* Search & Filter Controls */}
+                {/* Search & Filter Controls with View Mode Switcher */}
                 <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                   <div className="relative flex-1 min-w-[160px]">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
@@ -2822,75 +3397,563 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 pl-8 pr-2 py-1.5 rounded-lg text-slate-100 text-xs font-mono focus:outline-none"
                     />
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <select
-                      value={priorityFilter}
-                      onChange={e => setPriorityFilter(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 text-xs text-slate-200 font-bold rounded-lg px-2 py-1.5 focus:outline-none cursor-pointer"
-                    >
-                      <option value="ALL">All Priorities</option>
-                      <option value="emergency">🔴 Emergency Cut</option>
-                      <option value="high">🟧 High Priority</option>
-                      <option value="medium">🟨 Medium</option>
-                      <option value="normal">🟦 Low / Normal</option>
-                    </select>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Lineman Filter */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase hidden md:inline">Squad:</span>
+                      <select
+                        value={selectedLinemanFilter}
+                        onChange={e => setSelectedLinemanFilter(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 text-xs text-slate-200 font-bold rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+                      >
+                        <option value="ALL">All Squads ({tickets.length})</option>
+                        <option value="UNASSIGNED">⚡ Unassigned Pool ({tickets.filter(t => !t.assignedTechnician).length})</option>
+                        {LINEMAN_SQUADS.map(s => (
+                          <option key={s.name} value={s.name}>
+                            👷 {s.shortName} ({tickets.filter(t => t.assignedTechnician === s.name).length})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Priority Filter */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase hidden sm:inline">Priority:</span>
+                      <select
+                        value={priorityFilter}
+                        onChange={e => setPriorityFilter(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 text-xs text-slate-200 font-bold rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+                      >
+                        <option value="ALL">All ({totalCount})</option>
+                        <option value="emergency">🔴 Critical ({emergencyCount})</option>
+                        <option value="high">🟧 High ({highCount})</option>
+                        <option value="medium">🟨 Medium ({mediumCount})</option>
+                        <option value="normal">🟢 Low ({lowCount})</option>
+                      </select>
+                    </div>
+
+                    {/* View Mode Toggle (List vs Squad Kanban Board) */}
+                    <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setManagerViewMode('list')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                          managerViewMode === 'list'
+                            ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Standard Queue List View"
+                      >
+                        <List className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">List Queue</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setManagerViewMode('squad_board')}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                          managerViewMode === 'squad_board'
+                            ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Interactive Linemen Squad Dispatch Kanban Board"
+                      >
+                        <Kanban className="h-3.5 w-3.5" />
+                        <span>Squad Board</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Tickets Table & Dispatch Panel */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-                  <div className={`${selectedTicket ? 'lg:col-span-6' : 'lg:col-span-12'} space-y-2 max-h-[400px] overflow-y-auto`}>
-                    {filteredTickets.map(t => (
-                      <div
-                        key={t.id}
-                        onClick={() => setSelectedTicket(t)}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                          selectedTicket?.id === t.id
-                            ? 'bg-slate-900 border-amber-500 shadow-md ring-1 ring-amber-500/30'
-                            : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1.5 mb-1.5 flex-wrap">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                              {t.id}
-                            </span>
-                            <PriorityBadge priority={t.priority} />
-                          </div>
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                            {t.status}
+                {/* Manager Quick-Action Batch Operations Bar */}
+                {sessionRole === 'manager' && (
+                  <div className={`p-3 rounded-xl border transition-all duration-200 ${
+                    selectedTicketIds.length > 0
+                      ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/60 border-amber-500/50 shadow-lg shadow-amber-950/30'
+                      : 'bg-slate-950 border-slate-800'
+                  }`}>
+                    {/* Top Row: Selection Controls & Quick Selectors */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={handleSelectAllFiltered}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-colors"
+                        >
+                          {filteredTickets.length > 0 && filteredTickets.every(t => selectedTicketIds.includes(t.id)) ? (
+                            <CheckSquare className="h-4 w-4 text-amber-400" />
+                          ) : (
+                            <Square className="h-4 w-4 text-slate-400" />
+                          )}
+                          <span>
+                            {filteredTickets.length > 0 && filteredTickets.every(t => selectedTicketIds.includes(t.id))
+                              ? 'Deselect Filtered'
+                              : `Select All Filtered (${filteredTickets.length})`}
                           </span>
+                        </button>
+
+                        {selectedTicketIds.length > 0 ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center gap-1">
+                              <Zap className="h-3.5 w-3.5 text-amber-400 animate-bounce" />
+                              <span>{selectedTicketIds.length} Selected</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleClearTicketSelection}
+                              className="text-[11px] text-slate-400 hover:text-white px-2 py-1 bg-slate-900 hover:bg-slate-800 rounded-lg border border-slate-800 cursor-pointer flex items-center gap-1"
+                            >
+                              <X className="h-3 w-3" />
+                              <span>Clear</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">Quick Select:</span>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectByStatus('OPEN')}
+                              className="px-2 py-0.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                            >
+                              🔴 Open ({openCount})
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectByPriority('emergency')}
+                              className="px-2 py-0.5 bg-rose-950/80 hover:bg-rose-900 text-rose-200 border border-rose-500/40 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                            >
+                              🚨 Emergency ({emergencyCount})
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectByStatus('IN_PROGRESS')}
+                              className="px-2 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                            >
+                              🟡 In Progress ({progressCount})
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Header Badge */}
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                        <ListChecks className="h-3.5 w-3.5 text-amber-400" />
+                        <span className="font-semibold text-slate-300">Manager Queue Quick-Action Bar</span>
+                      </div>
+                    </div>
+
+                    {/* Active Bulk Action Controls Panel */}
+                    {selectedTicketIds.length > 0 && (
+                      <div className="mt-2.5 pt-2.5 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center">
+                        {/* Bulk Assign Squad */}
+                        <div className="md:col-span-6 flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <select
+                              value={bulkTargetTech}
+                              onChange={e => setBulkTargetTech(e.target.value)}
+                              className="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 font-bold rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none cursor-pointer"
+                            >
+                              {DEMO_TECHNICIANS.map(tech => (
+                                <option key={tech} value={tech}>
+                                  👷 {tech}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleBulkAssignTechnicians(bulkTargetTech)}
+                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-lg shadow-md shadow-blue-600/30 flex items-center gap-1.5 shrink-0 cursor-pointer border border-blue-400/30"
+                          >
+                            <UserCheck className="h-3.5 w-3.5" />
+                            <span>Bulk Assign ({selectedTicketIds.length})</span>
+                          </button>
                         </div>
-                        <p className="text-xs text-slate-200 font-bold truncate">
-                          {t.name} <span className="text-[10px] text-slate-400 font-normal font-mono">({t.customerId})</span>
-                        </p>
-                        <p className="text-xs text-slate-300 font-medium truncate mt-0.5">{t.subject}</p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400">
-                          <span>Area: {t.union}</span>
-                          <span className="text-blue-400 font-semibold">{t.assignedTechnician || 'Unassigned'}</span>
+
+                        {/* Bulk Status Actions */}
+                        <div className="md:col-span-6 flex items-center justify-end gap-1.5 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => handleBulkUpdateStatus('RESOLVED')}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-lg shadow-md shadow-emerald-600/30 flex items-center gap-1.5 cursor-pointer border border-emerald-400/30"
+                            title="Mark all selected tickets as RESOLVED"
+                          >
+                            <CheckCheck className="h-3.5 w-3.5" />
+                            <span>Bulk Close / Resolve</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleBulkUpdateStatus('IN_PROGRESS')}
+                            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg flex items-center gap-1 cursor-pointer"
+                            title="Set all selected tickets to IN_PROGRESS"
+                          >
+                            <span>🟡 In Progress</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleBulkUpdateStatus('OPEN')}
+                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-lg flex items-center gap-1 cursor-pointer"
+                            title="Re-open selected tickets"
+                          >
+                            <span>🔴 Re-Open</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleBulkDeleteSelected}
+                            className="p-1.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 rounded-lg cursor-pointer transition-colors"
+                            title="Delete selected tickets"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
+                )}
+
+                {/* Manager Linemen Interactive Drag & Drop Reassignment Dock */}
+                {sessionRole === 'manager' && (
+                  <div className={`p-3 rounded-xl border transition-all duration-200 ${
+                    draggedTicketId
+                      ? 'bg-slate-950 border-amber-400 ring-2 ring-amber-400/40 shadow-xl shadow-amber-950/50'
+                      : 'bg-slate-950 border-slate-800/90'
+                  }`}>
+                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <div className={`p-1 rounded-lg ${draggedTicketId ? 'bg-amber-500 text-slate-950 animate-bounce' : 'bg-slate-800 text-amber-400'}`}>
+                          <HardHat className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+                            <span>Lineman Drag & Drop Dispatch Dock</span>
+                            {draggedTicketId && (
+                              <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.2 rounded-full uppercase tracking-wider animate-pulse">
+                                Active Drag Mode
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            {draggedTicketId ? (
+                              <span className="text-amber-300 font-bold">
+                                🎯 Dragging Ticket #{draggedTicketId} ({tickets.find(x => x.id === draggedTicketId)?.name}) — Drop onto any squad below to reassign!
+                              </span>
+                            ) : (
+                              <span>Drag any ticket card by the handle and drop onto a lineman squad below to reassign in 1-tap.</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      {selectedLinemanFilter !== 'ALL' && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLinemanFilter('ALL')}
+                          className="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                          <span>Clear Squad Filter ({selectedLinemanFilter === 'UNASSIGNED' ? 'Open Pool' : selectedLinemanFilter.split(' ')[0]})</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Squad Drop Target Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                      {/* Unassigned / Open Pool Drop Zone */}
+                      <div
+                        onDragOver={e => handleDragOverTechZone(e, 'UNASSIGNED')}
+                        onDragLeave={e => handleDragLeaveTechZone(e, 'UNASSIGNED')}
+                        onDrop={e => handleDropOnTechSquad(e, 'UNASSIGNED')}
+                        onClick={() => setSelectedLinemanFilter(selectedLinemanFilter === 'UNASSIGNED' ? 'ALL' : 'UNASSIGNED')}
+                        className={`p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                          dragOverTech === 'UNASSIGNED'
+                            ? 'bg-gradient-to-br from-amber-500/30 to-rose-500/20 border-amber-400 ring-2 ring-amber-400 shadow-lg scale-[1.03]'
+                            : draggedTicketId
+                            ? 'border-dashed border-slate-600 bg-slate-900/80 hover:border-amber-400 hover:bg-slate-900'
+                            : selectedLinemanFilter === 'UNASSIGNED'
+                            ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400/40'
+                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-[9px] font-mono font-bold text-slate-400 uppercase">Pool</span>
+                          <span className="text-[10px] font-black text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded border border-rose-500/30">
+                            {tickets.filter(t => !t.assignedTechnician).length}
+                          </span>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-[11px] font-bold text-slate-200 truncate flex items-center gap-1">
+                            <Zap className="h-3 w-3 text-amber-400 shrink-0" />
+                            <span>Open Pool</span>
+                          </p>
+                          <p className="text-[9px] text-slate-400 truncate">Unassigned Tickets</p>
+                        </div>
+                        {dragOverTech === 'UNASSIGNED' ? (
+                          <div className="mt-1 text-[9px] font-black text-amber-300 uppercase tracking-wide text-center bg-amber-500/20 rounded py-0.5 border border-amber-400/40 animate-pulse">
+                            ⬇️ Drop to Unassign
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-[8px] text-slate-500 text-right">
+                            {selectedLinemanFilter === 'UNASSIGNED' ? 'Filtering' : 'Drop target'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 5 Lineman Squad Drop Zones */}
+                      {LINEMAN_SQUADS.map(squad => {
+                        const count = tickets.filter(t => t.assignedTechnician === squad.name).length;
+                        const isOver = dragOverTech === squad.name;
+                        const isFiltered = selectedLinemanFilter === squad.name;
+
+                        return (
+                          <div
+                            key={squad.name}
+                            onDragOver={e => handleDragOverTechZone(e, squad.name)}
+                            onDragLeave={e => handleDragLeaveTechZone(e, squad.name)}
+                            onDrop={e => handleDropOnTechSquad(e, squad.name)}
+                            onClick={() => setSelectedLinemanFilter(isFiltered ? 'ALL' : squad.name)}
+                            className={`p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                              isOver
+                                ? 'bg-gradient-to-br from-amber-500/30 via-slate-900 to-amber-600/20 border-amber-400 ring-2 ring-amber-400 shadow-xl shadow-amber-500/20 scale-[1.03]'
+                                : draggedTicketId
+                                ? 'border-dashed border-slate-600 bg-slate-900/80 hover:border-amber-400 hover:bg-slate-900'
+                                : isFiltered
+                                ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400/40 shadow'
+                                : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                            }`}
+                            title={`Drop ticket here to assign to ${squad.name}`}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span className="text-[9px] font-mono font-bold text-slate-400 uppercase truncate">
+                                {squad.badge}
+                              </span>
+                              <span className={`text-[10px] font-black px-1.5 py-0.2 rounded border ${
+                                count > 0 ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}>
+                                {count}
+                              </span>
+                            </div>
+                            <div className="text-left">
+                              <p className="text-[11px] font-bold text-slate-200 truncate flex items-center gap-1">
+                                <HardHat className={`h-3 w-3 ${squad.iconColor} shrink-0`} />
+                                <span className="truncate">{squad.shortName}</span>
+                              </p>
+                              <p className="text-[9px] text-slate-400 truncate">{squad.area}</p>
+                            </div>
+                            {isOver ? (
+                              <div className="mt-1 text-[9px] font-black text-amber-300 uppercase tracking-wide text-center bg-amber-500/20 rounded py-0.5 border border-amber-400/40 animate-pulse">
+                                ⬇️ Drop to Assign
+                              </div>
+                            ) : (
+                              <div className="mt-1 text-[8px] text-slate-500 text-right truncate">
+                                {isFiltered ? 'Filtering' : 'Drop target'}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tickets Table & Dispatch Panel */}
+                {managerViewMode === 'list' ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+                    <div className={`${selectedTicket ? 'lg:col-span-6' : 'lg:col-span-12'} space-y-2 max-h-[440px] overflow-y-auto pr-0.5`}>
+                      {filteredTickets.length === 0 ? (
+                        <div className="p-8 text-center bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                          <AlertCircle className="h-8 w-8 text-slate-600 mx-auto" />
+                          <p className="text-xs font-bold text-slate-300">No tickets found matching current filters.</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSearchQuery('');
+                              setStatusFilter('ALL');
+                              setPriorityFilter('ALL');
+                              setSelectedLinemanFilter('ALL');
+                            }}
+                            className="text-[11px] text-amber-400 hover:underline cursor-pointer font-bold"
+                          >
+                            Reset all filters
+                          </button>
+                        </div>
+                      ) : (
+                        filteredTickets.map(t => {
+                          const pInfo = getPriorityInfo(t.priority);
+                          const isSelected = selectedTicket?.id === t.id;
+                          const isTicketSelected = selectedTicketIds.includes(t.id);
+                          const isCurrentlyDragged = draggedTicketId === t.id;
+
+                          return (
+                            <div
+                              key={t.id}
+                              draggable={sessionRole === 'manager'}
+                              onDragStart={e => handleDragStartTicket(e, t)}
+                              onDragEnd={handleDragEndTicket}
+                              onClick={() => setSelectedTicket(t)}
+                              className={`p-3 rounded-xl border transition-all select-none ${pInfo.borderAccent} ${
+                                isCurrentlyDragged
+                                  ? 'opacity-40 border-dashed border-amber-400 ring-2 ring-amber-400/50 scale-[0.98] bg-amber-950/30'
+                                  : isTicketSelected
+                                  ? 'ring-2 ring-amber-400 border-amber-500 bg-amber-950/20 shadow-lg shadow-amber-950/40 cursor-pointer'
+                                  : isSelected
+                                  ? 'bg-slate-900 border-amber-500 shadow-lg ring-1 ring-amber-500/40 cursor-pointer'
+                                  : 'bg-slate-950 border-slate-800 hover:border-slate-700 cursor-pointer'
+                              } ${
+                                t.priority === 'emergency'
+                                  ? 'bg-rose-950/10'
+                                  : t.priority === 'high'
+                                  ? 'bg-orange-950/10'
+                                  : t.priority === 'medium'
+                                  ? 'bg-amber-950/10'
+                                  : 'bg-emerald-950/5'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-1.5 mb-1.5 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  {/* Drag Handle for Manager */}
+                                  {sessionRole === 'manager' && (
+                                    <div
+                                      className="p-1 text-slate-500 hover:text-amber-400 cursor-grab active:cursor-grabbing transition-colors rounded hover:bg-slate-900"
+                                      title="Drag and drop this ticket onto any squad above or into the Squad Board to reassign"
+                                    >
+                                      <GripVertical className="h-3.5 w-3.5" />
+                                    </div>
+                                  )}
+
+                                  {sessionRole === 'manager' && (
+                                    <button
+                                      type="button"
+                                      onClick={e => handleToggleSelectTicket(t.id, e)}
+                                      className="p-0.5 text-slate-400 hover:text-amber-400 cursor-pointer focus:outline-none transition-colors"
+                                      title={isTicketSelected ? 'Deselect ticket' : 'Select ticket for bulk action'}
+                                    >
+                                      {isTicketSelected ? (
+                                        <CheckSquare className="h-4 w-4 text-amber-400" />
+                                      ) : (
+                                        <Square className="h-4 w-4 text-slate-500 hover:text-slate-300" />
+                                      )}
+                                    </button>
+                                  )}
+                                  <span className="font-mono text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                                    {t.id}
+                                  </span>
+                                  <PriorityBadge priority={t.priority} />
+                                </div>
+                                <span
+                                  className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase border ${
+                                    t.status === 'OPEN'
+                                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                      : t.status === 'IN_PROGRESS'
+                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  }`}
+                                >
+                                  {t.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-200 font-bold truncate">
+                                {t.name} <span className="text-[10px] text-slate-400 font-normal font-mono">({t.customerId})</span>
+                              </p>
+                              <p className="text-xs text-slate-300 font-medium truncate mt-0.5">{t.subject}</p>
+                              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400">
+                                <span>Area: <strong className="text-slate-300">{t.union}</strong></span>
+                                <span className={`font-semibold flex items-center gap-1 ${t.assignedTechnician ? 'text-blue-400' : 'text-amber-400'}`}>
+                                  <HardHat className="h-3 w-3" />
+                                  <span>{t.assignedTechnician ? t.assignedTechnician.split(' ')[0] + ' ' + (t.assignedTechnician.split(' ')[1] || '') : '⚡ Unassigned Pool'}</span>
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
 
                   {selectedTicket && (
-                    <div className="lg:col-span-6 bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3 text-xs max-h-[400px] overflow-y-auto">
+                    <div className="lg:col-span-6 bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3 text-xs max-h-[420px] overflow-y-auto shadow-xl">
                       <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-mono text-xs font-black text-amber-400">{selectedTicket.id}</span>
-                            <PriorityBadge priority={selectedTicket.priority} showFullLabel />
+                            <span className="font-mono text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                              {selectedTicket.id}
+                            </span>
+                            <PriorityBadge priority={selectedTicket.priority} showFullLabel size="md" />
                           </div>
                           <h4 className="font-bold text-slate-200">{selectedTicket.name} ({selectedTicket.customerId})</h4>
                         </div>
-                        <button onClick={() => setSelectedTicket(null)} className="text-slate-500 hover:text-white cursor-pointer">
+                        <button onClick={() => setSelectedTicket(null)} className="text-slate-500 hover:text-white cursor-pointer p-1 rounded-lg hover:bg-slate-900">
                           <X className="h-4 w-4" />
                         </button>
+                      </div>
+
+                      {/* Priority SLA Guidance Card */}
+                      <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 text-[11px] ${
+                        selectedTicket.priority === 'emergency'
+                          ? 'bg-rose-950/40 border-rose-500/40 text-rose-200'
+                          : selectedTicket.priority === 'high'
+                          ? 'bg-orange-950/40 border-orange-500/40 text-orange-200'
+                          : selectedTicket.priority === 'medium'
+                          ? 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                          : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 shrink-0" />
+                          <div>
+                            <span className="font-bold block">
+                              {selectedTicket.priority === 'emergency' && 'Critical Fiber Cut / Outage SLA'}
+                              {selectedTicket.priority === 'high' && 'High Urgency Technical Fault SLA'}
+                              {selectedTicket.priority === 'medium' && 'Medium Priority Standard SLA'}
+                              {selectedTicket.priority === 'normal' && 'Low Priority Routine Maintenance'}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {selectedTicket.priority === 'emergency' && 'Resolution target: < 30 Minutes (Direct Splicing)'}
+                              {selectedTicket.priority === 'high' && 'Resolution target: < 2 Hours (Lineman Onsite)'}
+                              {selectedTicket.priority === 'medium' && 'Resolution target: < 6 Hours (Standard Queue)'}
+                              {selectedTicket.priority === 'normal' && 'Resolution target: < 24 Hours (Routine Schedule)'}
+                            </span>
+                          </div>
+                        </div>
+                        <PriorityBadge priority={selectedTicket.priority} size="sm" />
                       </div>
 
                       <p className="text-slate-300 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
                         {selectedTicket.description}
                       </p>
+
+                      {/* Staff Fast 1-Tap Actions */}
+                      {sessionRole === 'staff' && (
+                        <div className="p-2.5 bg-blue-950/30 border border-blue-500/30 rounded-xl space-y-2">
+                          <span className="text-[10px] font-extrabold text-blue-300 uppercase block">Lineman 1-Tap Quick Actions:</span>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleAssignTechnician(selectedTicket.id, 'Mithapukur Emergency Line Squad (Akmal Market Hub)');
+                                handleUpdateTicketStatus(selectedTicket.id, 'IN_PROGRESS');
+                              }}
+                              className="p-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Zap className="h-3 w-3" />
+                              <span>⚡ Claim Task</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateTicketStatus(selectedTicket.id, 'IN_PROGRESS')}
+                              className="p-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <span>🟡 In Progress</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateTicketStatus(selectedTicket.id, 'RESOLVED')}
+                              className="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <span>🟢 Resolved</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Controls */}
                       <div className="space-y-2">
@@ -2900,7 +3963,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                             <select
                               value={selectedTicket.status}
                               onChange={e => handleUpdateTicketStatus(selectedTicket.id, e.target.value as any)}
-                              className="w-full bg-slate-900 border border-slate-700 px-2 py-1 rounded-lg text-xs font-bold text-slate-100"
+                              className="w-full bg-slate-900 border border-slate-700 px-2 py-1.5 rounded-lg text-xs font-bold text-slate-100 focus:border-amber-500 focus:outline-none"
                             >
                               <option value="OPEN">🔴 OPEN</option>
                               <option value="IN_PROGRESS">🟨 IN PROGRESS</option>
@@ -2909,16 +3972,16 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                           </div>
 
                           <div>
-                            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Priority</label>
+                            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Priority Level</label>
                             <select
                               value={selectedTicket.priority}
                               onChange={e => handleUpdateTicketPriority(selectedTicket.id, e.target.value as any)}
-                              className="w-full bg-slate-900 border border-slate-700 px-2 py-1 rounded-lg text-xs font-bold text-slate-100"
+                              className="w-full bg-slate-900 border border-slate-700 px-2 py-1.5 rounded-lg text-xs font-bold text-slate-100 focus:border-amber-500 focus:outline-none"
                             >
-                              <option value="emergency">🔴 Emergency Cut</option>
+                              <option value="emergency">🔴 Critical Emergency</option>
                               <option value="high">🟧 High Priority</option>
-                              <option value="medium">🟨 Medium</option>
-                              <option value="normal">🟦 Normal</option>
+                              <option value="medium">🟨 Medium Priority</option>
+                              <option value="normal">🟢 Low Priority</option>
                             </select>
                           </div>
                         </div>
@@ -2938,9 +4001,11 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                           </select>
                         </div>
 
-                        {/* Manager Update Note */}
+                        {/* Progress Note */}
                         <div>
-                          <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Add Manager Progress Note</label>
+                          <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">
+                            {sessionRole === 'staff' ? 'Add Lineman Field Progress Note' : 'Add Manager Progress Note'}
+                          </label>
                           <div className="flex gap-1.5">
                             <input
                               type="text"
@@ -2968,6 +4033,14 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                             <span>WhatsApp Client</span>
                           </button>
 
+                          <a
+                            href={`tel:${selectedTicket.phone}`}
+                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg flex items-center gap-1 cursor-pointer text-xs"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                            <span>Call</span>
+                          </a>
+
                           <button
                             onClick={() => handlePrintTicket(selectedTicket)}
                             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-lg flex items-center gap-1 cursor-pointer text-xs"
@@ -2976,20 +4049,262 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                             <span>Work Order</span>
                           </button>
 
-                          <button
-                            onClick={() => handleDeleteTicket(selectedTicket.id)}
-                            className="p-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg cursor-pointer"
-                            title="Delete Ticket"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          {sessionRole === 'manager' && (
+                            <button
+                              onClick={() => handleDeleteTicket(selectedTicket.id)}
+                              className="p-1.5 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 rounded-lg cursor-pointer"
+                              title="Delete Ticket"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
+                ) : (
+                  /* Linemen Squad Dispatch Kanban Board View */
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2 px-1 text-xs text-slate-400">
+                      <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                        <Kanban className="h-4 w-4 text-amber-400" />
+                        <span>Linemen Squad Dispatch Board — Drag ticket cards between columns to reassign</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {filteredTickets.length} Tickets in View
+                      </span>
+                    </div>
+
+                    {/* Columns Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-3 max-h-[520px] overflow-y-auto p-1">
+                      {/* Column 1: Unassigned / Open Pool */}
+                      {(() => {
+                        const colTechName = 'UNASSIGNED';
+                        const colTickets = filteredTickets.filter(t => !t.assignedTechnician);
+                        const isOver = dragOverTech === colTechName;
+
+                        return (
+                          <div
+                            key={colTechName}
+                            onDragOver={e => handleDragOverTechZone(e, colTechName)}
+                            onDragLeave={e => handleDragLeaveTechZone(e, colTechName)}
+                            onDrop={e => handleDropOnTechSquad(e, colTechName)}
+                            className={`flex flex-col bg-slate-950 rounded-xl border p-2.5 min-h-[320px] transition-all ${
+                              isOver
+                                ? 'border-amber-400 ring-2 ring-amber-400/50 bg-amber-950/20 shadow-xl'
+                                : 'border-slate-800 hover:border-slate-700'
+                            }`}
+                          >
+                            {/* Column Header */}
+                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
+                              <div className="flex items-center gap-1.5">
+                                <Zap className="h-4 w-4 text-amber-400" />
+                                <div>
+                                  <h4 className="text-xs font-black text-slate-100">Open Pool</h4>
+                                  <p className="text-[9px] text-slate-400">Unassigned Tickets</p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-black text-rose-300 bg-rose-500/20 border border-rose-500/40 px-2 py-0.5 rounded-full">
+                                {colTickets.length}
+                              </span>
+                            </div>
+
+                            {/* Drop Zone Placeholder */}
+                            {isOver && (
+                              <div className="p-3 mb-2 rounded-lg border-2 border-dashed border-amber-400 bg-amber-500/20 text-center animate-pulse">
+                                <p className="text-[11px] font-black text-amber-300">⬇️ Drop here to Unassign</p>
+                              </div>
+                            )}
+
+                            {/* Cards list in column */}
+                            <div className="flex-1 space-y-2 overflow-y-auto pr-0.5">
+                              {colTickets.length === 0 && !isOver ? (
+                                <div className="p-4 text-center border border-dashed border-slate-800 rounded-lg text-[11px] text-slate-500">
+                                  No unassigned tickets in queue
+                                </div>
+                              ) : (
+                                colTickets.map(t => {
+                                  const pInfo = getPriorityInfo(t.priority);
+                                  const isSelected = selectedTicket?.id === t.id;
+                                  const isCurrentlyDragged = draggedTicketId === t.id;
+
+                                  return (
+                                    <div
+                                      key={t.id}
+                                      draggable={sessionRole === 'manager'}
+                                      onDragStart={e => handleDragStartTicket(e, t)}
+                                      onDragEnd={handleDragEndTicket}
+                                      onClick={() => setSelectedTicket(t)}
+                                      className={`p-2.5 rounded-lg border transition-all cursor-pointer select-none ${pInfo.borderAccent} ${
+                                        isCurrentlyDragged
+                                          ? 'opacity-40 border-dashed border-amber-400 ring-2 ring-amber-400/50 scale-95 bg-amber-950/30'
+                                          : isSelected
+                                          ? 'bg-slate-900 border-amber-500 ring-1 ring-amber-400/40 shadow'
+                                          : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between gap-1 mb-1">
+                                        <div className="flex items-center gap-1">
+                                          <GripVertical className="h-3 w-3 text-slate-500 cursor-grab active:cursor-grabbing" />
+                                          <span className="font-mono text-[10px] font-black text-amber-400">{t.id}</span>
+                                        </div>
+                                        <PriorityBadge priority={t.priority} size="sm" />
+                                      </div>
+                                      <p className="text-xs font-bold text-slate-200 truncate">{t.name}</p>
+                                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{t.subject}</p>
+                                      <div className="mt-1 pt-1 border-t border-slate-800 flex items-center justify-between text-[9px] text-slate-400">
+                                        <span>{t.union}</span>
+                                        <span className="font-mono">{t.time}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* 5 Lineman Squad Columns */}
+                      {LINEMAN_SQUADS.map(squad => {
+                        const colTechName = squad.name;
+                        const colTickets = filteredTickets.filter(t => t.assignedTechnician === colTechName);
+                        const isOver = dragOverTech === colTechName;
+
+                        return (
+                          <div
+                            key={squad.name}
+                            onDragOver={e => handleDragOverTechZone(e, colTechName)}
+                            onDragLeave={e => handleDragLeaveTechZone(e, colTechName)}
+                            onDrop={e => handleDropOnTechSquad(e, colTechName)}
+                            className={`flex flex-col bg-slate-950 rounded-xl border p-2.5 min-h-[320px] transition-all ${
+                              isOver
+                                ? 'border-amber-400 ring-2 ring-amber-400/50 bg-amber-950/20 shadow-xl'
+                                : 'border-slate-800 hover:border-slate-700'
+                            }`}
+                          >
+                            {/* Column Header */}
+                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
+                              <div className="flex items-center gap-1.5 truncate">
+                                <HardHat className={`h-4 w-4 ${squad.iconColor} shrink-0`} />
+                                <div className="truncate">
+                                  <h4 className="text-xs font-black text-slate-100 truncate">{squad.shortName}</h4>
+                                  <p className="text-[9px] text-slate-400 truncate">{squad.area}</p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-black text-blue-300 bg-blue-500/20 border border-blue-500/40 px-2 py-0.5 rounded-full shrink-0">
+                                {colTickets.length}
+                              </span>
+                            </div>
+
+                            {/* Drop Zone Placeholder */}
+                            {isOver && (
+                              <div className="p-3 mb-2 rounded-lg border-2 border-dashed border-amber-400 bg-amber-500/20 text-center animate-pulse">
+                                <p className="text-[11px] font-black text-amber-300">⬇️ Drop here to Assign</p>
+                              </div>
+                            )}
+
+                            {/* Cards list in column */}
+                            <div className="flex-1 space-y-2 overflow-y-auto pr-0.5">
+                              {colTickets.length === 0 && !isOver ? (
+                                <div className="p-4 text-center border border-dashed border-slate-800 rounded-lg text-[11px] text-slate-500">
+                                  Drop tickets here to dispatch to this squad
+                                </div>
+                              ) : (
+                                colTickets.map(t => {
+                                  const pInfo = getPriorityInfo(t.priority);
+                                  const isSelected = selectedTicket?.id === t.id;
+                                  const isCurrentlyDragged = draggedTicketId === t.id;
+
+                                  return (
+                                    <div
+                                      key={t.id}
+                                      draggable={sessionRole === 'manager'}
+                                      onDragStart={e => handleDragStartTicket(e, t)}
+                                      onDragEnd={handleDragEndTicket}
+                                      onClick={() => setSelectedTicket(t)}
+                                      className={`p-2.5 rounded-lg border transition-all cursor-pointer select-none ${pInfo.borderAccent} ${
+                                        isCurrentlyDragged
+                                          ? 'opacity-40 border-dashed border-amber-400 ring-2 ring-amber-400/50 scale-95 bg-amber-950/30'
+                                          : isSelected
+                                          ? 'bg-slate-900 border-amber-500 ring-1 ring-amber-400/40 shadow'
+                                          : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between gap-1 mb-1">
+                                        <div className="flex items-center gap-1">
+                                          <GripVertical className="h-3 w-3 text-slate-500 cursor-grab active:cursor-grabbing" />
+                                          <span className="font-mono text-[10px] font-black text-amber-400">{t.id}</span>
+                                        </div>
+                                        <PriorityBadge priority={t.priority} size="sm" />
+                                      </div>
+                                      <p className="text-xs font-bold text-slate-200 truncate">{t.name}</p>
+                                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{t.subject}</p>
+                                      <div className="mt-1 pt-1 border-t border-slate-800 flex items-center justify-between text-[9px] text-slate-400">
+                                        <span>{t.union}</span>
+                                        <span className={`font-bold uppercase ${
+                                          t.status === 'OPEN' ? 'text-rose-400' : t.status === 'IN_PROGRESS' ? 'text-amber-400' : 'text-emerald-400'
+                                        }`}>{t.status}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Selected ticket inspection card in squad board */}
+                    {selectedTicket && (
+                      <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-3 text-xs flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <span className="font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                            {selectedTicket.id}
+                          </span>
+                          <div>
+                            <p className="font-bold text-slate-200">{selectedTicket.name} ({selectedTicket.customerId}) — {selectedTicket.subject}</p>
+                            <p className="text-[11px] text-slate-400">
+                              Assigned to: <strong className="text-blue-400">{selectedTicket.assignedTechnician || 'Open Pool'}</strong> | Area: <strong className="text-slate-300">{selectedTicket.union}</strong>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={selectedTicket.assignedTechnician || ''}
+                            onChange={e => handleAssignTechnician(selectedTicket.id, e.target.value)}
+                            className="bg-slate-900 border border-slate-700 text-xs font-bold text-slate-200 rounded-lg px-2 py-1 focus:outline-none cursor-pointer"
+                          >
+                            <option value="">⚡ Open Pool (Unassigned)</option>
+                            {DEMO_TECHNICIANS.map(tech => (
+                              <option key={tech} value={tech}>
+                                👷 {tech}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedTicket(null)}
+                            className="p-1 text-slate-500 hover:text-white rounded hover:bg-slate-900 cursor-pointer"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
+          )}
+
+          {/* TAB 3.5: NOC TELEMETRY & FIBER CHARTS */}
+          {activeTab === 'noc_telemetry' && (
+            <div className="space-y-4 animate-fadeIn">
+              <NocTelemetryCharts />
+            </div>
           )}
 
           {/* TAB 4: CLIENT DATABASE & ADD NEW CLIENT BUTTON */}
@@ -3001,9 +4316,13 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                     <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-white">Delta Mithapukur Client Database</h3>
+                    <h3 className="text-sm font-black text-white">
+                      {sessionRole === 'staff'
+                        ? 'Field Lineman Subscriber Directory'
+                        : 'Delta Mithapukur Client Database'}
+                    </h3>
                     <p className="text-xs text-slate-400">
-                      Total Subscribers: <strong className="text-indigo-400">{clientsList.length}</strong> • Registered Fiber Clients & Package Records
+                      Total Subscribers: <strong className="text-indigo-400">{clientsList.length}</strong> • {sessionRole === 'staff' ? 'Quick Contact Lookup & Splicing Location' : 'Registered Fiber Clients & Package Records'}
                     </p>
                   </div>
                 </div>
@@ -3017,13 +4336,15 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                     <span>Export Excel</span>
                   </button>
 
-                  <button
-                    onClick={() => setIsAddClientModalOpen(true)}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-indigo-600/20 flex items-center gap-1.5 cursor-pointer border border-indigo-400/30"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>Add New Client</span>
-                  </button>
+                  {sessionRole === 'manager' && (
+                    <button
+                      onClick={() => setIsAddClientModalOpen(true)}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-indigo-600/20 flex items-center gap-1.5 cursor-pointer border border-indigo-400/30"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span>Add New Client</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -3051,6 +4372,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       <th className="p-3">Package</th>
                       <th className="p-3">Monthly Fee</th>
                       <th className="p-3">Status</th>
+                      <th className="p-3 text-right">Quick Contact</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/80">
@@ -3072,6 +4394,26 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                           >
                             {c.status}
                           </span>
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="inline-flex items-center gap-1.5">
+                            <a
+                              href={`tel:${c.phone}`}
+                              className="p-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 rounded-lg cursor-pointer transition-colors"
+                              title={`Call ${c.fullName}`}
+                            >
+                              <Phone className="h-3 w-3" />
+                            </a>
+                            <a
+                              href={`https://wa.me/88${c.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${c.fullName}, greeting from Delta Mithapukur Support Desk regarding your connection (${c.id}).`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 rounded-lg cursor-pointer transition-colors"
+                              title={`WhatsApp ${c.fullName}`}
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     ))}
