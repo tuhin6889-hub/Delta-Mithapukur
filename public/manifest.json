@@ -1,0 +1,26 @@
+{
+  "name": "Delta Mithapukur Broadband Client",
+  "short_name": "Delta ISP",
+  "description": "Delta Mithapukur Branch — High-Speed Fiber Internet Client Support, Billing Portal & Real-time Network Monitoring.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#020617",
+  "theme_color": "#2563eb",
+  "categories": ["utilities", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

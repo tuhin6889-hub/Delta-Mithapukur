@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
-import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink } from 'lucide-react';
+import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink, Smartphone } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -12,9 +12,10 @@ interface HeaderProps {
   onOpenClientPortal?: () => void;
   onOpenSupportTicket?: () => void;
   onOpenFastLogin?: () => void;
+  onOpenDownloadApk?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket, onOpenFastLogin }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClientPortal, onOpenSupportTicket, onOpenFastLogin, onOpenDownloadApk }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasPendingAdminResponse, setHasPendingAdminResponse] = useState<boolean>(false);
   const { t, language } = useLanguage();
@@ -188,6 +189,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             <NetworkStatus />
 
             <button
+              onClick={onOpenDownloadApk || onOpenFastLogin || onOpenSupportTicket}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-emerald-300/50 group"
+              title="Download & Install Official Delta Android Client App (APK / WebAPK)"
+            >
+              <Smartphone className="h-3.5 w-3.5 stroke-[2.5] text-slate-950 group-hover:scale-110 transition-transform" />
+              <span>{language === 'bn' ? '📱 ক্লায়েন্ট APK ডাউনলোড ও ইনস্টল' : '📱 Download & Install APK'}</span>
+            </button>
+
+            <button
               onClick={onOpenFastLogin || onOpenSupportTicket}
               className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow-md shadow-amber-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-amber-300/40"
               title="Fast Login for Branch Manager & NOC (Email + Password)"
@@ -219,6 +229,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
 
           {/* Mobile Language Switcher, Status Indicator, Theme Toggle & Hamburger Button */}
           <div className="flex lg:hidden items-center gap-1.5">
+            <button
+              onClick={onOpenDownloadApk || onOpenSupportTicket}
+              className="flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs px-2.5 py-1.5 rounded-lg shadow-md shrink-0 border border-emerald-300/40"
+              title="Download & Install Android APK"
+            >
+              <Smartphone className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>APK</span>
+            </button>
+
             <button
               onClick={onOpenSupportTicket}
               className="flex items-center gap-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white font-extrabold text-xs px-2.5 py-1.5 rounded-lg shadow-md shrink-0 border border-rose-400/30"
@@ -328,6 +347,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
           </a>
 
           <div className="pt-2 border-t border-slate-800 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenDownloadApk) onOpenDownloadApk();
+                else if (onOpenSupportTicket) onOpenSupportTicket();
+              }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-black text-xs rounded-xl shadow-md border border-emerald-300/50 cursor-pointer"
+            >
+              <Smartphone className="h-4 w-4 stroke-[2.5]" />
+              <span>📱 {language === 'bn' ? 'অ্যান্ড্রয়েড ক্লায়েন্ট APK ডাউনলোড ও ইনস্টল' : 'Download & Install Client APK (v2.4)'}</span>
+            </button>
+
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

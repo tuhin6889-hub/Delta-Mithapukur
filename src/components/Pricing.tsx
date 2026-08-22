@@ -90,8 +90,14 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-4xl mx-auto space-y-4 mb-14">
+        {/* Section Header with Entry Animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="text-center max-w-4xl mx-auto space-y-4 mb-14"
+        >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-xs font-bold uppercase tracking-wider shadow-inner">
             <Zap className="h-3.5 w-3.5 animate-pulse text-amber-400" />
             <span>High Speed Optical Fiber Grid</span>
@@ -118,16 +124,20 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Pricing Cards Grid (6 Plans with 3D Folded Color Ribbons & Modern Boxes) */}
+        {/* Pricing Cards Grid (6 Plans with 3D Folded Color Ribbons & Entry Animations) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 sm:gap-6 items-stretch">
-          {PLANS.map((plan) => {
+          {PLANS.map((plan, index) => {
             const theme = PLAN_COLOR_THEMES[plan.id] || PLAN_COLOR_THEMES.student;
 
             return (
-              <div
+              <motion.div
                 key={plan.id}
+                initial={{ opacity: 0, y: 35 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
                 className={`relative flex flex-col justify-between rounded-3xl bg-slate-950/95 backdrop-blur-xl border transition-all duration-300 ${theme.borderColor} ${theme.glowShadow} hover:-translate-y-2 group cursor-default overflow-hidden shadow-2xl p-5 pt-8`}
               >
                 {/* Popular Top Badge */}
@@ -201,7 +211,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                     <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1.5 transition-transform" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

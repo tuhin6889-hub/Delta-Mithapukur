@@ -64,8 +64,14 @@ export const CoreBenefits: React.FC = () => {
       <div className="absolute bottom-0 right-1/4 h-64 w-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+        {/* Section Header with Entry Animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="text-center max-w-2xl mx-auto mb-10 space-y-2"
+        >
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="h-3.5 w-3.5 text-blue-400" />
             <span>{language === 'bn' ? 'কেন ডেল্টা ফাইবার সেরা' : 'Core Delta Benefits'}</span>
@@ -78,7 +84,7 @@ export const CoreBenefits: React.FC = () => {
               ? 'মিঠাপুকুরের প্রতিটি ঘরে ও ব্যবসায় প্রিমিয়াম মানের অপটিক্যাল ইন্টারনেট ব্রডব্যান্ড সার্ভিস।'
               : 'Enterprise-grade fiber technology engineered for Mithapukur homes, shops, and institutions.'}
           </p>
-        </div>
+        </motion.div>
 
         {/* 4 Glassmorphism Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -87,10 +93,10 @@ export const CoreBenefits: React.FC = () => {
             return (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1, ease: 'easeOut' }}
                 className="group relative rounded-3xl p-6 bg-slate-900/50 backdrop-blur-xl border border-slate-800 hover:border-blue-500/40 hover:bg-slate-900/80 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 flex flex-col justify-between overflow-hidden"
               >
                 {/* Subtle Card Ambient Glow */}

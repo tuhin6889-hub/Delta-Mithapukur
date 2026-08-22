@@ -17,6 +17,7 @@ import { SupportChatWidget } from './components/SupportChatWidget';
 import { ClientPortalModal } from './components/ClientPortalModal';
 import { SupportTicketModal } from './components/SupportTicketModal';
 import { FaqModal } from './components/FaqModal';
+import { AndroidApkDownloadModal } from './components/AndroidApkDownloadModal';
 import { Plan } from './types';
 import { X, Wifi } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export default function App() {
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isSupportTicketModalOpen, setIsSupportTicketModalOpen] = useState(false);
   const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
+  const [isApkModalOpen, setIsApkModalOpen] = useState(false);
   const [supportTicketTab, setSupportTicketTab] = useState<'fast_login' | 'create' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>('admin_portal');
 
   const handleSelectPlan = (plan: Plan) => {
@@ -73,6 +75,7 @@ export default function App() {
             onOpenClientPortal={() => setIsClientPortalOpen(true)}
             onOpenSupportTicket={handleOpenSupportTicket}
             onOpenFastLogin={handleOpenFastLogin}
+            onOpenDownloadApk={() => setIsApkModalOpen(true)}
           />
 
           <main>
@@ -134,6 +137,12 @@ export default function App() {
             isOpen={isSupportTicketModalOpen}
             onClose={() => setIsSupportTicketModalOpen(false)}
             initialTab={supportTicketTab}
+          />
+
+          {/* Full Complete Android Client Support & Billing APK Modal */}
+          <AndroidApkDownloadModal
+            isOpen={isApkModalOpen}
+            onClose={() => setIsApkModalOpen(false)}
           />
         </div>
       </LanguageProvider>

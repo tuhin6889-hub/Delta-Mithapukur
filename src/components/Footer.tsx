@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Logo } from './Logo';
 import { FooterQrCodes } from './FooterQrCodes';
+import { FooterNetworkStatus } from './FooterNetworkStatus';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 import { Phone, Mail, MapPin, ShieldCheck, Award, ExternalLink, Sparkles, Lock, Gauge, LifeBuoy, FileText, Send, Users, Globe } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import branchManagerImg from '../assets/images/branch_manager_photo_1785230421070.jpg';
 
 interface FooterProps {
@@ -13,6 +15,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClientPortal, onOpenFaq }) => {
+  const { language } = useLanguage();
   return (
     <footer className="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -157,25 +160,36 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClien
               </li>
               <li>
                 <a
+                  id="footer-support-ticket-link"
                   href="https://tuhin6889-hub.github.io/deltamithapukur.net/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => {
                     if (onOpenSupportTicket) {
+                      e.preventDefault();
                       onOpenSupportTicket();
                     }
                   }}
-                  className="w-full text-left p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 font-extrabold flex items-center justify-between gap-1.5 transition-all group cursor-pointer shadow-md hover:scale-[1.02]"
+                  className="w-full text-left p-3 rounded-2xl bg-gradient-to-r from-rose-950/80 via-red-950/60 to-amber-950/70 hover:from-rose-900/90 hover:via-red-900/80 hover:to-amber-900/80 border-2 border-rose-500/60 hover:border-rose-400 text-rose-100 font-black flex items-center justify-between gap-2 transition-all duration-300 group cursor-pointer shadow-xl shadow-rose-950/60 hover:shadow-2xl hover:shadow-rose-600/30 hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <div className="flex items-center gap-2">
-                    <LifeBuoy className="h-3.5 w-3.5 text-rose-400 shrink-0" />
-                    <span>Support Ticket Portal</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 text-slate-950 shadow-md group-hover:scale-110 transition-transform">
+                      <LifeBuoy className="h-4 w-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-rose-100 group-hover:text-white transition-colors">
+                        {language === 'bn' ? 'সাপোর্ট টিকিট ও এনওসি পোর্টাল' : 'Support Ticket & NOC Portal'}
+                      </div>
+                      <div className="text-[10px] text-rose-300/80 font-mono">
+                        24/7 Live Hotline & Repairs
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded-full text-rose-300 border border-rose-500/30 font-bold">
-                      ১-ক্লিকে ওপেন
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] bg-rose-500/40 text-rose-100 px-2.5 py-1 rounded-full border border-rose-300/50 font-black shadow-inner tracking-tight">
+                      {language === 'bn' ? '১-ক্লিকে ওপেন' : 'Open Ticket'}
                     </span>
-                    <ExternalLink className="h-3 w-3 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+                    <ExternalLink className="h-3.5 w-3.5 text-rose-400 group-hover:translate-x-1 group-hover:text-white transition-all" />
                   </div>
                 </a>
               </li>
@@ -252,6 +266,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClien
           </div>
 
         </div>
+
+        {/* Real-time Network Status Indicator */}
+        <FooterNetworkStatus />
 
         {/* Quick Access QR Codes for Android App and WhatsApp Support */}
         <FooterQrCodes />
