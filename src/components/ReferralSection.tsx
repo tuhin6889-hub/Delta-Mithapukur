@@ -26,7 +26,7 @@ interface ReferralReward {
 }
 
 export const ReferralSection: React.FC = () => {
-  const [customerId, setCustomerId] = useState<string>('DF-MITH-8842');
+  const [customerId, setCustomerId] = useState<string>('CID-8842');
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'generate' | 'tracker'>('generate');
   const [sampleTrackedRewards, setSampleTrackedRewards] = useState<ReferralReward[]>([
@@ -168,7 +168,7 @@ export const ReferralSection: React.FC = () => {
                       type="text"
                       value={customerId}
                       onChange={(e) => setCustomerId(e.target.value)}
-                      placeholder="e.g. DF-MITH-8842"
+                      placeholder="e.g. CID-8842"
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 uppercase tracking-wider"
                     />
                     {customerId && (
@@ -181,10 +181,10 @@ export const ReferralSection: React.FC = () => {
                     <span>Don't know your ID? Check your bKash bill SMS or contact support.</span>
                     <button
                       type="button"
-                      onClick={() => setCustomerId('DF-MITH-2026')}
+                      onClick={() => setCustomerId('CID-8842')}
                       className="text-blue-400 hover:underline cursor-pointer font-semibold"
                     >
-                      Use Sample ID
+                      Reset to CID-8842
                     </button>
                   </p>
                 </div>

@@ -479,11 +479,27 @@ export const SpeedTest: React.FC<SpeedTestProps> = ({ onSelectPlan, onOpenInquir
 
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-bold text-blue-400 uppercase tracking-wider">
-            <Zap className="h-3.5 w-3.5" />
-            <span>Interactive Broadband Telemetry Utility</span>
+          <div
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+              testStage !== 'idle' && testStage !== 'complete'
+                ? 'bg-blue-500/20 border border-blue-400/50 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.35)] animate-pulse ring-2 ring-blue-400/20'
+                : 'bg-blue-500/10 border border-blue-500/20 text-blue-400'
+            }`}
+          >
+            <Zap className={`h-3.5 w-3.5 ${testStage !== 'idle' && testStage !== 'complete' ? 'animate-bounce text-amber-300' : ''}`} />
+            <span className={testStage !== 'idle' && testStage !== 'complete' ? 'animate-pulse font-extrabold' : ''}>
+              {testStage !== 'idle' && testStage !== 'complete'
+                ? `Live Telemetry Active • ${testStage.toUpperCase()} Testing`
+                : 'Interactive Broadband Telemetry Utility'}
+            </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h2
+            className={`text-3xl sm:text-4xl font-extrabold tracking-tight transition-all duration-300 ${
+              testStage !== 'idle' && testStage !== 'complete'
+                ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-indigo-300 animate-pulse drop-shadow-[0_0_25px_rgba(56,189,248,0.4)] scale-[1.01]'
+                : 'text-white'
+            }`}
+          >
             Mithapukur Broadband Speed & Latency Test
           </h2>
           <p className="text-slate-300 text-sm sm:text-base">
@@ -853,226 +869,6 @@ export const SpeedTest: React.FC<SpeedTestProps> = ({ onSelectPlan, onOpenInquir
               </div>
             </div>
 
-          </div>
-
-        </div>
-
-        {/* Dynamic Recharts Latency & Throughput Telemetry Section */}
-        <div className="bg-slate-950/95 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6">
-
-          {/* Chart Header Controls & Live Metrics */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-            <div>
-              <div className="flex items-center gap-2">
-                <ChartIcon className="h-5 w-5 text-amber-400" />
-                <h3 className="text-lg font-extrabold text-white">
-                  Real-time Ping Latency & Telemetry Analysis
-                </h3>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Dynamic line chart tracking microsecond ping jitter, loaded latency spikes, and bandwidth ramping over time.
-              </p>
-            </div>
-
-            {/* Chart Mode Filter Tabs */}
-            <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-              <button
-                onClick={() => setChartMode('all')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  chartMode === 'all'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Combined Telemetry
-              </button>
-              <button
-                onClick={() => setChartMode('ping')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  chartMode === 'ping'
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Ping Latency Only
-              </button>
-              <button
-                onClick={() => setChartMode('bandwidth')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  chartMode === 'bandwidth'
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Throughput Speed
-              </button>
-            </div>
-          </div>
-
-          {/* Key Latency Badges Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-800/80 flex items-center justify-between">
-              <span className="text-slate-400 flex items-center gap-1.5 font-medium">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
-                Min Ping
-              </span>
-              <span className="font-mono font-bold text-amber-300 text-sm">
-                <AnimatedCountUp value={typeof minPing === 'number' ? minPing : parseFloat(minPing as any)} decimals={1} suffix=" ms" />
-              </span>
-            </div>
-
-            <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-800/80 flex items-center justify-between">
-              <span className="text-slate-400 flex items-center gap-1.5 font-medium">
-                <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
-                Peak Ping
-              </span>
-              <span className="font-mono font-bold text-amber-400 text-sm">
-                <AnimatedCountUp value={typeof maxPing === 'number' ? maxPing : parseFloat(maxPing as any)} decimals={1} suffix=" ms" />
-              </span>
-            </div>
-
-            <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-800/80 flex items-center justify-between">
-              <span className="text-slate-400 flex items-center gap-1.5 font-medium">
-                <Zap className="h-3.5 w-3.5 text-blue-400" />
-                Avg Latency
-              </span>
-              <span className="font-mono font-bold text-blue-300 text-sm">
-                <AnimatedCountUp value={typeof avgPing === 'number' ? avgPing : parseFloat(avgPing as any)} decimals={1} suffix=" ms" />
-              </span>
-            </div>
-
-            <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-800/80 flex items-center justify-between">
-              <span className="text-slate-400 flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                Packet Jitter
-              </span>
-              <span className="font-mono font-bold text-emerald-300 text-sm">
-                ±<AnimatedCountUp value={jitterResult !== null ? jitterResult : (selectedProfile.jitter || 1.1)} decimals={1} suffix=" ms" />
-              </span>
-            </div>
-          </div>
-
-          {/* Recharts Chart Container */}
-          <div className="h-72 sm:h-80 w-full pt-2 relative">
-            {testStage === 'idle' && (
-              <div className="absolute top-2 left-4 z-10 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-lg text-[11px] text-blue-300 font-semibold flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3 text-amber-400" />
-                Showing sample baseline graph — click "START BROADBAND TEST" for live telemetry
-              </div>
-            )}
-
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={telemetry} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <defs>
-                  {/* Ping Area Gradient */}
-                  <linearGradient id="pingGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
-                  </linearGradient>
-                  {/* Download Area Gradient */}
-                  <linearGradient id="dlGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
-                  </linearGradient>
-                  {/* Upload Area Gradient */}
-                  <linearGradient id="ulGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                  </linearGradient>
-                </defs>
-
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 11 }} />
-
-                {/* Left Y-Axis for Ping (ms) */}
-                {(chartMode === 'all' || chartMode === 'ping') && (
-                  <YAxis
-                    yAxisId="pingAxis"
-                    orientation="left"
-                    stroke="#f59e0b"
-                    tick={{ fontSize: 11 }}
-                    domain={[0, (dataMax: number) => Math.max(20, Math.ceil(dataMax * 1.2))]}
-                    unit=" ms"
-                  />
-                )}
-
-                {/* Right Y-Axis for Throughput (Mbps) */}
-                {(chartMode === 'all' || chartMode === 'bandwidth') && (
-                  <YAxis
-                    yAxisId="speedAxis"
-                    orientation="right"
-                    stroke="#3b82f6"
-                    tick={{ fontSize: 11 }}
-                    domain={[0, (dataMax: number) => Math.max(50, Math.ceil(dataMax * 1.15))]}
-                    unit=" Mbps"
-                  />
-                )}
-
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  verticalAlign="top"
-                  align="right"
-                  wrapperStyle={{ fontSize: '11px', paddingTop: '0px', paddingBottom: '10px' }}
-                />
-
-                {/* Ping Latency Area + Line */}
-                {(chartMode === 'all' || chartMode === 'ping') && (
-                  <Area
-                    yAxisId="pingAxis"
-                    type="monotone"
-                    dataKey="ping"
-                    name="Ping Latency (ms)"
-                    stroke="#f59e0b"
-                    strokeWidth={2.5}
-                    fill="url(#pingGradient)"
-                    dot={{ r: 3, fill: '#f59e0b' }}
-                    activeDot={{ r: 6, stroke: '#ffffff', strokeWidth: 2 }}
-                    isAnimationActive={false}
-                  />
-                )}
-
-                {/* Download Speed Line */}
-                {(chartMode === 'all' || chartMode === 'bandwidth') && (
-                  <Line
-                    yAxisId="speedAxis"
-                    type="monotone"
-                    dataKey="download"
-                    name="Download (Mbps)"
-                    stroke="#3b82f6"
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#3b82f6' }}
-                    isAnimationActive={false}
-                  />
-                )}
-
-                {/* Upload Speed Line */}
-                {(chartMode === 'all' || chartMode === 'bandwidth') && (
-                  <Line
-                    yAxisId="speedAxis"
-                    type="monotone"
-                    dataKey="upload"
-                    name="Upload (Mbps)"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    strokeDasharray="4 2"
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#10b981' }}
-                    isAnimationActive={false}
-                  />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80 gap-2">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Symmetrical Fiber Network Node: <strong>Delta Mithapukur BDIX Edge</strong>
-            </span>
-            <span className="text-slate-500 font-mono text-[11px]">
-              Sampling interval: 150ms | Real-Time Recharts Telemetry
-            </span>
           </div>
 
         </div>

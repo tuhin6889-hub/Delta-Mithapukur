@@ -52,17 +52,14 @@ export const Logo: React.FC<LogoProps> = ({
       </div>
 
       {showText && (
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-col justify-center">
+          <div className="flex items-center leading-tight">
             <span className={`font-black tracking-tight ${textSizes[size]} ${lightText ? 'text-white' : 'text-slate-900'}`}>
-              DELTA
-            </span>
-            <span className="rounded-md bg-blue-600/90 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
-              ISP
+              Delta Mithapukur Branch
             </span>
           </div>
-          <span className={`text-xs font-semibold ${lightText ? 'text-blue-300' : 'text-blue-600'} leading-none`}>
-            Mithapukur Branch • সবার ইন্টারনেট
+          <span className={`text-[11px] sm:text-xs font-semibold ${lightText ? 'text-blue-300/90' : 'text-blue-600'} leading-normal`}>
+            অপটিক্যাল ফাইবার ব্রডব্যান্ড
           </span>
         </div>
       )}

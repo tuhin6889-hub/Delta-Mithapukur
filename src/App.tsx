@@ -7,7 +7,6 @@ import { Hero } from './components/Hero';
 import { CoreBenefits } from './components/CoreBenefits';
 import { Services } from './components/Services';
 import { SpeedTest } from './components/SpeedTest';
-import { FaqSection } from './components/FaqSection';
 import { Pricing } from './components/Pricing';
 import { CoverageMap } from './components/CoverageMap';
 import { ReferralSection } from './components/ReferralSection';
@@ -17,6 +16,7 @@ import { Footer } from './components/Footer';
 import { SupportChatWidget } from './components/SupportChatWidget';
 import { ClientPortalModal } from './components/ClientPortalModal';
 import { SupportTicketModal } from './components/SupportTicketModal';
+import { FaqModal } from './components/FaqModal';
 import { Plan } from './types';
 import { X, Wifi } from 'lucide-react';
 
@@ -25,6 +25,7 @@ export default function App() {
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isSupportTicketModalOpen, setIsSupportTicketModalOpen] = useState(false);
+  const [isFaqModalOpen, setIsFaqModalOpen] = useState(false);
   const [supportTicketTab, setSupportTicketTab] = useState<'fast_login' | 'create' | 'client_portal' | 'admin_portal' | 'client_db' | 'ai_diagnostics' | 'android_app'>('admin_portal');
 
   const handleSelectPlan = (plan: Plan) => {
@@ -87,9 +88,6 @@ export default function App() {
             {/* Interactive Broadband Speed Test Utility */}
             <SpeedTest onSelectPlan={handleSelectPlan} onOpenInquiry={handleOpenGeneralInquiry} />
 
-            {/* Frequently Asked Questions Section */}
-            <FaqSection />
-
             {/* Pricing & Packages */}
             <Pricing onSelectPlan={handleSelectPlan} />
 
@@ -109,14 +107,21 @@ export default function App() {
             />
           </main>
 
-          {/* Footer */}
+          {/* Footer with Quick Navigation FAQ trigger */}
           <Footer
             onOpenSupportTicket={handleOpenSupportTicket}
             onOpenClientPortal={() => setIsClientPortalOpen(true)}
+            onOpenFaq={() => setIsFaqModalOpen(true)}
           />
 
           {/* Floating Support Chat Widget */}
           <SupportChatWidget onOpenSupportTicket={() => setIsSupportTicketModalOpen(true)} />
+
+          {/* Frequently Asked Questions (FAQ) Modal */}
+          <FaqModal
+            isOpen={isFaqModalOpen}
+            onClose={() => setIsFaqModalOpen(false)}
+          />
 
           {/* Delta Client Portal, Excel Database & Marketing Analytics Modal */}
           <ClientPortalModal

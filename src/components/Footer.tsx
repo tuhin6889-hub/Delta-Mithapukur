@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Logo } from './Logo';
+import { FooterQrCodes } from './FooterQrCodes';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
 import { Phone, Mail, MapPin, ShieldCheck, Award, ExternalLink, Sparkles, Lock, Gauge, LifeBuoy, FileText, Send, Users, Globe } from 'lucide-react';
 import branchManagerImg from '../assets/images/branch_manager_photo_1785230421070.jpg';
@@ -8,9 +9,10 @@ import branchManagerImg from '../assets/images/branch_manager_photo_178523042107
 interface FooterProps {
   onOpenSupportTicket?: () => void;
   onOpenClientPortal?: () => void;
+  onOpenFaq?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClientPortal }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClientPortal, onOpenFaq }) => {
   return (
     <footer className="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -105,9 +107,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClien
                 </a>
               </li>
               <li>
-                <a href="#faq" className="hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={onOpenFaq}
+                  className="hover:text-blue-400 text-slate-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left focus:outline-none"
+                >
+                  <LifeBuoy className="h-3 w-3 text-blue-400" />
                   <span>FAQ & Help Center</span>
-                </a>
+                </button>
               </li>
               <li>
                 <a href="#referral" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-emerald-400/90 font-medium">
@@ -245,6 +252,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenSupportTicket, onOpenClien
           </div>
 
         </div>
+
+        {/* Quick Access QR Codes for Android App and WhatsApp Support */}
+        <FooterQrCodes />
 
         {/* Bottom Copyright & Social Media Links */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4 text-center md:text-left">
