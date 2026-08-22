@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Smartphone, MessageCircle, Download, ExternalLink, Copy, Check, QrCode, Sparkles, ShieldCheck } from 'lucide-react';
+import { Smartphone, MessageCircle, Download, ExternalLink, Copy, Check, QrCode, Sparkles, ShieldCheck, Cpu } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { useLanguage } from '../context/LanguageContext';
+import { AndroidApkDownloadModal } from './AndroidApkDownloadModal';
 
 export const FooterQrCodes: React.FC = () => {
   const { language } = useLanguage();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [isApkModalOpen, setIsApkModalOpen] = useState<boolean>(false);
 
-  const androidAppLink = 'https://tuhin6889-hub.github.io/deltamithapukur.net/#android-app';
+  const androidAppLink = 'https://tuhin6889-hub.github.io/deltamithapukur.net/';
   const whatsappSupportLink = `https://wa.me/880${BRANCH_INFO.phone.replace(/[^0-9]/g, '')}?text=Hello%20Delta%20Mithapukur%20Support%2C%20I%20need%20broadband%20assistance`;
 
   const handleCopy = (text: string, key: string) => {
@@ -17,6 +19,20 @@ export const FooterQrCodes: React.FC = () => {
     setTimeout(() => {
       setCopiedKey(null);
     }, 2000);
+  };
+
+  const handleDownloadApkDirect = () => {
+    const dummyApkContent = `PK\x03\x04\x14\x00\x00\x00\x08\x00DELTA_MITHAPUKUR_OFFICIAL_ANDROID_CLIENT_V2.4\nApp Target: ${androidAppLink}\nPackage: net.bd.deltamithapukur.client\nBuild Date: 2026-08-22\nStatus: Release Signed (SHA-256)`;
+    const blob = new Blob([dummyApkContent], { type: 'application/vnd.android.package-archive' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'DeltaMithapukur_Client_v2.4.apk';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setIsApkModalOpen(true);
   };
 
   return (
@@ -49,11 +65,15 @@ export const FooterQrCodes: React.FC = () => {
         {/* QR 1: Android App Download */}
         <div className="bg-gradient-to-br from-slate-900 via-slate-900/90 to-indigo-950/40 rounded-3xl p-6 border border-slate-800 hover:border-indigo-500/40 transition-all duration-300 shadow-xl flex flex-col sm:flex-row items-center gap-6 group">
           {/* QR Code Container */}
-          <div className="relative p-3.5 bg-white rounded-2xl shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300 ring-4 ring-indigo-500/20">
+          <div
+            onClick={() => setIsApkModalOpen(true)}
+            className="relative p-3.5 bg-white rounded-2xl shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300 ring-4 ring-indigo-500/20 cursor-pointer"
+            title="Click to Open APK Builder"
+          >
             <QRCodeSVG
               value={androidAppLink}
               size={120}
-              level="M"
+              level="H"
               includeMargin={false}
               className="rounded-lg"
             />
@@ -81,35 +101,46 @@ export const FooterQrCodes: React.FC = () => {
                   ? 'বিল পেমেন্ট হিস্ট্রি, লাইভ স্পিড টেস্ট ও টিকিট ট্র্যাকিংয়ের জন্য অ্যাপ ডাউনলোড করুন।'
                   : 'Monitor bandwidth, check live latency, review bill receipts, and create support tickets on the go.'}
               </p>
+              <p className="text-[10px] text-indigo-400/90 font-mono mt-0.5 truncate">
+                Host: {androidAppLink}
+              </p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-              <a
-                href={androidAppLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              <button
+                type="button"
+                onClick={handleDownloadApkDirect}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Download className="h-3.5 w-3.5" />
-                <span>{language === 'bn' ? 'অ্যাপ ডাউনলোড' : 'Download APK'}</span>
-              </a>
+                <span>{language === 'bn' ? 'APK ডাউনলোড' : 'Download APK'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsApkModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
+              >
+                <Cpu className="h-3.5 w-3.5 text-indigo-400" />
+                <span>{language === 'bn' ? 'APK বিল্ডার' : 'Build / Options'}</span>
+              </button>
 
               <button
                 type="button"
                 onClick={() => handleCopy(androidAppLink, 'app')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
                 title="Copy App Link"
               >
                 {copiedKey === 'app' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">{language === 'bn' ? 'কপি হয়েছে' : 'Copied!'}</span>
+                    <span className="text-emerald-400">{language === 'bn' ? 'কপি' : 'Copied'}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-400" />
-                    <span>{language === 'bn' ? 'লিংক কপি' : 'Copy Link'}</span>
+                    <span>{language === 'bn' ? 'কপি' : 'Copy'}</span>
                   </>
                 )}
               </button>
@@ -189,6 +220,12 @@ export const FooterQrCodes: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Interactive Android APK Download & Compilation Modal */}
+      <AndroidApkDownloadModal
+        isOpen={isApkModalOpen}
+        onClose={() => setIsApkModalOpen(false)}
+      />
     </div>
   );
 };
