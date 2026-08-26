@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Logo } from './Logo';
 import { Zap, ShieldCheck, Activity, MapPin, ArrowRight, CheckCircle2, Users } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
@@ -21,7 +22,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Main Hero Text Content */}
-          <div className="lg:col-span-7 text-center lg:text-left space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-7 text-center lg:text-left space-y-6"
+          >
             
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
               {t('hero_title_1')} <br className="hidden sm:inline" />
@@ -93,10 +99,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
                 <strong className="text-slate-200">{BRANCH_INFO.manager}</strong>
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Hero Card Showcase featuring Official Logo Badge */}
-          <div className="lg:col-span-5">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5"
+          >
             <div className="relative mx-auto max-w-md rounded-3xl bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700/80 p-6 sm:p-8 shadow-2xl">
               
               {/* Card Header with Official Logo */}
@@ -184,7 +195,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquiryModal }) => {
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>

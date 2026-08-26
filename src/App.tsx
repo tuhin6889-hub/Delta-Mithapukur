@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { TopPromoBanner } from './components/TopPromoBanner';
@@ -9,6 +10,7 @@ import { Services } from './components/Services';
 import { SpeedTest } from './components/SpeedTest';
 import { Pricing } from './components/Pricing';
 import { CoverageMap } from './components/CoverageMap';
+import { NetworkResilienceWidget } from './components/NetworkResilienceWidget';
 import { ReferralSection } from './components/ReferralSection';
 import { SuccessStories } from './components/SuccessStories';
 import { ContactSection } from './components/ContactSection';
@@ -19,11 +21,13 @@ import { SupportTicketModal } from './components/SupportTicketModal';
 import { FaqModal } from './components/FaqModal';
 import { AndroidApkDownloadModal } from './components/AndroidApkDownloadModal';
 import { UnifiedLoginPage } from './components/UnifiedLoginPage';
+import { ProfessionalDashboard } from './components/ProfessionalDashboard';
+import { BreadcrumbNav } from './components/BreadcrumbNav';
 import { Plan } from './types';
 import { X, Wifi } from 'lucide-react';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'login_portal' | 'public_website'>('login_portal');
+  const [currentView, setCurrentView] = useState<'public_website' | 'login_portal' | 'dashboard'>('public_website');
   const [authenticatedUser, setAuthenticatedUser] = useState<{ role: string; data?: any } | null>(null);
   const [selectedPlanForInquiry, setSelectedPlanForInquiry] = useState<Plan | null>(null);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
@@ -35,17 +39,15 @@ export default function App() {
 
   const handleLoginSuccess = (userRole: 'client' | 'staff' | 'manager' | 'guest', userData?: any) => {
     setAuthenticatedUser({ role: userRole, data: userData });
-    setCurrentView('public_website');
     
     if (userRole === 'client') {
+      setCurrentView('public_website');
       setSupportTicketTab('client_portal');
       setIsSupportTicketModalOpen(true);
-    } else if (userRole === 'staff') {
-      setSupportTicketTab('admin_portal');
-      setIsSupportTicketModalOpen(true);
-    } else if (userRole === 'manager') {
-      setSupportTicketTab('admin_portal');
-      setIsSupportTicketModalOpen(true);
+    } else if (userRole === 'staff' || userRole === 'manager') {
+      setCurrentView('dashboard');
+    } else {
+      setCurrentView('public_website');
     }
   };
 
@@ -83,9 +85,23 @@ export default function App() {
             onExplorePublicWebsite={() => setCurrentView('public_website')}
             onOpenSupportTicket={handleOpenSupportTicket}
             onOpenDownloadApk={() => setIsApkModalOpen(true)}
+            onOpenDashboard={() => setCurrentView('dashboard')}
+          />
+        ) : currentView === 'dashboard' ? (
+          <ProfessionalDashboard
+            onBackToWebsite={() => setCurrentView('public_website')}
+            onOpenSupportTicketModal={() => {
+              setSupportTicketTab('admin_portal');
+              setIsSupportTicketModalOpen(true);
+            }}
           />
         ) : (
-          <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200"
+          >
             {/* Dismissible Top Promotional & Maintenance Alert Banner */}
             <TopPromoBanner
               onClaimOffer={handleOpenGeneralInquiry}
@@ -103,6 +119,30 @@ export default function App() {
               onOpenSupportTicket={handleOpenSupportTicket}
               onOpenFastLogin={() => setCurrentView('login_portal')}
               onOpenDownloadApk={() => setIsApkModalOpen(true)}
+            />
+
+            {/* Dynamic Breadcrumb Navigation Bar */}
+            <BreadcrumbNav
+              currentView={currentView}
+              activeModal={
+                isClientPortalOpen ? 'client_portal' :
+                isSupportTicketModalOpen ? 'support_ticket' :
+                isApkModalOpen ? 'apk_download' :
+                isFaqModalOpen ? 'faq' : 'none'
+              }
+              supportTicketTab={supportTicketTab}
+              onNavigateHome={() => {
+                setIsClientPortalOpen(false);
+                setIsSupportTicketModalOpen(false);
+                setIsApkModalOpen(false);
+                setIsFaqModalOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onOpenClientPortal={() => setIsClientPortalOpen(true)}
+              onOpenSupportTicket={handleOpenSupportTicket}
+              onOpenFastLogin={() => setCurrentView('login_portal')}
+              onOpenDownloadApk={() => setIsApkModalOpen(true)}
+              onOpenFaq={() => setIsFaqModalOpen(true)}
             />
 
             <main>
@@ -123,6 +163,12 @@ export default function App() {
 
               {/* Mithapukur Interactive Coverage Map */}
               <CoverageMap />
+
+              {/* Mithapukur Network Resilience & Weather-Impact Monitor */}
+              <NetworkResilienceWidget
+                onOpenSupportTicket={handleOpenSupportTicket}
+                onOpenInquiry={handleOpenGeneralInquiry}
+              />
 
               {/* Refer a Neighbor Rewards Section */}
               <ReferralSection />
@@ -146,7 +192,7 @@ export default function App() {
 
             {/* Floating Support Chat Widget */}
             <SupportChatWidget onOpenSupportTicket={() => setIsSupportTicketModalOpen(true)} />
-          </div>
+          </motion.div>
         )}
 
         {/* Frequently Asked Questions (FAQ) Modal */}
@@ -159,6 +205,7 @@ export default function App() {
         <ClientPortalModal
           isOpen={isClientPortalOpen}
           onClose={() => setIsClientPortalOpen(false)}
+          onOpenDashboard={() => setCurrentView('dashboard')}
         />
 
         {/* Dedicated Mithapukur Support Ticket Portal Modal */}
@@ -168,6 +215,7 @@ export default function App() {
           initialTab={supportTicketTab}
           authenticatedUser={authenticatedUser}
           onRoleChange={(role) => setAuthenticatedUser(prev => ({ role, data: prev?.data }))}
+          onOpenDashboard={() => setCurrentView('dashboard')}
         />
 
         {/* Full Complete Android Client Support & Billing APK Modal */}

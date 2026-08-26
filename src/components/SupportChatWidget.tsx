@@ -151,8 +151,8 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
           {/* Subtle Outer Pulsing Halo */}
           <span className="absolute -inset-1 rounded-full bg-gradient-to-tr from-rose-500/40 via-red-500/20 to-amber-500/30 blur-md opacity-75 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 animate-pulse" />
 
-          {/* Icon Container with Circular Border and Backdrop */}
-          <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-rose-100 via-rose-50 to-red-100 p-1 shadow-2xl shadow-rose-900/50 border-2 border-white/80 flex items-center justify-center overflow-hidden">
+          {/* Icon Container with Circular Border, Glassmorphism, and Backdrop */}
+          <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-rose-100/95 via-rose-50/90 to-red-100/95 backdrop-blur-md p-1 shadow-2xl shadow-rose-950/50 border-2 border-white/80 flex items-center justify-center overflow-hidden">
             {isLauncherLoading ? (
               <div className="flex flex-col items-center justify-center gap-1">
                 <Loader2 className="h-6 w-6 text-rose-600 animate-spin" />
@@ -241,9 +241,9 @@ export const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ onOpenSupp
         </button>
       )}
 
-      {/* Expanded Support Chat Window */}
+      {/* Expanded Support Chat Window with Glassmorphism & Soft Drop Shadow */}
       {isOpen && (
-        <div className="w-[340px] sm:w-[380px] h-[520px] bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="w-[340px] sm:w-[380px] h-[520px] bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800/80 shadow-2xl shadow-black/50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           
           {/* Header Bar */}
           <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 px-4 py-3 border-b border-slate-800 flex flex-col gap-2">

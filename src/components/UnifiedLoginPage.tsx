@@ -24,25 +24,30 @@ import {
   FileText,
   CreditCard,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Home,
+  ChevronRight
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { useLanguage } from '../context/LanguageContext';
 import { BRANCH_INFO } from '../data/plans';
 import { NocTelemetryCharts } from './NocTelemetryCharts';
+import { LayoutDashboard } from 'lucide-react';
 
 interface UnifiedLoginPageProps {
   onLoginSuccess: (userRole: 'client' | 'staff' | 'manager' | 'guest', userData?: any) => void;
   onExplorePublicWebsite: () => void;
   onOpenSupportTicket: (tab?: 'fast_login' | 'create' | 'qr_ticket' | 'client_portal' | 'admin_portal' | 'noc_telemetry' | 'client_db' | 'ai_diagnostics' | 'android_app') => void;
   onOpenDownloadApk?: () => void;
+  onOpenDashboard?: () => void;
 }
 
 export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
   onLoginSuccess,
   onExplorePublicWebsite,
   onOpenSupportTicket,
-  onOpenDownloadApk
+  onOpenDownloadApk,
+  onOpenDashboard
 }) => {
   const { language } = useLanguage();
   // Strictly 3 portals: Branch Manager, NOC Center, Client Portal
@@ -189,9 +194,54 @@ export const UnifiedLoginPage: React.FC<UnifiedLoginPageProps> = ({
         </div>
       </header>
 
+      {/* Breadcrumb Navigation Bar */}
+      <nav aria-label="Breadcrumb" className="bg-slate-900/85 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-2 z-10 shadow-md shadow-black/20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs">
+          <ol className="flex items-center gap-1.5 font-medium">
+            <li>
+              <button
+                type="button"
+                onClick={onExplorePublicWebsite}
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
+              >
+                <Home className="h-3.5 w-3.5 text-blue-400" />
+                <span>{language === 'bn' ? 'হোম (মিঠাপুকুর শাখা)' : 'Home (Mithapukur)'}</span>
+              </button>
+            </li>
+            <li>
+              <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            </li>
+            <li>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 font-bold border border-indigo-500/20">
+                <Lock className="h-3.5 w-3.5 text-indigo-400" />
+                <span>{language === 'bn' ? 'লগইন পোর্টাল' : 'Unified Login Portal'}</span>
+              </span>
+            </li>
+            <li>
+              <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            </li>
+            <li>
+              <span className="text-slate-300 font-semibold uppercase text-[10px] tracking-wider px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+                {activeTab === 'client' ? (language === 'bn' ? 'গ্রাহক একাউন্ট' : 'Client Self-Care') :
+                 activeTab === 'noc' ? (language === 'bn' ? 'NOC টেলিকম কন্ট্রোল' : 'NOC Control') :
+                 (language === 'bn' ? 'ম্যানেজার কনসোল' : 'Branch Manager')}
+              </span>
+            </li>
+          </ol>
+
+          <button
+            type="button"
+            onClick={onExplorePublicWebsite}
+            className="text-[11px] text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
+          >
+            <span>← {language === 'bn' ? 'ওয়েবসাইটে ফিরুন' : 'Back to Website'}</span>
+          </button>
+        </div>
+      </nav>
+
       {/* Main Authentication Container */}
       <main className="flex-1 flex items-center justify-center p-3 sm:p-6 my-2 sm:my-4">
-        <div className={`w-full ${activeTab === 'noc' ? 'max-w-5xl' : 'max-w-2xl'} transition-all duration-300 bg-slate-900/95 border border-slate-800 rounded-3xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl relative`}>
+        <div className={`w-full ${activeTab === 'noc' ? 'max-w-5xl' : 'max-w-2xl'} transition-all duration-300 bg-slate-900/85 border border-slate-800/80 rounded-3xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl shadow-black/40 relative`}>
           
           {/* Main Title & Subtitle */}
           <div className="text-center space-y-1.5 mb-6">

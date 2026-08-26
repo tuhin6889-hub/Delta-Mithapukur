@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Wifi, Building2, Radio, Headset, CheckCircle, Award, ShieldCheck, Phone, Mail, Megaphone, HelpCircle, MessageCircle, MessageSquare, MessagesSquare, CheckCircle2, Server, MapPin } from 'lucide-react';
 import { ImageSideshow } from './ImageSideshow';
 import { BRANCH_INFO, OUR_TEAM } from '../data/plans';
@@ -167,7 +168,13 @@ export const Services: React.FC = () => {
 
         {/* Branch Key Leadership Cards */}
         <div className="my-12">
-          <div className="text-center max-w-xl mx-auto mb-8 space-y-1">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center max-w-xl mx-auto mb-8 space-y-1"
+          >
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
               Delta Mithapukur Branch Team
             </span>
@@ -177,15 +184,24 @@ export const Services: React.FC = () => {
             <p className="text-xs text-slate-400">
               Direct access to key officials managing operations, support, and marketing in Mithapukur.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {keyPersonnel.map((person, idx) => {
               const BadgeIcon = person.badgeIcon;
               return (
-                <div
+                <motion.div
                   key={idx}
-                  className={`p-6 rounded-3xl bg-gradient-to-b from-slate-900/95 via-slate-900 to-slate-950 border ${person.borderColor} shadow-2xl backdrop-blur-xl flex flex-col items-center text-center relative overflow-hidden group hover:-translate-y-1.5 transition-all duration-300`}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: idx * 0.1 }}
+                  whileHover={{ 
+                    y: -8, 
+                    scale: 1.02,
+                    transition: { duration: 0.25, ease: 'easeOut' }
+                  }}
+                  className={`p-6 rounded-3xl bg-gradient-to-b from-slate-900/95 via-slate-900 to-slate-950 border ${person.borderColor} shadow-2xl backdrop-blur-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300`}
                 >
                   {/* Subtle Background Glow */}
                   <div className="absolute -top-10 -right-10 w-36 h-36 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all" />
@@ -253,7 +269,7 @@ export const Services: React.FC = () => {
                           href={person.messenger}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 hover:border-blue-400 text-sky-300 font-bold transition-all text-[11px] shadow-sm"
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 hover:border-blue-400 text-sky-300 font-bold transition-all text-[11px] shadow-sm active:scale-95"
                           title="Direct Facebook Messenger Chat"
                         >
                           <MessageCircle className="h-3.5 w-3.5 text-sky-400 fill-sky-400/30" />
@@ -264,7 +280,7 @@ export const Services: React.FC = () => {
                           href={person.whatsapp ? `https://wa.me/88${person.whatsapp.replace(/[^0-9]/g, '')}` : `tel:${person.phone}`} 
                           target={person.whatsapp ? "_blank" : undefined}
                           rel={person.whatsapp ? "noopener noreferrer" : undefined}
-                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold transition-all text-[11px]"
+                          className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold transition-all text-[11px] active:scale-95"
                           title={person.whatsapp ? "Direct WhatsApp Chat" : "Call Phone"}
                         >
                           <MessageCircle className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400/20" />
@@ -274,14 +290,14 @@ export const Services: React.FC = () => {
 
                       <a 
                         href={`tel:${person.phone}`}
-                        className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold transition-all text-[11px]"
+                        className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-bold transition-all text-[11px] active:scale-95"
                       >
                         <Phone className="h-3.5 w-3.5 text-blue-400" />
                         <span>{person.phone}</span>
                       </a>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -289,7 +305,13 @@ export const Services: React.FC = () => {
 
         {/* All PoP In-Charge Officers Section */}
         <div className="my-16 bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 backdrop-blur-xl shadow-2xl">
-          <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center max-w-2xl mx-auto mb-8 space-y-2"
+          >
             <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-sky-400 bg-sky-500/10 px-3.5 py-1.5 rounded-full border border-sky-500/20">
               <Server className="h-3.5 w-3.5 text-sky-400" />
               <span>PoP In-Charge Officers</span>
@@ -300,13 +322,22 @@ export const Services: React.FC = () => {
             <p className="text-xs sm:text-sm text-slate-400">
               Dedicated officers responsible for core transmission, regional routing, and local sub-PoP distribution across Delta Mithapukur.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {popInCharges.map((pop, idx) => (
-              <div
+              <motion.div
                 key={idx}
-                className={`p-5 rounded-2xl bg-slate-950 border ${pop.borderColor} shadow-xl flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                whileHover={{ 
+                  y: -6, 
+                  scale: 1.02,
+                  transition: { duration: 0.2, ease: 'easeOut' }
+                }}
+                className={`p-5 rounded-2xl bg-slate-950 border ${pop.borderColor} shadow-xl flex flex-col justify-between relative group transition-colors duration-300`}
               >
                 <div>
                   {/* Top Header */}
@@ -363,26 +394,32 @@ export const Services: React.FC = () => {
                     href={`https://wa.me/88${pop.whatsapp.replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-[11px] transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-[11px] transition-all active:scale-95"
                   >
                     <MessageCircle className="h-3 w-3" />
                     <span>WhatsApp</span>
                   </a>
                   <a
                     href={`tel:${pop.phone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-[11px] transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-[11px] transition-all active:scale-95"
                   >
                     <Phone className="h-3 w-3 text-sky-400" />
                     <span>Call</span>
                   </a>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+          className="text-center max-w-3xl mx-auto space-y-3 mb-16"
+        >
           <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
             ISP Solutions
           </span>
@@ -392,20 +429,33 @@ export const Services: React.FC = () => {
           <p className="text-slate-400 text-sm sm:text-base">
             Tailored connectivity options engineered for residential homes, local commercial hubs, and corporate offices in Mithapukur.
           </p>
-        </div>
+        </motion.div>
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {servicesList.map((service, index) => {
             const IconComponent = service.icon;
             return (
-              <div
+              <motion.div
                 key={index}
-                className="group relative bg-slate-900/90 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1.5 shadow-xl"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeOut' }}
+                whileHover={{ 
+                  y: -8, 
+                  scale: 1.03,
+                  transition: { duration: 0.25, ease: 'easeOut' }
+                }}
+                className="group relative bg-slate-900/90 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/60 shadow-xl hover:shadow-[0_15px_35px_rgba(59,130,246,0.2)] transition-colors duration-300 cursor-default"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/15 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 mb-6">
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+                  transition={{ duration: 0.3 }}
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/15 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 mb-6 shadow-sm"
+                >
                   <IconComponent className="h-7 w-7" />
-                </div>
+                </motion.div>
 
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">
                   {service.title}
@@ -423,7 +473,7 @@ export const Services: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             );
           })}
         </div>

@@ -61,7 +61,8 @@ import {
   Globe,
   Eye,
   EyeOff,
-  BarChart3
+  BarChart3,
+  LayoutDashboard
 } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { useLanguage } from '../context/LanguageContext';
@@ -98,6 +99,7 @@ interface SupportTicketModalProps {
   initialTab?: TabType;
   authenticatedUser?: { role: string; data?: any } | null;
   onRoleChange?: (role: UserRole) => void;
+  onOpenDashboard?: () => void;
 }
 
 export const ROLE_ALLOWED_TABS: Record<UserRole, TabType[]> = {
@@ -464,7 +466,8 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
   initialCategory = '',
   initialTab,
   authenticatedUser,
-  onRoleChange
+  onRoleChange,
+  onOpenDashboard
 }) => {
   const { t, language } = useLanguage();
 
@@ -1817,6 +1820,21 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
               <ShieldCheck className="h-3 w-3" />
               <span>Manager</span>
             </button>
+
+            {sessionRole === 'manager' && onOpenDashboard && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenDashboard();
+                }}
+                className="px-2.5 py-1 rounded-lg font-black text-xs bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-sm border border-cyan-400/40 transition-all cursor-pointer flex items-center gap-1 shrink-0 ml-1"
+                title="Open Professional NOC & Manager Command Dashboard"
+              >
+                <LayoutDashboard className="h-3 w-3 text-cyan-200" />
+                <span className="hidden sm:inline">📊 Pro Dashboard</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -2159,6 +2177,22 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                         </div>
                         <ChevronRight className="h-4 w-4" />
                       </button>
+
+                      {onOpenDashboard && (
+                        <button
+                          onClick={() => {
+                            onClose();
+                            onOpenDashboard();
+                          }}
+                          className="sm:col-span-2 p-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black text-xs rounded-xl shadow-lg flex items-center justify-between cursor-pointer border border-cyan-400/40"
+                        >
+                          <div className="flex items-center gap-2">
+                            <LayoutDashboard className="h-4 w-4 text-cyan-200" />
+                            <span>📊 Launch Professional NOC & Managerial Command Dashboard</span>
+                          </div>
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -3274,6 +3308,20 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       <span>Client Database</span>
                     </button>
 
+                    {onOpenDashboard && (
+                      <button
+                        onClick={() => {
+                          onClose();
+                          onOpenDashboard();
+                        }}
+                        className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/20 border border-cyan-400/40"
+                        title="Open Professional NOC & Manager Command Dashboard"
+                      >
+                        <LayoutDashboard className="h-3.5 w-3.5 text-cyan-200" />
+                        <span>📊 Pro Dashboard</span>
+                      </button>
+                    )}
+
                     <button
                       onClick={() => setIsAdminLoggedIn(false)}
                       className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1 cursor-pointer"
@@ -4343,6 +4391,20 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                     >
                       <UserPlus className="h-4 w-4" />
                       <span>Add New Client</span>
+                    </button>
+                  )}
+
+                  {onOpenDashboard && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onOpenDashboard();
+                      }}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center gap-1.5 cursor-pointer border border-blue-400/40"
+                      title="Open Professional NOC & Manager Command Dashboard"
+                    >
+                      <LayoutDashboard className="h-3.5 w-3.5 text-cyan-300" />
+                      <span>📊 Pro Command Dashboard</span>
                     </button>
                   )}
                 </div>

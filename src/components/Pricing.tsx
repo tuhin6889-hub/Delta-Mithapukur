@@ -138,19 +138,30 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-                className={`relative flex flex-col justify-between rounded-3xl bg-slate-950/95 backdrop-blur-xl border transition-all duration-300 ${theme.borderColor} ${theme.glowShadow} hover:-translate-y-2 group cursor-default overflow-hidden shadow-2xl p-5 pt-8`}
+                whileHover={{ 
+                  y: -10, 
+                  scale: 1.03,
+                  transition: { duration: 0.25, ease: 'easeOut' }
+                }}
+                className={`relative flex flex-col justify-between rounded-3xl bg-slate-950/95 backdrop-blur-xl border transition-colors duration-300 ${theme.borderColor} ${theme.glowShadow} group cursor-default overflow-hidden shadow-2xl p-5 pt-8`}
               >
                 {/* Popular Top Badge */}
                 {plan.popular && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-slate-950 text-[9px] font-black px-2.5 py-0.5 rounded-full shadow-lg shadow-amber-500/20 flex items-center gap-1 uppercase tracking-wider z-20 border border-amber-300/60">
+                  <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    className="absolute top-2 right-2 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-slate-950 text-[9px] font-black px-2.5 py-0.5 rounded-full shadow-lg shadow-amber-500/20 flex items-center gap-1 uppercase tracking-wider z-20 border border-amber-300/60"
+                  >
                     <Sparkles className="h-2.5 w-2.5 fill-slate-950 animate-spin-slow" /> Popular
-                  </div>
+                  </motion.div>
                 )}
 
                 <div>
                   {/* Folded 3D Speed Ribbon Flag (Matching Poster Design) */}
                   <div className="absolute -top-1 -left-1 z-20">
-                    <div className={`relative px-4 py-2 bg-gradient-to-r ${theme.ribbonBg} text-white font-black rounded-br-2xl shadow-xl flex items-center gap-1.5 border-b border-r border-white/20 transition-transform duration-300 group-hover:scale-105`}>
+                    <motion.div 
+                      whileHover={{ scale: 1.08 }}
+                      className={`relative px-4 py-2 bg-gradient-to-r ${theme.ribbonBg} text-white font-black rounded-br-2xl shadow-xl flex items-center gap-1.5 border-b border-r border-white/20 transition-transform duration-300`}
+                    >
                       {/* Shimmer Light effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                       
@@ -161,29 +172,33 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                       <span className="text-xs font-black uppercase tracking-wider text-white/95">
                         Mbps
                       </span>
-                    </div>
+                    </motion.div>
                     {/* Folded Shadow triangle underneath ribbon */}
                     <div className={`w-2.5 h-2.5 ${theme.ribbonFoldBg} opacity-80 shadow-md transform rotate-45 -mt-1 ml-0.5`} />
                   </div>
 
                   {/* Plan Name Header */}
                   <div className="text-center mt-7 mb-3">
-                    <h3 className="text-lg sm:text-xl font-black text-white tracking-widest uppercase group-hover:scale-105 transition-transform duration-200">
+                    <h3 className="text-lg sm:text-xl font-black text-white tracking-widest uppercase group-hover:text-blue-300 transition-colors duration-200">
                       {plan.name}
                     </h3>
                   </div>
 
                   {/* Oval Shadowed Price Pill (Matching Poster Design) */}
-                  <div className={`mx-auto my-3 px-4 py-2.5 rounded-full border shadow-lg text-center backdrop-blur-md max-w-[190px] ${theme.priceBadgeBorder} group-hover:scale-105 transition-transform duration-200`}>
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                    className={`mx-auto my-3 px-4 py-2.5 rounded-full border shadow-lg text-center backdrop-blur-md max-w-[190px] ${theme.priceBadgeBorder}`}
+                  >
                     <div className="flex items-center justify-center gap-1 font-mono font-black">
                       <span className="text-sm font-bold">৳</span>
                       <span className="text-2xl sm:text-3xl font-black text-white">{plan.priceBdt}</span>
                       <span className="text-xs font-bold text-slate-300 uppercase">/MONTH</span>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Feature Checklist Box */}
-                  <div className="my-4 p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/90">
+                  <div className="my-4 p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/90 group-hover:border-slate-700/90 transition-colors">
                     <ul className="space-y-2.5 text-xs sm:text-sm text-slate-200">
                       {plan.features.map((feature, idx) => (
                         <li key={idx} className="flex items-center gap-2">
@@ -203,13 +218,16 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                   </p>
 
                   {/* Angled Ribbon BUY NOW Button (Matching Poster Ribbon Button) */}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
                     onClick={() => onSelectPlan(plan)}
-                    className={`w-full py-3 px-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all duration-300 shadow-xl cursor-pointer transform active:scale-95 group/btn uppercase tracking-wider ${theme.btnBg}`}
+                    className={`w-full py-3 px-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all duration-300 shadow-xl cursor-pointer group/btn uppercase tracking-wider ${theme.btnBg}`}
                   >
                     <span>BUY NOW</span>
                     <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1.5 transition-transform" />
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             );
@@ -222,7 +240,12 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mt-12 relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-blue-500/30 shadow-[0_10px_40px_rgba(59,130,246,0.15)] hover:shadow-[0_15px_50px_rgba(59,130,246,0.25)] hover:border-blue-400/50 transition-all duration-300 overflow-hidden group"
+          whileHover={{ 
+            y: -4, 
+            scale: 1.01,
+            transition: { duration: 0.25 }
+          }}
+          className="mt-12 relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-blue-500/30 shadow-[0_10px_40px_rgba(59,130,246,0.15)] hover:shadow-[0_15px_50px_rgba(59,130,246,0.25)] hover:border-blue-400/50 transition-colors duration-300 overflow-hidden group"
         >
           {/* Animated Background Shimmer Glow */}
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-emerald-500/20 to-purple-600/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-500 pointer-events-none" />

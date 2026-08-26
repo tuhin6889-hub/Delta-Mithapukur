@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
-import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink, Smartphone } from 'lucide-react';
+import { Phone, Menu, X, Wifi, ShieldCheck, Gauge, Sparkles, ArrowRight, Tag, LogIn, UserPlus, LifeBuoy, ExternalLink, Smartphone, CloudRain } from 'lucide-react';
 import { BRANCH_INFO } from '../data/plans';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -176,6 +176,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             <a href="#coverage" className="text-sm font-semibold text-slate-200 hover:text-blue-400 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(59,130,246,0.85)]">
               {t('nav_coverage')}
             </a>
+            <a href="#network-resilience" className="text-sm font-semibold text-sky-400 hover:text-sky-300 inline-block transition-all duration-200 hover:scale-105 flex items-center gap-1 hover:[text-shadow:0_0_12px_rgba(56,189,248,0.85)]">
+              <CloudRain className="h-3.5 w-3.5" />
+              {t('nav_resilience')}
+            </a>
             <a href="#referral" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 inline-block transition-all duration-200 hover:scale-105 hover:[text-shadow:0_0_12px_rgba(52,211,153,0.85)]">
               {t('nav_referral')}
             </a>
@@ -330,6 +334,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenInquiryModal, onOpenClient
             className="block px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
           >
             {t('nav_coverage')}
+          </a>
+          <a
+            href="#network-resilience"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-2 text-sm font-medium text-sky-400 hover:bg-slate-800 rounded-lg flex items-center gap-2"
+          >
+            <CloudRain className="h-4 w-4" />
+            {t('nav_resilience')}
           </a>
           <a
             href="#referral"

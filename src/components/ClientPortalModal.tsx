@@ -64,7 +64,8 @@ import {
   Copy,
   Sliders,
   Radio,
-  Waves
+  Waves,
+  LayoutDashboard
 } from 'lucide-react';
 
 import { useBiometricAuth } from '../hooks/useBiometricAuth';
@@ -101,6 +102,7 @@ interface ClientPortalModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultTab?: 'database' | 'analytics' | 'marketing' | 'simulator';
+  onOpenDashboard?: () => void;
 }
 
 const PLAN_OPTIONS = [
@@ -128,7 +130,8 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'
 export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
   isOpen,
   onClose,
-  defaultTab = 'database'
+  defaultTab = 'database',
+  onOpenDashboard
 }) => {
   const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'database' | 'analytics' | 'marketing' | 'simulator' | 'usage'>(defaultTab);
@@ -1075,6 +1078,21 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {onOpenDashboard && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenDashboard();
+                }}
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 border border-blue-400/40"
+                title="Open Professional NOC & Managerial Command Dashboard"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5 stroke-[2.5] text-cyan-300" />
+                <span>{language === 'bn' ? '📊 প্রফেশনাল ড্যাশবোর্ড' : '📊 Pro Command Dashboard'}</span>
+              </button>
+            )}
+
             {isAdminAuthenticated && (
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-xs font-bold">
@@ -1217,6 +1235,20 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                     <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
                     <span>{language === 'bn' ? 'এক-ক্লিকে টেস্ট এক্সেস (admin / admin)' : 'One-Click Demo Manager (admin / admin)'}</span>
                   </button>
+
+                  {onOpenDashboard && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onOpenDashboard();
+                      }}
+                      className="w-full py-2 sm:py-2.5 bg-gradient-to-r from-blue-900/70 via-indigo-900/70 to-cyan-900/70 hover:from-blue-800 hover:to-cyan-800 text-cyan-200 hover:text-white font-black text-xs rounded-xl border border-cyan-500/40 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-md"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-cyan-300" />
+                      <span>{language === 'bn' ? '📊 প্রফেশনাল কমান্ড ড্যাশবোর্ড ওপেন করুন' : '📊 Open Pro NOC & Manager Dashboard'}</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Modern WebAuthn Biometric & Fingerprint Section (Strict 1 Finger Limit) */}
@@ -1640,6 +1672,20 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
               Bandwidth Chart
             </span>
           </button>
+
+          {onOpenDashboard && (
+            <button
+              onClick={() => {
+                onClose();
+                onOpenDashboard();
+              }}
+              className="ml-auto my-auto flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-black rounded-xl shadow-md border border-cyan-400/40 cursor-pointer whitespace-nowrap shrink-0 transition-transform hover:scale-[1.02]"
+              title="Open Professional NOC & Manager Command Dashboard"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5 text-cyan-200" />
+              <span>📊 Pro Command Dashboard</span>
+            </button>
+          )}
         </div>
 
         {/* Modal Content Body */}
